@@ -25,9 +25,10 @@ TG_ID = get_env('TELEGRAM_CHAT_ID')
 WBNB_ADDR = w3.to_checksum_address("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
 USDT_ADDR = w3.to_checksum_address("0x55d398326f99059fF775485246999027B3197955")
 
-# --- 📜 ABIs ---
+# --- 📜 ABIs CORREGIDOS ---
 ABI_ROUTER = '[{"inputs":[{"internalType":"uint256","name":"amountIn","type":"uint256"},{"internalType":"address[]","name":"path","type":"address[]"}],"name":"getAmountsOut","outputs":[{"internalType":"uint256[]","name":"amounts","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
-ABI_ASTRALIX = '[{"inputs":[{"internalType":"address","name":"routerCompra","type":"address"},{"internalType":"address","name":"routerVenta","type":"address"},{"internalType":"address","name":"tokenBase","type":"address"},{"internalType":"address","name":"tokenArbitraje","type":"address"},{"internalType":"uint256","name":"montoInversion","type":"uint256"}],"name":"ejecutarArbitraje","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"retirarToken","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
+# Se corrigió "retirarToken" por "retirarTokens" en el ABI
+ABI_ASTRALIX = '[{"inputs":[{"internalType":"address","name":"routerCompra","type":"address"},{"internalType":"address","name":"routerVenta","type":"address"},{"internalType":"address","name":"tokenBase","type":"address"},{"internalType":"address","name":"tokenArbitraje","type":"address"},{"internalType":"uint256","name":"montoInversion","type":"uint256"}],"name":"ejecutarArbitraje","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"retirarTokens","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}]'
 
 # --- 📡 LOS 45 OBJETIVOS ---
@@ -102,7 +103,8 @@ def ejecutar_retiro():
     notify("💰 *Iniciando retiro automático...*")
     try:
         c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_ASTRALIX)
-        tx = c.functions.retirarToken(WBNB_ADDR).build_transaction({
+        # ACÁ ESTÁ EL CAMBIO PRINCIPAL: retirarTokens
+        tx = c.functions.retirarTokens(WBNB_ADDR).build_transaction({
             'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
             'gas': 120000, 'gasPrice': w3.eth.gas_price
         })
