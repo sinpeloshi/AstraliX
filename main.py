@@ -4,43 +4,47 @@ import requests
 from web3 import Web3
 
 # --- 🛰️ CONEXIÓN AL NODO ---
-# Usamos el nodo público de Binance Smart Chain
 RPC_URL = "https://bsc-dataseed.binance.org/"
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 
-# --- 🧹 LIMPIADOR DE VARIABLES (Evita errores de espacios) ---
+# --- 🧹 LIMPIADOR DE VARIABLES ---
 def get_env(label):
     val = os.environ.get(label, "").strip()
     return val
 
 # --- ⚙️ CONFIGURACIÓN DE COMBATE ---
-# Tu capital exacto en WBNB
 CAPITAL_WBNB = 0.039588494902596519 
 PROFIT_MIN_USD = 0.02               
 GAS_LIMIT = 600000 
 FILTRO_RADAR = -0.30
 
-# Variables que vas a cargar en Railway (Secrets)
-CONTRATO_ADDR = w3.to_checksum_address(get_env('DIRECCION_CONTRATO'))
-MI_BILLETERA = w3.to_checksum_address(get_env('MI_BILLETERA'))
-PRIV_KEY = get_env('PRIVATE_KEY')
-TG_TOKEN = get_env('TELEGRAM_TOKEN')
-TG_ID = get_env('TELEGRAM_CHAT_ID')
-
-# Direcciones Base
+# Direcciones Base (Checksum forzadas)
 WBNB_ADDR = w3.to_checksum_address("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
 USDT_ADDR = w3.to_checksum_address("0x55d398326f99059fF775485246999027B3197955")
 
-# --- 📱 FUNCIÓN NOTIFICACIÓN TELEGRAM ---
+# Carga de Variables de Railway
+try:
+    CONTRATO_ADDR = w3.to_checksum_address(get_env('DIRECCION_CONTRATO'))
+    MI_BILLETERA = w3.to_checksum_address(get_env('MI_BILLETERA'))
+    PRIV_KEY = get_env('PRIVATE_KEY')
+    TG_TOKEN = get_env('TELEGRAM_TOKEN')
+    TG_ID = get_env('TELEGRAM_CHAT_ID')
+except Exception as e:
+    print(f"❌ Error cargando variables: {e}")
+
+# --- 📱 FUNCIÓN NOTIFICACIÓN (MODO DEBUG) ---
 def notify(msg):
+    print(f"DEBUG: {msg}") # También lo imprime en los logs de Railway
     if TG_TOKEN and TG_ID:
         url = f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage?chat_id={TG_ID}&text={msg}"
         try:
-            requests.get(url, timeout=5)
-        except:
-            pass
+            r = requests.get(url, timeout=5)
+            if r.status_code != 200:
+                print(f"❌ Error de Telegram: {r.text}")
+        except Exception as e:
+            print(f"❌ Fallo de conexión Telegram: {e}")
 
-# 📡 ESCUADRÓN DE 40+ OBJETIVOS (LISTA ACTUALIZADA)
+# 📡 LOS 45 OBJETIVOS (LISTA PULIDA)
 TOKENS = {
     "USDT":  "0x55d398326f99059fF775485246999027B3197955", "ETH": "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
     "BABY":  "0xc748673057861a797275CD8A068AbB95A902e8de", "FLOKI": "0xfb5b838b6cfeedc2873ab27866079ac55363d37e",
@@ -64,15 +68,11 @@ TOKENS = {
     "TWT":   "0x4b0f1812e5df2a09796481ff14017e6005508003", "SOL":   "0x570a5d26f7765ecb712c0924e4de545b89fd1460"
 }
 
-DEXs = {
-    "Pancake": "0x10ED43C718714eb63d5aA57B78B54704E256024E",
-    "Biswap":  "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"
-}
+DEXs = {"Pancake": "0x10ED43C718714eb63d5aA57B78B54704E256024E", "Biswap": "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"}
 
 ABI_ASTRALIX = '[{"inputs":[{"internalType":"address","name":"routerCompra","type":"address"},{"internalType":"address","name":"routerVenta","type":"address"},{"internalType":"address","name":"tokenBase","type":"address"},{"internalType":"address","name":"tokenArbitraje","type":"address"},{"internalType":"uint256","name":"montoInversion","type":"uint256"}],"name":"ejecutarArbitraje","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 ABI_ROUTER = '[{"inputs":[{"internalType":"uint256","name":"amountIn","type":"uint256"},{"internalType":"address[]","name":"path","type":"address[]"}],"name":"getAmountsOut","outputs":[{"internalType":"uint256[]","name":"amounts","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
 
-# --- 🛠️ FUNCIONES ---
 def get_price(router, amount_in, path):
     contract = w3.eth.contract(address=w3.to_checksum_address(router), abi=ABI_ROUTER)
     try:
@@ -82,26 +82,21 @@ def get_price(router, amount_in, path):
         return 0
 
 def execute_strike(r_compra, r_venta, t_addr, t_nombre, profit_usd):
-    notify(f"🎯 DISPARANDO A {t_nombre} | Profit: ${profit_usd:.3f}")
+    notify(f"🎯 EJECUTANDO: {t_nombre} | Profit Est: ${profit_usd:.2f}")
     try:
         contrato = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_ASTRALIX)
-        # Construir transacción
         tx = contrato.functions.ejecutarArbitraje(
-            w3.to_checksum_address(r_compra), 
-            w3.to_checksum_address(r_venta),
-            WBNB_ADDR, 
-            w3.to_checksum_address(t_addr), 
-            w3.to_wei(CAPITAL_WBNB, 'ether')
+            w3.to_checksum_address(r_compra), w3.to_checksum_address(r_venta),
+            WBNB_ADDR, w3.to_checksum_address(t_addr), w3.to_wei(CAPITAL_WBNB, 'ether')
         ).build_transaction({
             'from': MI_BILLETERA,
             'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
             'gas': GAS_LIMIT,
             'gasPrice': w3.eth.gas_price
         })
-        # Firmar y enviar
         signed = w3.eth.account.sign_transaction(tx, PRIV_KEY)
         tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
-        notify(f"✅ ¡ORDEN ENVIADA! Hash: {w3.to_hex(tx_hash)}")
+        notify(f"✅ ¡DISPARO ENVIADO! Hash: {w3.to_hex(tx_hash)}")
     except Exception as e:
         notify(f"🛡️ BLOQUEO / ERROR: {e}")
 
@@ -117,7 +112,6 @@ while True:
             for n1, a1 in DEXs.items():
                 for n2, a2 in DEXs.items():
                     if n1 == n2: continue
-                    
                     p1 = get_price(a1, CAPITAL_WBNB, [WBNB_ADDR, t_addr])
                     if p1 == 0: continue
                     p2 = get_price(a2, p1, [t_addr, WBNB_ADDR])
@@ -126,11 +120,10 @@ while True:
                     
                     if neto > PROFIT_MIN_USD:
                         execute_strike(a1, a2, t_addr, t_name, neto)
-                        time.sleep(30) # Pausa tras disparo
+                        time.sleep(30)
                     elif neto > FILTRO_RADAR: 
-                        print(f"🎯 {t_name:<5} | N: ${neto:.3f}")
-        
-        time.sleep(1) # Respiro para el nodo
+                        print(f"🎯 {t_name:<5} | Neto: ${neto:.3f}")
+        time.sleep(1)
     except Exception as e:
         print(f"Error Loop: {e}")
         time.sleep(10)
