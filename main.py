@@ -10,7 +10,7 @@ w3 = Web3(Web3.HTTPProvider(RPC_URL))
 def get_env(label):
     return os.environ.get(label, "").strip()
 
-# --- ⚙️ CONFIGURACIÓN SNIPER (MODO BOMBA) ---
+# --- ⚙️ CONFIGURACIÓN SNIPER ---
 CAPITAL_WBNB = 0.039588494902596519 
 PROFIT_MIN_USD = 0.01      
 GAS_LIMIT = 400000         
@@ -29,6 +29,11 @@ USDT_ADDR = w3.to_checksum_address("0x55d398326f99059fF775485246999027B3197955")
 ABI_ROUTER = '[{"inputs":[{"internalType":"uint256","name":"amountIn","type":"uint256"},{"internalType":"address[]","name":"path","type":"address[]"}],"name":"getAmountsOut","outputs":[{"internalType":"uint256[]","name":"amounts","type":"uint256[]"}],"stateMutability":"view","type":"function"}]'
 ABI_ASTRALIX = '[{"inputs":[{"internalType":"address","name":"routerCompra","type":"address"},{"internalType":"address","name":"routerVenta","type":"address"},{"internalType":"address","name":"tokenBase","type":"address"},{"internalType":"address","name":"tokenArbitraje","type":"address"},{"internalType":"uint256","name":"montoInversion","type":"uint256"}],"name":"ejecutarArbitraje","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"token","type":"address"}],"name":"retirarTokens","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}]'
+
+# --- 📊 ESTADÍSTICAS GLOBALES DE COMBATE ---
+total_disparos = 0
+disparos_exitosos = 0
+profit_total_wbnb = 0.0
 
 # --- 📡 ESCUADRÓN DE 40 OBJETIVOS ---
 TOKENS = {
@@ -54,7 +59,6 @@ TOKENS = {
     "BSHIB": "0xb8ebd245a2a117e4d2de08bb9d0a3b75ea8e784f", "KSHIB": "0xc34d8a7c4e8f8e3f5d2c9b0b7c8a3d5f7a9e8c1b"
 }
 
-# --- 🔄 OMNI-DEX (6 GIGANTES DE BSC) ---
 DEXs = {
     "Pancake":  "0x10ED43C718714eb63d5aA57B78B54704E256024E", 
     "Biswap":   "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8",
@@ -78,7 +82,7 @@ def notify(msg, buttons=False):
     except: pass
 
 def check_commands():
-    global last_update_id
+    global last_update_id, total_disparos, disparos_exitosos, profit_total_wbnb
     url = f"https://api.telegram.org/bot{TG_TOKEN}/getUpdates?offset={last_update_id + 1}"
     try:
         r = requests.get(url, timeout=5).json()
@@ -89,7 +93,12 @@ def check_commands():
             if str(m.get("from", {}).get("id", "")) != TG_ID: continue
 
             if txt == "/status":
-                notify(f"🛰️ *AstraliX:* OMNI-DEX Activado.\n⚡ Rutas: {len(TOKENS) * len(DEXs) * (len(DEXs)-1)}", buttons=True)
+                msg = (f"🛰️ *AstraliX:* OMNI-DEX Activo\n"
+                       f"⚡ Rutas Escaneadas: {len(TOKENS) * len(DEXs) * (len(DEXs)-1)}\n"
+                       f"🎯 Intentos de Disparo: {total_disparos}\n"
+                       f"✅ Disparos Exitosos: {disparos_exitosos}\n"
+                       f"💰 *Profit Total Real:* +{profit_total_wbnb:.6f} WBNB")
+                notify(msg, buttons=True)
             elif txt == "/balance":
                 c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
                 b = w3.from_wei(c.functions.balanceOf(CONTRATO_ADDR).call(), 'ether')
@@ -116,28 +125,56 @@ def ejecutar_retiro():
         notify(f"✅ *Éxito!*\nHash: {w3.to_hex(h)}")
     except Exception as e: notify(f"❌ *Fallo:* {str(e)[:100]}")
 
-# --- 🛠️ MOTOR DE DISPARO ---
+# --- 🛠️ MOTOR DE DISPARO CON CÁLCULO REAL ---
 def get_price(router, amount, path):
     c = w3.eth.contract(address=w3.to_checksum_address(router), abi=ABI_ROUTER)
     try: return w3.from_wei(c.functions.getAmountsOut(w3.to_wei(amount, 'ether'), path).call()[-1], 'ether')
     except: return 0
 
-def execute_strike(r1, r2, t_addr, t_name, n1, n2, profit):
-    notify(f"🎯 *DISPARANDO:* {t_name}\n🔄 Ruta: {n1} ➡️ {n2}\n💵 Profit Estimado: ${profit:.2f}")
+def execute_strike(r1, r2, t_addr, t_name, n1, n2, profit_est):
+    global total_disparos, disparos_exitosos, profit_total_wbnb
+    
+    total_disparos += 1
+    notify(f"🎯 *DISPARANDO:* {t_name}\n🔄 {n1} ➡️ {n2}\n💵 Estimado: ${profit_est:.2f}")
+    
     try:
+        # 1. Miramos el saldo ANTES de disparar
+        c_wbnb = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
+        saldo_antes = c_wbnb.functions.balanceOf(CONTRATO_ADDR).call()
+
+        # 2. Mandamos la transacción
         c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_ASTRALIX)
         tx = c.functions.ejecutarArbitraje(r1, r2, WBNB_ADDR, t_addr, w3.to_wei(CAPITAL_WBNB, 'ether')).build_transaction({
             'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
             'gas': GAS_LIMIT, 'gasPrice': w3.eth.gas_price
         })
         s = w3.eth.account.sign_transaction(tx, PRIV_KEY)
-        h = w3.eth.send_raw_transaction(s.raw_transaction)
-        notify(f"🚀 *GATILLADO:* {w3.to_hex(h)}")
-    except Exception as e: notify(f"🛡️ *Fallo en Contrato/Red:* {e}")
+        tx_hash = w3.eth.send_raw_transaction(s.raw_transaction)
+        
+        # 3. Esperamos que Binance mine el bloque (tarda unos 3 a 5 segundos)
+        receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
+        
+        # 4. Verificamos si la red la aprobó (status 1 = Éxito)
+        if receipt.status == 1:
+            saldo_despues = c_wbnb.functions.balanceOf(CONTRATO_ADDR).call()
+            ganancia_wei = saldo_despues - saldo_antes
+            
+            if ganancia_wei > 0:
+                ganancia_wbnb = float(w3.from_wei(ganancia_wei, 'ether'))
+                profit_total_wbnb += ganancia_wbnb
+                disparos_exitosos += 1
+                notify(f"✅ *¡PROFIT CAPTURADO!*\n💰 Real: +{ganancia_wbnb:.5f} WBNB\nHash: {w3.to_hex(tx_hash)}")
+            else:
+                notify(f"⚠️ *EJECUTADO (Sin Ganancia Neta)*\nEl gas se comió el margen.\nHash: {w3.to_hex(tx_hash)}")
+        else:
+            notify(f"🛡️ *REVERTIDO (Escudo Activo)*\nEl contrato nos salvó de perder plata.\nHash: {w3.to_hex(tx_hash)}")
+            
+    except Exception as e: 
+        notify(f"❌ *Fallo de Red:* {str(e)[:100]}")
 
 # --- INICIO ---
 timer_10m = time.time()
-notify("🚀 *AstraliX OMNI-DEX Online* - Que explote todo.", buttons=True)
+notify("🚀 *AstraliX OMNI-DEX Online*\nSistema de Estadísticas Cargado.", buttons=True)
 
 while True:
     check_commands()
@@ -173,5 +210,4 @@ while True:
                         time.sleep(30)
         ultimos_datos = temp_radar
     except Exception as e: 
-        # Si Binance nos patea por preguntar mucho, frena 5 segundos y vuelve a la carga
         time.sleep(5)
