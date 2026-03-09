@@ -10,11 +10,11 @@ w3 = Web3(Web3.HTTPProvider(RPC_URL))
 def get_env(label):
     return os.environ.get(label, "").strip()
 
-# --- ⚙️ CONFIGURACIÓN SNIPER (MODO AGRESIVO) ---
+# --- ⚙️ CONFIGURACIÓN SNIPER (MODO BOMBA) ---
 CAPITAL_WBNB = 0.039588494902596519 
-PROFIT_MIN_USD = 0.01      # Dispara a partir de 1 centavo limpio
-GAS_LIMIT = 400000         # Gas ajustado a la realidad de BSC (Sin miedo)
-FILTRO_RADAR = -0.15       # Radar más sensible
+PROFIT_MIN_USD = 0.01      
+GAS_LIMIT = 400000         
+FILTRO_RADAR = -0.15       
 
 CONTRATO_ADDR = w3.to_checksum_address(get_env('DIRECCION_CONTRATO'))
 MI_BILLETERA = w3.to_checksum_address(get_env('MI_BILLETERA'))
@@ -37,7 +37,7 @@ TOKENS = {
     "4MEME": "0x0a43fc31a73013089df59194872ecae4cae14444", "BABY":  "0xc748673057861a797275CD8A068AbB95A902e8de",
     "FLOKI": "0xfb5b838b6cfeedc2873ab27866079ac55363d37e", "PEPE":  "0x25d887ce7335150ad2744d010c836a31940e7010",
     "BOB":   "0x51363f073b1e4920fda7aa9e9d84ba97ede1560e", "BOME":  "0x43a85b67a2f5f24f74d758f50c00000000000000",
-    "SLERF": "0x6f6f... (BSC version)", "REKT":  "0x20482b0b4d9d8f60d3ab432b92f4c4b901a0d10c",
+    "SLERF": "0x6f6f... (Reemplazar BSC version)", "REKT":  "0x20482b0b4d9d8f60d3ab432b92f4c4b901a0d10c",
     "CATE":  "0x118f073796821da3e9901061b05c0b36377b877e", "PIT":   "0xa57ac35ce91ee92caefaa8dc04140c8e232c2e50",
     "KISHU": "0xa2b4c0af19cc16a6cfacce81f192b024d625817d", "POODL": "0x23396cf899ca06c4472205fc903bdb4de249d6fc",
     "SMI":   "0xcd7492db29e2ab436e819b249452ee1bbdf52214", "BOSS":  "0x04b2e8227f8b9c8d5b9c6d44f7d409775888b859",
@@ -50,11 +50,19 @@ TOKENS = {
     "XRP":   "0x1d2f0da169ceb247c7b4442785b00c6d3714b6d3", "DOT":   "0x7083609fce4d1d8dc0c979aab8c869ea2c873402",
     "LINK":  "0xf8a0bf9cf54bb92f17374d9e9a321e6a111a51bd", "UNI":   "0xbf513a9366e61f592750e82c5053066444444444",
     "MATIC": "0xcc42724c6683b7e57334c4e856f4c9965ed682bd", "SHIB":  "0x2859e4544c4bb03966803b044a72d188207f223c",
-    "AIDOG": "0x309a... (AIDoge BSC)", "CRAZY": "0x11791e8a593bc1e1fbcB406DEaE5F8c71f85B60F",
+    "AIDOG": "0x309a... (Reemplazar BSC)", "CRAZY": "0x11791e8a593bc1e1fbcB406DEaE5F8c71f85B60F",
     "BSHIB": "0xb8ebd245a2a117e4d2de08bb9d0a3b75ea8e784f", "KSHIB": "0xc34d8a7c4e8f8e3f5d2c9b0b7c8a3d5f7a9e8c1b"
 }
 
-DEXs = {"Pancake": "0x10ED43C718714eb63d5aA57B78B54704E256024E", "Biswap": "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8"}
+# --- 🔄 OMNI-DEX (6 GIGANTES DE BSC) ---
+DEXs = {
+    "Pancake":  "0x10ED43C718714eb63d5aA57B78B54704E256024E", 
+    "Biswap":   "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8",
+    "ApeSwap":  "0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7",
+    "BabyDoge": "0xc82819F72A9e77E2c0c3A69B3196478f44303cf4",
+    "MDEX":     "0x7DAe51BD3E3376B8c7c4900E9107f12Be3AF1bA8",
+    "Knight":   "0x05E61E0cDcD2170a76F9568a110CEe3AFdD6c46f"
+}
 
 ultimos_datos = []
 last_update_id = 0
@@ -81,13 +89,13 @@ def check_commands():
             if str(m.get("from", {}).get("id", "")) != TG_ID: continue
 
             if txt == "/status":
-                notify("🛰️ *AstraliX:* Modo Sniper Activado.\n⚡ Listo para gatillar.", buttons=True)
+                notify(f"🛰️ *AstraliX:* OMNI-DEX Activado.\n⚡ Rutas: {len(TOKENS) * len(DEXs) * (len(DEXs)-1)}", buttons=True)
             elif txt == "/balance":
                 c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
                 b = w3.from_wei(c.functions.balanceOf(CONTRATO_ADDR).call(), 'ether')
                 notify(f"🏦 *Capital:* {b:.6f} WBNB", buttons=True)
             elif txt == "/radar":
-                msg = "📡 *Radar de Oportunidades*\n" + "═"*20 + "\n"
+                msg = "📡 *Mejores Rutas Actuales*\n" + "═"*20 + "\n"
                 for item in sorted(ultimos_datos, key=lambda x: x[1], reverse=True)[:5]:
                     msg += f"🔸 *{item[0]}:* ${item[1]:.3f}\n"
                 notify(msg if ultimos_datos else "Buscando sangre...", buttons=True)
@@ -114,8 +122,8 @@ def get_price(router, amount, path):
     try: return w3.from_wei(c.functions.getAmountsOut(w3.to_wei(amount, 'ether'), path).call()[-1], 'ether')
     except: return 0
 
-def execute_strike(r1, r2, t_addr, t_name, profit):
-    notify(f"🎯 *DISPARANDO:* {t_name} | Profit Estimado: ${profit:.2f}")
+def execute_strike(r1, r2, t_addr, t_name, n1, n2, profit):
+    notify(f"🎯 *DISPARANDO:* {t_name}\n🔄 Ruta: {n1} ➡️ {n2}\n💵 Profit Estimado: ${profit:.2f}")
     try:
         c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_ASTRALIX)
         tx = c.functions.ejecutarArbitraje(r1, r2, WBNB_ADDR, t_addr, w3.to_wei(CAPITAL_WBNB, 'ether')).build_transaction({
@@ -125,26 +133,24 @@ def execute_strike(r1, r2, t_addr, t_name, profit):
         s = w3.eth.account.sign_transaction(tx, PRIV_KEY)
         h = w3.eth.send_raw_transaction(s.raw_transaction)
         notify(f"🚀 *GATILLADO:* {w3.to_hex(h)}")
-    except Exception as e: notify(f"🛡️ *Fallo de Red:* {e}")
+    except Exception as e: notify(f"🛡️ *Fallo en Contrato/Red:* {e}")
 
 # --- INICIO ---
 timer_10m = time.time()
-notify("🚀 *AstraliX SNIPER Online* - A ganar, socio.", buttons=True)
+notify("🚀 *AstraliX OMNI-DEX Online* - Que explote todo.", buttons=True)
 
 while True:
     check_commands()
     if time.time() - timer_10m > 600:
         try:
             p_bnb = float(get_price(DEXs["Pancake"], 1, [WBNB_ADDR, USDT_ADDR]))
-            notify(f"⏱️ *Reporte:* Todo OK.\nBNB: ${p_bnb:.2f}")
+            notify(f"⏱️ *Reporte Omni-DEX:* Operativo.\nBNB: ${p_bnb:.2f}")
         except: pass
         timer_10m = time.time()
 
     temp_radar = []
     try:
         p_bnb = float(get_price(DEXs["Pancake"], 1, [WBNB_ADDR, USDT_ADDR]))
-        
-        # EL PRECIO DEL GAS SE LEE AQUÍ EN TIEMPO REAL DESDE LA RED BSC
         gas_usd = float(w3.from_wei(w3.eth.gas_price * GAS_LIMIT, 'ether')) * p_bnb
 
         for name, addr in TOKENS.items():
@@ -155,15 +161,17 @@ while True:
                     if p1 == 0: continue
                     p2 = get_price(a2, p1, [addr, WBNB_ADDR])
                     
-                    # CÁLCULO NETO EXACTO CON EL GAS DE ESE MILISEGUNDO
                     neto = (float(p2) - CAPITAL_WBNB) * p_bnb - gas_usd
                     
-                    if neto > FILTRO_RADAR: 
-                        temp_radar.append((name, neto))
-                        print(f"📡 Objetivo: {name:<5} | Profit Neto: ${neto:.3f}")
+                    if neto > FILTRO_RADAR:
+                        ruta = f"{n1}->{n2}"
+                        temp_radar.append((f"{name} ({ruta})", neto))
+                        print(f"📡 {ruta:<18} | {name:<5} | Profit Neto: ${neto:.3f}")
                     
                     if neto > PROFIT_MIN_USD:
-                        execute_strike(a1, a2, addr, name, neto)
-                        time.sleep(30) # Pausa de recarga después de disparar
+                        execute_strike(a1, a2, addr, name, n1, n2, neto)
+                        time.sleep(30)
         ultimos_datos = temp_radar
-    except: time.sleep(5)
+    except Exception as e: 
+        # Si Binance nos patea por preguntar mucho, frena 5 segundos y vuelve a la carga
+        time.sleep(5)
