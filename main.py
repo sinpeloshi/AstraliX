@@ -51,9 +51,9 @@ def execute_strike(target_token):
         apex_c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
         monto = w3.to_wei(CAPITAL_SNIPER, 'ether')
 
-        # --- FIX V4.1: SINTAXIS CORRECTA PARA ENCODE_ABI ---
-        p_app = wbnb_c.encode_abi(fn_name="approve", args=[PANCAKE_ROUTER, monto])
-        p_swp = router_c.encode_abi(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[monto, 0, [WBNB_ADDR, target_token], CONTRATO_ADDR, int(time.time()) + 120])
+        # --- FIX V4.2: SINTAXIS DIRECTA SIN "fn_name=" ---
+        p_app = wbnb_c.encode_abi("approve", args=[PANCAKE_ROUTER, monto])
+        p_swp = router_c.encode_abi("swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[monto, 0, [WBNB_ADDR, target_token], CONTRATO_ADDR, int(time.time()) + 120])
         
         tx = apex_c.functions.apexStrike(
             [WBNB_ADDR, PANCAKE_ROUTER], 
@@ -72,8 +72,8 @@ def execute_strike(target_token):
         # --- VENTA ---
         bal = meme_c.functions.balanceOf(CONTRATO_ADDR).call()
         if bal > 0:
-            p_app_s = meme_c.encode_abi(fn_name="approve", args=[PANCAKE_ROUTER, bal])
-            p_swp_s = router_c.encode_abi(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[bal, 0, [target_token, WBNB_ADDR], CONTRATO_ADDR, int(time.time()) + 120])
+            p_app_s = meme_c.encode_abi("approve", args=[PANCAKE_ROUTER, bal])
+            p_swp_s = router_c.encode_abi("swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[bal, 0, [target_token, WBNB_ADDR], CONTRATO_ADDR, int(time.time()) + 120])
             
             tx_s = apex_c.functions.apexStrike(
                 [target_token, PANCAKE_ROUTER], 
@@ -103,10 +103,10 @@ def scan(last_b):
     except Exception as e:
         return w3.eth.block_number
 
-print("🚀 Motor TrenchBot V4.1 (Gatillo Destrabado) Iniciando...")
+print("🚀 Motor TrenchBot V4.2 (Gatillo de Pelo) Iniciando...")
 if w3.is_connected():
     last_block = w3.eth.block_number
-    notify("💰 *TRENCHBOT V4.1 ONLINE*")
+    notify("💰 *TRENCHBOT V4.2 ONLINE*")
     timer_hb = time.time()
     while True:
         try:
