@@ -3,20 +3,20 @@ import time
 import requests
 from web3 import Web3
 
-print("⏳ Iniciando motor TRENCHBOT V2 (Hit & Run Auto-Venta)...")
+print("⏳ Iniciando motor TRENCHBOT V2.1 (Hit & Run Blindado)...")
 
 # --- 🛰️ CONEXIÓN ---
 RPC_URL = "https://bsc-dataseed.binance.org/"
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 
 if w3.is_connected():
-    print("✅ Conectado a la BSC")
+    print("✅ Conectado a la BSC (Nodo Público)")
 
 # --- ⚙️ CONFIGURACIÓN DE ATAQUE ---
-CAPITAL_SNIPER = 0.015            # WBNB a usar por disparo
-TIEMPO_ESPERA_VENTA = 15          # Segundos a esperar antes de vender y asegurar ganancia
+CAPITAL_SNIPER = 0.015            
+TIEMPO_ESPERA_VENTA = 15          
 GAS_LIMIT = 500000                
-MINER_BRIBE = 0                   # Propina al minero
+MINER_BRIBE = 0                   
 
 # --- 🔑 IDENTIDAD ---
 CONTRATO_ADDR = w3.to_checksum_address("0xF44f4D75Efc8d60d9383319D1C69553A1201bE28")
@@ -57,7 +57,7 @@ def check_commands():
             last_update_id = u["update_id"]
             txt = u.get("message", {}).get("text", "")
             if txt == "/status": 
-                notify("🛰️ *TrenchBot V2 Activo*\nModo: Compra y Auto-Venta (15s)", buttons=True)
+                notify("🛰️ *TrenchBot V2.1 Activo*\nRadar Inmune a cortes. Auto-Venta (15s).", buttons=True)
             elif txt == "/balance":
                 try:
                     c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
@@ -82,7 +82,8 @@ def ejecutar_rescate(token_addr):
     except Exception as e: notify(f"❌ *Fallo al retirar:* {str(e)[:50]}")
 
 def es_honeypot(token_addr):
-    try: return requests.get(f"https://api.honeypot.is/v2/?address={token_addr}", timeout=3).json().get("honeypotResult", {}).get("isHoneypot", True)
+    # API corregida para evitar falsos positivos
+    try: return requests.get(f"https://api.honeypot.is/v2/IsHoneypot?address={token_addr}", timeout=3).json().get("honeypotResult", {}).get("isHoneypot", True)
     except: return True
 
 # --- 🎯 GATILLO HIT & RUN ---
@@ -130,14 +131,13 @@ def execute_hit_and_run(target_token):
                 [w3.to_bytes(hexstr=p_approve_sell), w3.to_bytes(hexstr=p_swap_sell)],
                 [0, 0], MINER_BRIBE
             ).build_transaction({
-                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), # Nuevo nonce
+                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
                 'gas': GAS_LIMIT, 'gasPrice': int(w3.eth.gas_price * 1.5)
             })
             
             hash_sell = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_sell, PRIV_KEY).raw_transaction)
             notify(f"💰 *¡VENTA COMPLETADA!* \nWBNB devueltos al contrato.\nHash: {w3.to_hex(hash_sell)}")
             
-            # Mostrar el nuevo balance
             time.sleep(3)
             nuevo_balance = w3.from_wei(wbnb_contract.functions.balanceOf(CONTRATO_ADDR).call(), 'ether')
             notify(f"🏦 *Nuevo Capital:* {nuevo_balance:.6f} WBNB")
@@ -151,7 +151,9 @@ def scan_all(last_block):
     now_block = w3.eth.block_number
     if now_block > last_block:
         try:
-            for ev in w3.eth.contract(address=PANCAKE_FACTORY, abi=ABI_FACTORY).events.PairCreated.create_filter(fromBlock=last_block+1, toBlock=now_block).get_all_entries():
+            # FIX: get_logs es 100% seguro en nodos públicos
+            event_filter = w3.eth.contract(address=PANCAKE_FACTORY, abi=ABI_FACTORY).events.PairCreated.get_logs(fromBlock=last_block+1, toBlock=now_block)
+            for ev in event_filter:
                 t = ev.args.token1 if ev.args.token0 == WBNB_ADDR else (ev.args.token0 if ev.args.token1 == WBNB_ADDR else None)
                 if t:
                     print(f"💎 Posible Graduación detectada: {t}")
@@ -165,7 +167,7 @@ def scan_all(last_block):
 print("🚀 Motor TrenchBot encendido...")
 try:
     last_block = w3.eth.block_number
-    notify("💰 *TRENCHBOT V2 ONLINE*\nConectado a ApexTrenchBot. Listo para Auto-Venta.", buttons=True)
+    notify("💰 *TRENCHBOT V2.1 ONLINE*\nConectado a ApexTrenchBot. Listo para disparar.", buttons=True)
 
     while True:
         check_commands()
