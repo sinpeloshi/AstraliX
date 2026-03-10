@@ -3,14 +3,13 @@ import requests
 from web3 import Web3
 
 # --- 🛰️ CONEXIÓN HTTP (ROBUSTA Y SIN FILTROS) ---
-# Volvemos a tu QuickNode que es rapidísimo para leer bloques
 HTTP_URL = "https://solemn-orbital-thunder.bsc.quiknode.pro/70d0d80f07303278accd2349e2fc01c95018d18c/"
 w3 = Web3(Web3.HTTPProvider(HTTP_URL))
 
 # --- 🧨 CONFIGURACIÓN DE COMBATE ---
 CAPITAL_SNIPER = 0.005 # BNB
-GAS_MULTIPLIER = 3.0   # Gas agresivo para el bloque siguiente
-TARGET_PROFIT = 1.15   # 15% de ganancia
+GAS_MULTIPLIER = 3.0   
+TARGET_PROFIT = 1.15   
 
 # --- 🎯 OBJETIVO FIJO (Four.meme) ---
 FOUR_MEME_MANAGER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
@@ -42,7 +41,7 @@ def get_current_value(token_addr, amount_in):
     except: return 0
 
 def execute_sell(token_addr):
-    print(f"💥 ¡PROFIT DETECTADO! SALIENDO DEL TOKEN...")
+    print(f"💥 ¡PROFIT DETECTADO! SALIENDO DEL TOKEN...", flush=True)
     try:
         meme_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
         router_c = w3.eth.contract(address=PANCAKE_ROUTER, abi=ABI_ROUTER)
@@ -58,7 +57,7 @@ def execute_sell(token_addr):
             w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
             notify("💰 *¡BOOM! VENTA EJECUTADA (15% PROFIT)*")
             return True
-    except Exception as e: print(f"❌ Error Venta: {e}")
+    except Exception as e: print(f"❌ Error Venta: {e}", flush=True)
     return False
 
 def monitor_and_sell(token_addr, monto_invertido):
@@ -78,7 +77,7 @@ def monitor_and_sell(token_addr, monto_invertido):
 
 def fire_strike(tx_input):
     token_to_buy = "0x" + tx_input[34:74] if len(tx_input) > 74 else "0xTOKEN_NUEVO"
-    print(f"🧨 ¡OBJETIVO FIJADO! LANZANDO ATAQUE A: {token_to_buy}")
+    print(f"🧨 ¡OBJETIVO FIJADO! LANZANDO ATAQUE A: {token_to_buy}", flush=True)
     notify(f"🚀 *¡GATILLO ACCIONADO!* Entrando al nuevo token de Four.meme...")
 
     try:
@@ -91,41 +90,48 @@ def fire_strike(tx_input):
         })
         
         w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
-        print("✅ Transacción inyectada en la red.")
+        print("✅ Transacción inyectada en la red.", flush=True)
         monitor_and_sell(token_to_buy, monto)
         
     except Exception as e: 
-        print(f"❌ Impacto fallido: {e}")
+        print(f"❌ Impacto fallido: {e}", flush=True)
         notify("❌ *FALLO EN EL IMPACTO.* Gas insuficiente o error de red.")
 
 def scan_blocks():
-    print("☢️ AstraliX V12 Realista: Escaneando bloques confirmados...")
-    last_block = w3.eth.block_number
+    print("☢️ AstraliX V12.1 Realista: Iniciando escáner...", flush=True)
+    try:
+        last_block = w3.eth.block_number
+        print(f"✅ Conectado a la red. Arrancando en el bloque: {last_block}", flush=True)
+    except Exception as e:
+        print(f"❌ Error crítico al conectar con el nodo: {e}", flush=True)
+        return
     
     while True:
         try:
             current_block = w3.eth.block_number
             if current_block > last_block:
+                print(f"⏳ Descargando Bloque {current_block}...", flush=True)
+                
                 # Descargamos el bloque entero con todas sus transacciones
                 block_data = w3.eth.get_block(current_block, full_transactions=True)
-                print(f"🔎 Analizando Bloque {current_block} ({len(block_data.transactions)} TXs)")
+                print(f"🔎 Analizando Bloque {current_block} ({len(block_data.transactions)} TXs)", flush=True)
                 
                 for tx in block_data.transactions:
-                    # Buscamos si la TX va a Four.meme y si es la función de crear
                     if tx.to and tx.to.lower() == FOUR_MEME_MANAGER.lower():
                         if tx.input.startswith(CREATE_METHOD_ID):
-                            print("\n🚨 ¡CREACIÓN DETECTADA EN BLOQUE CONFIRMADO!")
+                            print("\n🚨 ¡CREACIÓN DETECTADA EN BLOQUE CONFIRMADO!", flush=True)
                             fire_strike(tx.input)
                 
                 last_block = current_block
             time.sleep(1) # BSC crea un bloque cada 3 segundos aprox
         except Exception as e:
+            print(f"⚠️ Error de lectura (Nodo estrangulado): {e}. Reintentando...", flush=True)
             time.sleep(2)
 
 if __name__ == "__main__":
-    print("🧨 INICIANDO ASTRALIX V12 (MODO REALISTA)...")
+    print("🧨 INICIANDO ASTRALIX V12.1 (MODO REALISTA)...", flush=True)
     if w3.is_connected():
-        notify("☢️ *ASTRALIX V12 ONLINE*\nEscaneo de bloques activado. Buscando lanzamientos en Four.meme.")
+        notify("☢️ *ASTRALIX V12.1 ONLINE*\nEscaneo de bloques activado y purgado.")
         scan_blocks()
     else:
-        print("❌ Error conectando a QuickNode. Revisá la URL.")
+        print("❌ Error conectando a QuickNode. Revisá la URL.", flush=True)
