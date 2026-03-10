@@ -3,7 +3,7 @@ import time
 import requests
 from web3 import Web3
 
-# --- 🛰️ CONEXIÓN ---
+# --- 🛰️ CONEXIÓN1 ---
 RPC_URL = "https://bsc-dataseed.binance.org/"
 w3 = Web3(Web3.HTTPProvider(RPC_URL))
 
