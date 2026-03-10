@@ -3,7 +3,7 @@ import time
 import requests
 from web3 import Web3
 
-print("⏳ Iniciando motor TRENCHBOT V1 (Apex Executor)...")
+print("⏳ Iniciando motor TRENCHBOT V2 (Hit & Run Auto-Venta)...")
 
 # --- 🛰️ CONEXIÓN ---
 RPC_URL = "https://bsc-dataseed.binance.org/"
@@ -13,15 +13,14 @@ if w3.is_connected():
     print("✅ Conectado a la BSC")
 
 # --- ⚙️ CONFIGURACIÓN DE ATAQUE ---
-CAPITAL_SNIPER = 0.015            # WBNB a usar por cada disparo
+CAPITAL_SNIPER = 0.015            # WBNB a usar por disparo
+TIEMPO_ESPERA_VENTA = 15          # Segundos a esperar antes de vender y asegurar ganancia
 GAS_LIMIT = 500000                
-MINER_BRIBE = 0                   # Propina al minero en Wei (0 por ahora)
+MINER_BRIBE = 0                   # Propina al minero
 
 # --- 🔑 IDENTIDAD ---
-# Tu nueva máquina de guerra ApexTrenchBot
 CONTRATO_ADDR = w3.to_checksum_address("0xF44f4D75Efc8d60d9383319D1C69553A1201bE28")
 MI_BILLETERA = w3.to_checksum_address(os.environ.get('MI_BILLETERA', '0xTuBilleteraAqui').strip())
-# Tu clave privada autorizada
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
 
 TG_TOKEN = os.environ.get('TELEGRAM_TOKEN', '').strip()
@@ -31,7 +30,7 @@ WBNB_ADDR = w3.to_checksum_address("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
 PANCAKE_FACTORY = w3.to_checksum_address("0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73")
 PANCAKE_ROUTER = w3.to_checksum_address("0x10ED43C718714eb63d5aA57B78B54704E256024E")
 
-# --- 📜 ABIs NECESARIOS ---
+# --- 📜 ABIs ---
 ABI_ROUTER = '[{"inputs":[{"internalType":"uint256","name":"amountIn","type":"uint256"},{"internalType":"uint256","name":"amountOutMin","type":"uint256"},{"internalType":"address[]","name":"path","type":"address[]"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"deadline","type":"uint256"}],"name":"swapExactTokensForTokensSupportingFeeOnTransferTokens","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]'
 ABI_FACTORY = '[{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"token0","type":"address"},{"indexed":true,"internalType":"address","name":"token1","type":"address"},{"indexed":false,"internalType":"address","name":"pair","type":"address"},{"indexed":false,"internalType":"uint256","name":"","type":"uint256"}],"name":"PairCreated","type":"event"}]'
@@ -58,14 +57,13 @@ def check_commands():
             last_update_id = u["update_id"]
             txt = u.get("message", {}).get("text", "")
             if txt == "/status": 
-                notify("🛰️ *TrenchBot V1 Activo*\nEsperando graduaciones de GraFun/Four.meme a PancakeSwap.", buttons=True)
+                notify("🛰️ *TrenchBot V2 Activo*\nModo: Compra y Auto-Venta (15s)", buttons=True)
             elif txt == "/balance":
                 try:
                     c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
                     b = w3.from_wei(c.functions.balanceOf(CONTRATO_ADDR).call(), 'ether')
-                    notify(f"🏦 *Munición en el Cañón:* {b:.6f} WBNB", buttons=True)
-                except Exception as e:
-                    notify(f"❌ Error leyendo saldo: {e}")
+                    notify(f"🏦 *Munición:* {b:.6f} WBNB", buttons=True)
+                except: pass
             elif txt == "/retiro_wbnb":
                 ejecutar_rescate(WBNB_ADDR)
     except: pass
@@ -81,55 +79,74 @@ def ejecutar_rescate(token_addr):
         s = w3.eth.account.sign_transaction(tx, PRIV_KEY)
         h = w3.eth.send_raw_transaction(s.raw_transaction)
         notify(f"✅ *Barrido Exitoso!*\nHash: {w3.to_hex(h)}")
-    except Exception as e: notify(f"❌ *Fallo al retirar:* {str(e)[:100]}")
+    except Exception as e: notify(f"❌ *Fallo al retirar:* {str(e)[:50]}")
 
-# --- 🔍 MÓDULO DE SEGURIDAD ---
 def es_honeypot(token_addr):
     try: return requests.get(f"https://api.honeypot.is/v2/?address={token_addr}", timeout=3).json().get("honeypotResult", {}).get("isHoneypot", True)
     except: return True
 
-# --- 🎯 GATILLO ATÓMICO (APEX STRIKE) ---
-def execute_atomic_snipe(target_token):
-    notify(f"🚀 *OBJETIVO DETECTADO:* `{target_token}`\nArmando misil atómico...")
+# --- 🎯 GATILLO HIT & RUN ---
+def execute_hit_and_run(target_token):
+    notify(f"🚀 *OBJETIVO DETECTADO:* `{target_token}`\nArmando misil de COMPRA...")
     
     try:
-        # Preparamos las herramientas
         wbnb_contract = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
+        target_contract = w3.eth.contract(address=target_token, abi=ABI_ERC20)
         router_contract = w3.eth.contract(address=PANCAKE_ROUTER, abi=ABI_ROUTER)
         apex_contract = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
         
         monto_inversion = w3.to_wei(CAPITAL_SNIPER, 'ether')
         
-        # 1. Empaquetamos el "Approve" (Permitimos que PancakeSwap gaste nuestro WBNB)
-        payload_approve = wbnb_contract.encodeABI(fn_name="approve", args=[PANCAKE_ROUTER, monto_inversion])
+        # --- FASE 1: COMPRA ATÓMICA ---
+        p_approve_buy = wbnb_contract.encodeABI(fn_name="approve", args=[PANCAKE_ROUTER, monto_inversion])
+        p_swap_buy = router_contract.encodeABI(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[monto_inversion, 0, [WBNB_ADDR, target_token], CONTRATO_ADDR, int(time.time()) + 120])
         
-        # 2. Empaquetamos el "Swap" (Compramos el token meme con WBNB)
-        deadline = int(time.time()) + 120
-        path = [WBNB_ADDR, target_token]
-        # to=CONTRATO_ADDR porque el token lo recibe tu contrato de asalto
-        payload_swap = router_contract.encodeABI(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[monto_inversion, 0, path, CONTRATO_ADDR, deadline])
-        
-        # 3. Armamos la matriz del Multicall Atómico
-        targets = [WBNB_ADDR, PANCAKE_ROUTER]
-        payloads = [w3.to_bytes(hexstr=payload_approve), w3.to_bytes(hexstr=payload_swap)]
-        values = [0, 0] # 0 porque estamos usando WBNB, no BNB nativo
-        
-        # Disparamos
-        tx = apex_contract.functions.apexStrike(targets, payloads, values, MINER_BRIBE).build_transaction({
-            'from': MI_BILLETERA,
-            'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
-            'gas': GAS_LIMIT,
-            'gasPrice': int(w3.eth.gas_price * 1.5) # Subimos un poco el gas para pasar al frente
+        tx_buy = apex_contract.functions.apexStrike(
+            [WBNB_ADDR, PANCAKE_ROUTER],
+            [w3.to_bytes(hexstr=p_approve_buy), w3.to_bytes(hexstr=p_swap_buy)],
+            [0, 0], MINER_BRIBE
+        ).build_transaction({
+            'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
+            'gas': GAS_LIMIT, 'gasPrice': int(w3.eth.gas_price * 1.5)
         })
         
-        s_tx = w3.eth.account.sign_transaction(tx, PRIV_KEY)
-        h = w3.eth.send_raw_transaction(s_tx.raw_transaction)
-        notify(f"🎯 *¡STRIKE ATÓMICO ENVIADO!*\nHash: {w3.to_hex(h)}\nEsperando confirmación...")
+        hash_buy = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
+        w3.eth.wait_for_transaction_receipt(hash_buy, timeout=60)
+        notify(f"🛒 *COMPRA EXITOSA!* Esperando {TIEMPO_ESPERA_VENTA} segundos para asegurar ganancia...")
         
-    except Exception as e:
-        notify(f"❌ *ERROR EN EL DISPARO:* {str(e)[:50]}")
+        # --- FASE 2: ESPERA ESTRATÉGICA ---
+        time.sleep(TIEMPO_ESPERA_VENTA)
+        
+        # --- FASE 3: AUTO-VENTA ATÓMICA ---
+        notify("💥 *INICIANDO AUTO-VENTA (DUMP)...*")
+        balance_meme = target_contract.functions.balanceOf(CONTRATO_ADDR).call()
+        
+        if balance_meme > 0:
+            p_approve_sell = target_contract.encodeABI(fn_name="approve", args=[PANCAKE_ROUTER, balance_meme])
+            p_swap_sell = router_contract.encodeABI(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[balance_meme, 0, [target_token, WBNB_ADDR], CONTRATO_ADDR, int(time.time()) + 120])
+            
+            tx_sell = apex_contract.functions.apexStrike(
+                [target_token, PANCAKE_ROUTER],
+                [w3.to_bytes(hexstr=p_approve_sell), w3.to_bytes(hexstr=p_swap_sell)],
+                [0, 0], MINER_BRIBE
+            ).build_transaction({
+                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), # Nuevo nonce
+                'gas': GAS_LIMIT, 'gasPrice': int(w3.eth.gas_price * 1.5)
+            })
+            
+            hash_sell = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_sell, PRIV_KEY).raw_transaction)
+            notify(f"💰 *¡VENTA COMPLETADA!* \nWBNB devueltos al contrato.\nHash: {w3.to_hex(hash_sell)}")
+            
+            # Mostrar el nuevo balance
+            time.sleep(3)
+            nuevo_balance = w3.from_wei(wbnb_contract.functions.balanceOf(CONTRATO_ADDR).call(), 'ether')
+            notify(f"🏦 *Nuevo Capital:* {nuevo_balance:.6f} WBNB")
+        else:
+            notify("⚠️ Error: El contrato no recibió los tokens de la compra.")
 
-# --- 🏗️ MOTOR DE BÚSQUEDA ---
+    except Exception as e:
+        notify(f"❌ *ERROR EN EL HIT & RUN:* {str(e)[:70]}")
+
 def scan_all(last_block):
     now_block = w3.eth.block_number
     if now_block > last_block:
@@ -137,20 +154,18 @@ def scan_all(last_block):
             for ev in w3.eth.contract(address=PANCAKE_FACTORY, abi=ABI_FACTORY).events.PairCreated.create_filter(fromBlock=last_block+1, toBlock=now_block).get_all_entries():
                 t = ev.args.token1 if ev.args.token0 == WBNB_ADDR else (ev.args.token0 if ev.args.token1 == WBNB_ADDR else None)
                 if t:
-                    print(f"💎 Posible Graduación: {t}")
+                    print(f"💎 Posible Graduación detectada: {t}")
                     if not es_honeypot(t):
-                        execute_atomic_snipe(t)
-                        return now_block # Pausamos el escaneo tras disparar
+                        execute_hit_and_run(t)
                     else:
-                        print("🛡️ Estafa detectada y evadida.")
+                        print("🛡️ Estafa evadida.")
         except: pass
     return now_block
 
-# --- 🔥 INICIO ---
 print("🚀 Motor TrenchBot encendido...")
 try:
     last_block = w3.eth.block_number
-    notify("💰 *TRENCHBOT V1 ONLINE*\nConectado a ApexTrenchBot.", buttons=True)
+    notify("💰 *TRENCHBOT V2 ONLINE*\nConectado a ApexTrenchBot. Listo para Auto-Venta.", buttons=True)
 
     while True:
         check_commands()
