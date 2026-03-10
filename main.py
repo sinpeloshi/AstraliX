@@ -42,15 +42,45 @@ def es_honeypot(token_addr):
     except: return True
 
 def execute_hit_and_run(target_token):
-    print(f"🎯 ¡OBJETIVO DETECTADO! -> {target_token}")
+    print(f"🎯 OBJETIVO ENCONTRADO: {target_token}")
     notify(f"🚀 *OBJETIVO DETECTADO:* `{target_token}`")
-    # ... (lógica de compra/venta igual que antes para no romper lo que funciona)
+    try:
+        wbnb_contract = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
+        target_contract = w3.eth.contract(address=target_token, abi=ABI_ERC20)
+        router_contract = w3.eth.contract(address=PANCAKE_ROUTER, abi=ABI_ROUTER)
+        apex_contract = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
+        monto = w3.to_wei(CAPITAL_SNIPER, 'ether')
+
+        p_app = wbnb_contract.encodeABI(fn_name="approve", args=[PANCAKE_ROUTER, monto])
+        p_swp = router_contract.encodeABI(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[monto, 0, [WBNB_ADDR, target_token], CONTRATO_ADDR, int(time.time()) + 120])
+        
+        tx = apex_contract.functions.apexStrike([WBNB_ADDR, PANCAKE_ROUTER], [w3.to_bytes(hexstr=p_app), w3.to_bytes(hexstr=p_swp)], [0, 0], 0).build_transaction({
+            'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': GAS_LIMIT, 'gasPrice': int(w3.eth.gas_price * 1.5)
+        })
+        h = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
+        w3.eth.wait_for_transaction_receipt(h, timeout=60)
+        notify(f"🛒 *COMPRA OK!* Esperando {TIEMPO_ESPERA_VENTA}s...")
+
+        time.sleep(TIEMPO_ESPERA_VENTA)
+
+        bal = target_contract.functions.balanceOf(CONTRATO_ADDR).call()
+        if bal > 0:
+            p_app_s = target_contract.encodeABI(fn_name="approve", args=[PANCAKE_ROUTER, bal])
+            p_swp_s = router_contract.encodeABI(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[bal, 0, [target_token, WBNB_ADDR], CONTRATO_ADDR, int(time.time()) + 120])
+            tx_s = apex_contract.functions.apexStrike([target_token, PANCAKE_ROUTER], [w3.to_bytes(hexstr=p_app_s), w3.to_bytes(hexstr=p_swp_s)], [0, 0], 0).build_transaction({
+                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': GAS_LIMIT, 'gasPrice': int(w3.eth.gas_price * 1.5)
+            })
+            w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_s, PRIV_KEY).raw_transaction)
+            notify("💰 *VENTA COMPLETADA!*")
+    except Exception as e:
+        print(f"❌ Error en transaccion: {e}")
 
 def scan(last_b):
     now_b = w3.eth.block_number
     if now_b > last_b:
         try:
-            logs = w3.eth.contract(address=PANCAKE_FACTORY, abi=ABI_FACTORY).events.PairCreated.get_logs(fromBlock=last_b+1, toBlock=now_b)
+            # CORRECCIÓN: from_block y to_block con guion bajo
+            logs = w3.eth.contract(address=PANCAKE_FACTORY, abi=ABI_FACTORY).events.PairCreated.get_logs(from_block=last_b+1, to_block=now_b)
             for ev in logs:
                 t = ev.args.token1 if ev.args.token0 == WBNB_ADDR else (ev.args.token0 if ev.args.token1 == WBNB_ADDR else None)
                 if t and not es_honeypot(t): execute_hit_and_run(t)
@@ -59,25 +89,20 @@ def scan(last_b):
     return now_b
 
 # --- 🔥 INICIO ---
-print("🚀 Motor TrenchBot V3.2 Iniciando...")
+print("🚀 Motor TrenchBot V3.3 Iniciando (Fix Syntax)...")
 while True:
     try:
         if w3.is_connected():
             last_block = w3.eth.block_number
-            notify("💰 *TRENCHBOT V3.2 ONLINE*")
+            notify("💰 *TRENCHBOT V3.3 ONLINE*")
             print(f"✅ Conectado. Escaneando desde bloque: {last_block}")
-            
-            timer_heartbeat = time.time()
-            
+            timer_hb = time.time()
             while True:
                 last_block = scan(last_block)
-                
-                # --- LATIDO DE CORAZÓN (Cada 30 segs) ---
-                if time.time() - timer_heartbeat > 30:
-                    print(f"🔎 Patrullando bloque {last_block}... Todo OK.")
-                    timer_heartbeat = time.time()
-                
+                if time.time() - timer_hb > 30:
+                    print(f"🔎 Patrullando bloque {last_block}...")
+                    timer_hb = time.time()
                 time.sleep(1)
     except Exception as e:
-        print(f"⚠️ Reintentando conexión... ({e})")
+        print(f"⚠️ Reintentando... ({e})")
         time.sleep(5)
