@@ -5,13 +5,13 @@ import requests
 from web3 import Web3
 from websockets import connect
 
-# --- 🛰️ CONEXIÓN WSS ULTRA RÁPIDA ---
-WSS_URL = "wss://solemn-orbital-thunder.bsc.quiknode.pro/70d0d80f07303278accd2349e2fc01c95018d18c/"
-HTTP_URL = "https://solemn-orbital-thunder.bsc.quiknode.pro/70d0d80f07303278accd2349e2fc01c95018d18c/"
+# --- 🛰️ CONEXIÓN WSS (CAMBIADO A ANKR PARA SALTAR EL BLOQUEO) ---
+WSS_URL = "wss://rpc.ankr.com/bsc/ws/"
+HTTP_URL = "https://rpc.ankr.com/bsc"
 w3 = Web3(Web3.HTTPProvider(HTTP_URL))
 
 # --- 🧨 CONFIGURACIÓN KAMIKAZE ---
-CAPITAL_SNIPER = 0.005 # Tus últimos WBNB
+CAPITAL_SNIPER = 0.005 # BNB a invertir
 GAS_MULTIPLIER = 5.0   # 500% de gas para atropellar a los demás bots
 TARGET_PROFIT = 1.15   # 15% de ganancia (Hit & Run)
 
@@ -70,7 +70,7 @@ async def monitor_and_sell(token_addr, monto_invertido):
     meme_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
     start_t = time.time()
     
-    while time.time() - start_t < 300: # 5 minutos de asedio total
+    while time.time() - start_t < 300: # 5 minutos de asedio
         try:
             bal = meme_c.functions.balanceOf(CONTRATO_ADDR).call()
             if bal > 0:
@@ -78,12 +78,11 @@ async def monitor_and_sell(token_addr, monto_invertido):
                 if val >= int(monto_invertido * TARGET_PROFIT):
                     if await execute_sell(token_addr): break
         except: pass
-        await asyncio.sleep(0.5) # Revisa cada MEDIO SEGUNDO
+        await asyncio.sleep(0.5)
 
 async def fire_strike_and_monitor(tx_input):
-    # Intentamos extraer la dirección (simplificado para el ataque)
     token_to_buy = "0x" + tx_input[34:74] if len(tx_input) > 74 else "0xTOKEN_NUEVO"
-    print(f"🧨 ¡OBJETIVO FIJADO! LANZANDO ATAQUE SIN FRENOS...")
+    print(f"🧨 ¡OBJETIVO FIJADO! LANZANDO ATAQUE SIN FRENOS A: {token_to_buy}")
     notify(f"🚀 *¡GATILLO ACCIONADO!* Entrando al nuevo token de Four.meme...")
 
     try:
@@ -98,7 +97,6 @@ async def fire_strike_and_monitor(tx_input):
         w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
         print("✅ Transacción inyectada en la red.")
         
-        # Inicia vigilancia hiper-rápida
         await monitor_and_sell(token_to_buy, monto)
         
     except Exception as e: 
@@ -108,8 +106,17 @@ async def fire_strike_and_monitor(tx_input):
 async def listen_mempool():
     async with connect(WSS_URL) as ws:
         await ws.send(json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_subscribe", "params": ["pendingTransactions"]}))
-        print("☢️ AstraliX V11.0 Kamikaze: Conectado a la vena del Mempool...")
+        print("☢️ AstraliX V11.1 Kamikaze: Conexión enviada. Esperando al nodo...")
         
+        # 🚨 LECTURA DEL PRIMER MENSAJE PARA VER SI NOS BLOQUEAN
+        primer_mensaje = await ws.recv()
+        print(f"📡 RESPUESTA DEL NODO: {primer_mensaje}")
+        
+        if "error" in primer_mensaje.lower():
+            print("❌ EL NODO ESTÁ BLOQUEANDO EL MEMPOOL. Deteniendo bot.")
+            return
+            
+        print("✅ ¡Suscripción aceptada! Arranca el escaneo...")
         contador_tx = 0
         tiempo_inicio = time.time()
         
@@ -117,7 +124,7 @@ async def listen_mempool():
             try:
                 msg = await ws.recv()
                 
-                # Contador de latidos de la red
+                # Latido
                 contador_tx += 1
                 if time.time() - tiempo_inicio >= 5:
                     print(f"⏱️ Pulso de red: {contador_tx} transacciones escaneadas en 5 segundos.")
@@ -126,7 +133,6 @@ async def listen_mempool():
 
                 tx_hash = json.loads(msg)['params']['result']
                 
-                # Envolvemos la petición a la red en un try-except rápido para no frenar el ciclo
                 try:
                     tx = w3.eth.get_transaction(tx_hash)
                     if tx and tx.get('to') and tx['to'].lower() == FOUR_MEME_MANAGER.lower():
@@ -136,12 +142,11 @@ async def listen_mempool():
                 except:
                     continue
                     
-            except Exception as e:
-                # Si el WSS escupe un error raro, lo ignoramos y seguimos escuchando
+            except Exception:
                 continue
 
 if __name__ == "__main__":
-    print("🧨 INICIANDO SECUENCIA KAMIKAZE V11.0...")
+    print("🧨 INICIANDO SECUENCIA KAMIKAZE V11.1...")
     if w3.is_connected():
-        notify("☢️ *ASTRALIX V11.0 KAMIKAZE ONLINE*\nConectado al Mempool. Reporte de pulso activado.")
+        notify("☢️ *ASTRALIX V11.1 KAMIKAZE ONLINE*\nConectado al Mempool. Reporte de pulso activado.")
         asyncio.run(listen_mempool())
