@@ -12,14 +12,14 @@ w3 = Web3(Web3.HTTPProvider(HTTP_URL))
 
 # --- 🧨 CONFIGURACIÓN KAMIKAZE ---
 CAPITAL_SNIPER = 0.005 # Tus últimos WBNB
-GAS_MULTIPLIER = 5.0   # 500% de gas. Pagamos una bestialidad para entrar PRIMEROS.
-TARGET_PROFIT = 1.15   # 15% de ganancia para golpear y salir volando.
+GAS_MULTIPLIER = 5.0   # 500% de gas para atropellar a los demás bots
+TARGET_PROFIT = 1.15   # 15% de ganancia (Hit & Run)
 
-# --- 🎯 OBJETIVOS (Four.meme) ---
+# --- 🎯 OBJETIVO FIJO (Four.meme) ---
 FOUR_MEME_MANAGER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 CREATE_METHOD_ID = "0xedf9e251" 
 
-# --- 🔑 IDENTIDAD ---
+# --- 🔑 IDENTIDAD Y CONTRATOS ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
 CONTRATO_ADDR = w3.to_checksum_address("0xF44f4D75Efc8d60d9383319D1C69553A1201be28")
 MI_BILLETERA = w3.eth.account.from_key(PRIV_KEY).address 
@@ -30,7 +30,7 @@ TG_ID = '6580309816'
 WBNB_ADDR = w3.to_checksum_address("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
 PANCAKE_ROUTER = w3.to_checksum_address("0x10ED43C718714eb63d5aA57B78B54704E256024E")
 
-# ABIs Esenciales
+# --- 📜 ABIs Esenciales ---
 ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"},{"inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"name":"approve","outputs":[{"name":"bool","name":"","type":"bool"}],"type":"function"}]'
 ABI_ROUTER = '[{"inputs":[{"name":"amountIn","type":"uint256"},{"name":"amountOutMin","type":"uint256"},{"name":"path","type":"address[]"},{"name":"to","type":"address"},{"name":"deadline","type":"uint256"}],"name":"swapExactTokensForTokensSupportingFeeOnTransferTokens","outputs":[],"type":"function"},{"inputs":[{"name":"amountIn","type":"uint256"},{"name":"path","type":"address[]"}],"name":"getAmountsOut","outputs":[{"name":"amounts","type":"uint256[]"}],"type":"function"}]'
 ABI_APEX = '[{"inputs":[{"name":"targets","type":"address[]"},{"name":"payloads","type":"bytes[]"},{"name":"values","type":"uint256[]"},{"name":"minerBribe","type":"uint256"}],"name":"apexStrike","outputs":[],"type":"function"}]'
@@ -46,7 +46,7 @@ def get_current_value(token_addr, amount_in):
     except: return 0
 
 async def execute_sell(token_addr):
-    print(f"💥 ¡PROFIT DETECTADO! VENDIENDO A LA VELOCIDAD DE LA LUZ...")
+    print(f"💥 ¡PROFIT DETECTADO! SALIENDO DEL TOKEN...")
     try:
         meme_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
         router_c = w3.eth.contract(address=PANCAKE_ROUTER, abi=ABI_ROUTER)
@@ -57,10 +57,10 @@ async def execute_sell(token_addr):
             p_app = meme_c.encode_abi("approve", args=[PANCAKE_ROUTER, bal])
             p_swp = router_c.encode_abi("swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[bal, 0, [token_addr, WBNB_ADDR], CONTRATO_ADDR, int(time.time()) + 120])
             tx = apex_c.functions.apexStrike([token_addr, PANCAKE_ROUTER], [w3.to_bytes(hexstr=p_app), w3.to_bytes(hexstr=p_swp)], [0, 0], 0).build_transaction({
-                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 600000, 'gasPrice': int(w3.eth.gas_price * 2.0) # Gas alto para salida
+                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 600000, 'gasPrice': int(w3.eth.gas_price * 2.0)
             })
             w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
-            notify("💰 *¡BOOM! VENTA EJECUTADA (PROFIT ALCANZADO)*")
+            notify("💰 *¡BOOM! VENTA EJECUTADA (15% PROFIT)*")
             return True
     except Exception as e: print(f"❌ Error Venta: {e}")
     return False
@@ -80,10 +80,11 @@ async def monitor_and_sell(token_addr, monto_invertido):
         except: pass
         await asyncio.sleep(0.5) # Revisa cada MEDIO SEGUNDO
 
-async def fire_strike_and_monitor(tx_data):
-    token_to_buy = "0x" + tx_data[34:74]
-    print(f"🧨 ¡OBJETIVO FIJADO! LANZANDO ATAQUE SIN FRENOS A: {token_to_buy}")
-    notify(f"🚀 *¡GATILLO ACCIONADO!* Entrando al token...")
+async def fire_strike_and_monitor(tx_input):
+    # Intentamos extraer la dirección (simplificado para el ataque)
+    token_to_buy = "0x" + tx_input[34:74] if len(tx_input) > 74 else "0xTOKEN_NUEVO"
+    print(f"🧨 ¡OBJETIVO FIJADO! LANZANDO ATAQUE SIN FRENOS...")
+    notify(f"🚀 *¡GATILLO ACCIONADO!* Entrando al nuevo token de Four.meme...")
 
     try:
         apex_c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
@@ -91,7 +92,7 @@ async def fire_strike_and_monitor(tx_data):
         
         tx = apex_c.functions.apexStrike([WBNB_ADDR], [b''], [0], 0).build_transaction({
             'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
-            'gas': 700000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER) # Multiplicador brutal
+            'gas': 700000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)
         })
         
         w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
@@ -107,22 +108,40 @@ async def fire_strike_and_monitor(tx_data):
 async def listen_mempool():
     async with connect(WSS_URL) as ws:
         await ws.send(json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_subscribe", "params": ["pendingTransactions"]}))
-        print("☢️ AstraliX V11.0 Kamikaze: Escaneando Mempool a velocidad extrema...")
+        print("☢️ AstraliX V11.0 Kamikaze: Conectado a la vena del Mempool...")
+        
+        contador_tx = 0
+        tiempo_inicio = time.time()
         
         while True:
             try:
                 msg = await ws.recv()
-                tx_hash = json.loads(msg)['params']['result']
-                tx = w3.eth.get_transaction(tx_hash)
                 
-                if tx and tx['to'] and tx['to'].lower() == FOUR_MEME_MANAGER.lower():
-                    if tx['input'].startswith(CREATE_METHOD_ID):
-                        print("\n🚨 ¡ALERTA ROJA! ¡CREACIÓN EN MEMPOOL!")
-                        await fire_strike_and_monitor(tx['input'])
-            except: continue
+                # Contador de latidos de la red
+                contador_tx += 1
+                if time.time() - tiempo_inicio >= 5:
+                    print(f"⏱️ Pulso de red: {contador_tx} transacciones escaneadas en 5 segundos.")
+                    contador_tx = 0
+                    tiempo_inicio = time.time()
+
+                tx_hash = json.loads(msg)['params']['result']
+                
+                # Envolvemos la petición a la red en un try-except rápido para no frenar el ciclo
+                try:
+                    tx = w3.eth.get_transaction(tx_hash)
+                    if tx and tx.get('to') and tx['to'].lower() == FOUR_MEME_MANAGER.lower():
+                        if tx.get('input', '').startswith(CREATE_METHOD_ID):
+                            print("\n🚨 ¡ALERTA ROJA! ¡CREACIÓN EN MEMPOOL DETECTADA!")
+                            await fire_strike_and_monitor(tx['input'])
+                except:
+                    continue
+                    
+            except Exception as e:
+                # Si el WSS escupe un error raro, lo ignoramos y seguimos escuchando
+                continue
 
 if __name__ == "__main__":
-    print("🧨 INICIANDO SECUENCIA KAMIKAZE...")
+    print("🧨 INICIANDO SECUENCIA KAMIKAZE V11.0...")
     if w3.is_connected():
-        notify("☢️ *ASTRALIX V11.0 KAMIKAZE ONLINE*\nModo todo o nada activado. Sin seguros. Gas al 500%.")
+        notify("☢️ *ASTRALIX V11.0 KAMIKAZE ONLINE*\nConectado al Mempool. Reporte de pulso activado.")
         asyncio.run(listen_mempool())
