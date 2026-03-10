@@ -3,7 +3,7 @@ import time
 import requests
 from web3 import Web3
 
-print("⏳ Iniciando motor AstraliX V8...")
+print("⏳ Iniciando motor AstraliX V9 (Modo Diagnóstico)...")
 
 # --- 🛰️ CONEXIÓN DE ALTA VELOCIDAD ---
 RPC_URL = "https://bsc-dataseed.binance.org/"
@@ -24,6 +24,7 @@ FILTRO_RADAR = -0.10
 # --- 🔑 IDENTIDAD DEL OPERADOR ---
 CONTRATO_ADDR = w3.to_checksum_address("0x2093cd0b3F75A1E6ff750E1F871C234C1abF3d3c")
 MI_BILLETERA = w3.to_checksum_address(os.environ.get('MI_BILLETERA', '0xTuBilleteraAqui').strip())
+# Clave privada directa según tu instrucción
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
 
 TG_TOKEN = os.environ.get('TELEGRAM_TOKEN', '').strip()
@@ -104,7 +105,7 @@ def check_commands():
                 msg = "📡 *Mejores Rutas Actuales*\n" + "═"*20 + "\n"
                 for item in sorted(ultimos_datos, key=lambda x: x[1], reverse=True)[:5]:
                     msg += f"🔸 *{item[0]}:* ${item[1]:.3f}\n"
-                notify(msg if ultimos_datos else "Calculando...", buttons=True)
+                notify(msg if ultimos_datos else "Calculando Matrix... (Si demora, revisá los Logs en Railway)", buttons=True)
             elif txt == "/retiro":
                 ejecutar_retiro()
     except:
@@ -171,6 +172,7 @@ def scan_all(last_block):
     global ultimos_datos
     now_block = w3.eth.block_number
     
+    # 1. SNIPER DE LANZAMIENTOS
     if now_block > last_block:
         try:
             events = w3.eth.contract(address=PANCAKE_FACTORY, abi=ABI_FACTORY).events.PairCreated.create_filter(fromBlock=last_block+1, toBlock=now_block).get_all_entries()
@@ -178,7 +180,7 @@ def scan_all(last_block):
                 t0, t1 = ev.args.token0, ev.args.token1
                 target = t1 if t0 == WBNB_ADDR else (t0 if t1 == WBNB_ADDR else None)
                 if target:
-                    print(f"💎 ¡Lanzamiento!: {target}")
+                    print(f"💎 ¡Lanzamiento detectado!: {target}")
                     if not es_honeypot(target):
                         execute_trade(DEXs["Pancake"], DEXs["Pancake"], target, "GEMA_NUEVA", "Pancake", "Sniper", CAPITAL_SNIPER, "SNIPER")
                     else:
@@ -186,12 +188,15 @@ def scan_all(last_block):
         except:
             pass
     
+    # 2. ARBITRAJE CON DIAGNÓSTICO DE RUTAS
     temp_radar = []
     try:
         p_bnb = float(w3.from_wei(w3.eth.contract(address=w3.to_checksum_address(DEXs["Pancake"]), abi=ABI_ROUTER).functions.getAmountsOut(w3.to_wei(1, 'ether'), [WBNB_ADDR, USDT_ADDR]).call()[-1], 'ether'))
         gas_usd = float(w3.from_wei(w3.eth.gas_price * GAS_LIMIT, 'ether')) * p_bnb
 
-        for name, addr in TOKENS_MEME.items():
+        for name, raw_addr in TOKENS_MEME.items():
+            addr = w3.to_checksum_address(raw_addr) # Fuerza formato exacto
+            
             for n1, a1 in DEXs.items():
                 for n2, a2 in DEXs.items():
                     if n1 == n2: continue
@@ -203,16 +208,17 @@ def scan_all(last_block):
                         if neto > FILTRO_RADAR: 
                             ruta = f"{n1}->{n2}"
                             temp_radar.append((f"{name} ({ruta})", neto))
-                            print(f"📡 Radar {ruta:<15} | {name:<7} | Profit: ${neto:.3f}")
+                            print(f"✅ Ruta OK {ruta:<15} | {name:<7} | Profit: ${neto:.3f}")
                         
                         if neto > PROFIT_MIN_USD: 
                             execute_trade(a1, a2, addr, name, n1, n2, CAPITAL_WBNB, "ARBI")
                             return now_block
-                    except:
+                    except Exception as e:
+                        print(f"⚠️ Sin liquidez para {name} en la ruta {n1}->{n2}")
                         continue
         ultimos_datos = temp_radar
-    except:
-        pass
+    except Exception as e:
+        print(f"❌ Error en radar: {e}")
     
     return now_block
 
@@ -229,7 +235,7 @@ try:
         last_block = scan_all(last_block)
         
         if last_block > prev_block:
-            print(f"✅ Bloque {last_block} patrullado. Vigilando tus 6 tokens...")
+            pass # Silenciamos el patrullaje por bloque para ver mejor los errores
             
         time.sleep(1)
 
