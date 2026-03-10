@@ -5,15 +5,15 @@ import requests
 from web3 import Web3
 from websockets import connect
 
-# --- 🛰️ CONEXIÓN WSS (CAMBIADO A ANKR PARA SALTAR EL BLOQUEO) ---
-WSS_URL = "wss://rpc.ankr.com/bsc/ws/"
-HTTP_URL = "https://rpc.ankr.com/bsc"
+# --- 🛰️ CONEXIÓN WSS (PUBLIC NODE MÁS ROBUSTO) ---
+WSS_URL = "wss://bsc-rpc.publicnode.com"
+HTTP_URL = "https://bsc-rpc.publicnode.com"
 w3 = Web3(Web3.HTTPProvider(HTTP_URL))
 
 # --- 🧨 CONFIGURACIÓN KAMIKAZE ---
 CAPITAL_SNIPER = 0.005 # BNB a invertir
-GAS_MULTIPLIER = 5.0   # 500% de gas para atropellar a los demás bots
-TARGET_PROFIT = 1.15   # 15% de ganancia (Hit & Run)
+GAS_MULTIPLIER = 5.0   # 500% de gas 
+TARGET_PROFIT = 1.15   # 15% de ganancia
 
 # --- 🎯 OBJETIVO FIJO (Four.meme) ---
 FOUR_MEME_MANAGER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
@@ -70,7 +70,7 @@ async def monitor_and_sell(token_addr, monto_invertido):
     meme_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
     start_t = time.time()
     
-    while time.time() - start_t < 300: # 5 minutos de asedio
+    while time.time() - start_t < 300: 
         try:
             bal = meme_c.functions.balanceOf(CONTRATO_ADDR).call()
             if bal > 0:
@@ -104,49 +104,52 @@ async def fire_strike_and_monitor(tx_input):
         notify("❌ *FALLO EN EL IMPACTO.* Gas insuficiente o red saturada.")
 
 async def listen_mempool():
-    async with connect(WSS_URL) as ws:
-        await ws.send(json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_subscribe", "params": ["pendingTransactions"]}))
-        print("☢️ AstraliX V11.1 Kamikaze: Conexión enviada. Esperando al nodo...")
-        
-        # 🚨 LECTURA DEL PRIMER MENSAJE PARA VER SI NOS BLOQUEAN
-        primer_mensaje = await ws.recv()
-        print(f"📡 RESPUESTA DEL NODO: {primer_mensaje}")
-        
-        if "error" in primer_mensaje.lower():
-            print("❌ EL NODO ESTÁ BLOQUEANDO EL MEMPOOL. Deteniendo bot.")
-            return
-            
-        print("✅ ¡Suscripción aceptada! Arranca el escaneo...")
-        contador_tx = 0
-        tiempo_inicio = time.time()
-        
-        while True:
-            try:
-                msg = await ws.recv()
+    while True: # Bucle maestro de reconexión
+        try:
+            async with connect(WSS_URL) as ws:
+                await ws.send(json.dumps({"jsonrpc": "2.0", "id": 1, "method": "eth_subscribe", "params": ["pendingTransactions"]}))
+                print("☢️ AstraliX V11.2 Kamikaze: Forzando túnel WSS...")
                 
-                # Latido
-                contador_tx += 1
-                if time.time() - tiempo_inicio >= 5:
-                    print(f"⏱️ Pulso de red: {contador_tx} transacciones escaneadas en 5 segundos.")
-                    contador_tx = 0
-                    tiempo_inicio = time.time()
-
-                tx_hash = json.loads(msg)['params']['result']
+                primer_mensaje = await ws.recv()
+                print(f"📡 RESPUESTA DEL NODO: {primer_mensaje}")
                 
-                try:
-                    tx = w3.eth.get_transaction(tx_hash)
-                    if tx and tx.get('to') and tx['to'].lower() == FOUR_MEME_MANAGER.lower():
-                        if tx.get('input', '').startswith(CREATE_METHOD_ID):
-                            print("\n🚨 ¡ALERTA ROJA! ¡CREACIÓN EN MEMPOOL DETECTADA!")
-                            await fire_strike_and_monitor(tx['input'])
-                except:
+                if "error" in primer_mensaje.lower():
+                    print("❌ NODO RECHAZÓ MEMPOOL. Reintentando en 5 segundos...")
+                    await asyncio.sleep(5)
                     continue
                     
-            except Exception:
-                continue
+                print("✅ ¡Conexión establecida! Escaneando Mempool...")
+                contador_tx = 0
+                tiempo_inicio = time.time()
+                
+                while True:
+                    try:
+                        msg = await ws.recv()
+                        
+                        contador_tx += 1
+                        if time.time() - tiempo_inicio >= 5:
+                            print(f"⏱️ Pulso de red: {contador_tx} transacciones en 5s.")
+                            contador_tx = 0
+                            tiempo_inicio = time.time()
+
+                        tx_hash = json.loads(msg)['params']['result']
+                        
+                        try:
+                            tx = w3.eth.get_transaction(tx_hash)
+                            if tx and tx.get('to') and tx['to'].lower() == FOUR_MEME_MANAGER.lower():
+                                if tx.get('input', '').startswith(CREATE_METHOD_ID):
+                                    print("\n🚨 ¡CREACIÓN EN MEMPOOL DETECTADA!")
+                                    await fire_strike_and_monitor(tx['input'])
+                        except: continue
+                            
+                    except Exception:
+                        continue
+        except Exception as e:
+            print(f"⚠️ Caída de conexión WSS: {e}. Reconectando en 3s...")
+            await asyncio.sleep(3)
 
 if __name__ == "__main__":
-    print("🧨 INICIANDO SECUENCIA KAMIKAZE V11.1...")
-    if w3.is_connected():
-        notify("☢️ *ASTRALIX V11.1 KAMIKAZE ONLINE*\nConectado al Mempool. Reporte de pulso activado.")
-        asyncio.run(listen_mempool())
+    print("🧨 INICIANDO SECUENCIA KAMIKAZE V11.2...")
+    notify("☢️ *ASTRALIX V11.2 KAMIKAZE ONLINE*\nForzando conexión WSS y saltando chequeos.")
+    # Ejecutamos directamente, sin preguntar si el HTTP funciona
+    asyncio.run(listen_mempool())
