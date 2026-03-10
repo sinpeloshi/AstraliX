@@ -1,10 +1,14 @@
 import time
 import requests
 from web3 import Web3
+from web3.middleware import geth_poa_middleware # <--- EL ANTÍDOTO
 
-# --- 🛰️ CONEXIÓN HTTP (ROBUSTA Y SIN FILTROS) ---
+# --- 🛰️ CONEXIÓN HTTP ---
 HTTP_URL = "https://solemn-orbital-thunder.bsc.quiknode.pro/70d0d80f07303278accd2349e2fc01c95018d18c/"
 w3 = Web3(Web3.HTTPProvider(HTTP_URL))
+
+# Inyectamos el traductor para que no llore con los bloques de BSC
+w3.middleware_onion.inject(geth_poa_middleware, layer=0) 
 
 # --- 🧨 CONFIGURACIÓN DE COMBATE ---
 CAPITAL_SNIPER = 0.005 # BNB
@@ -98,7 +102,7 @@ def fire_strike(tx_input):
         notify("❌ *FALLO EN EL IMPACTO.* Gas insuficiente o error de red.")
 
 def scan_blocks():
-    print("☢️ AstraliX V12.1 Realista: Iniciando escáner...", flush=True)
+    print("☢️ AstraliX V12.2 Realista: Iniciando escáner con parche BSC...", flush=True)
     try:
         last_block = w3.eth.block_number
         print(f"✅ Conectado a la red. Arrancando en el bloque: {last_block}", flush=True)
@@ -112,7 +116,7 @@ def scan_blocks():
             if current_block > last_block:
                 print(f"⏳ Descargando Bloque {current_block}...", flush=True)
                 
-                # Descargamos el bloque entero con todas sus transacciones
+                # Ahora sí, baja el bloque sin llorar por el tamaño
                 block_data = w3.eth.get_block(current_block, full_transactions=True)
                 print(f"🔎 Analizando Bloque {current_block} ({len(block_data.transactions)} TXs)", flush=True)
                 
@@ -123,15 +127,15 @@ def scan_blocks():
                             fire_strike(tx.input)
                 
                 last_block = current_block
-            time.sleep(1) # BSC crea un bloque cada 3 segundos aprox
+            time.sleep(1)
         except Exception as e:
-            print(f"⚠️ Error de lectura (Nodo estrangulado): {e}. Reintentando...", flush=True)
+            print(f"⚠️ Error de lectura: {e}. Reintentando...", flush=True)
             time.sleep(2)
 
 if __name__ == "__main__":
-    print("🧨 INICIANDO ASTRALIX V12.1 (MODO REALISTA)...", flush=True)
+    print("🧨 INICIANDO ASTRALIX V12.2 (MODO REALISTA)...", flush=True)
     if w3.is_connected():
-        notify("☢️ *ASTRALIX V12.1 ONLINE*\nEscaneo de bloques activado y purgado.")
+        notify("☢️ *ASTRALIX V12.2 ONLINE*\nEscaneo de bloques activo y parche PoA inyectado.")
         scan_blocks()
     else:
         print("❌ Error conectando a QuickNode. Revisá la URL.", flush=True)
