@@ -10,8 +10,8 @@ w3 = Web3(Web3.HTTPProvider(RPC_URL))
 # --- ⚙️ CONFIGURACIÓN ---
 CAPITAL_SNIPER = 0.015            
 TIEMPO_ESPERA_VENTA = 15          
-GAS_LIMIT = 500000                
-ESPERA_ENTRE_BLOQUES = 2 # Con este código liviano, podemos ir más rápido
+GAS_LIMIT = 600000 # Un poquito más por las dudas
+ESPERA_ENTRE_BLOQUES = 2 
 
 # --- 🔑 IDENTIDAD ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -25,7 +25,7 @@ WBNB_ADDR = w3.to_checksum_address("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
 PANCAKE_FACTORY = w3.to_checksum_address("0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73")
 PANCAKE_ROUTER = w3.to_checksum_address("0x10ED43C718714eb63d5aA57B78B54704E256024E")
 
-# ABI Recortada (Solo lo esencial para que la consulta sea chiquita)
+# ABIs
 ABI_MIN = '[{"anonymous":false,"inputs":[{"indexed":true,"name":"token0","type":"address"},{"indexed":true,"name":"token1","type":"address"},{"indexed":false,"name":"pair","type":"address"},{"indexed":false,"name":"length","type":"uint256"}],"name":"PairCreated","type":"event"}]'
 ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}]'
 ABI_APEX = '[{"inputs":[{"internalType":"address[]","name":"targets","type":"address[]"},{"internalType":"bytes[]","name":"payloads","type":"bytes[]"},{"internalType":"uint256[]","name":"values","type":"uint256[]"},{"internalType":"uint256","name":"minerBribe","type":"uint256"}],"name":"apexStrike","outputs":[],"stateMutability":"payable","type":"function"}]'
@@ -51,27 +51,52 @@ def execute_strike(target_token):
         apex_c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
         monto = w3.to_wei(CAPITAL_SNIPER, 'ether')
 
-        p_app = wbnb_c.encodeABI(fn_name="approve", args=[PANCAKE_ROUTER, monto])
-        p_swp = router_c.encodeABI(fn_name="swapExactTokensForTokensSupportingFeeOnTransferTokens", args=[monto, 0, [WBNB_ADDR, target_token], CONTRATO_ADDR, int(time.time()) + 120])
+        # --- FIX: NUEVA FORMA DE ENCODE ABI ---
+        p_app = wbnb_c.functions.approve(PANCAKE_ROUTER, monto).encode_abi()
+        p_swp = router_c.functions.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            monto, 0, [WBNB_ADDR, target_token], CONTRATO_ADDR, int(time.time()) + 120
+        ).encode_abi()
         
-        tx = apex_c.functions.apexStrike([WBNB_ADDR, PANCAKE_ROUTER], [w3.to_bytes(hexstr=p_app), w3.to_bytes(hexstr=p_swp)], [0, 0], 0).build_transaction({
-            'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': GAS_LIMIT, 'gasPrice': int(w3.eth.gas_price * 1.3)
+        tx = apex_c.functions.apexStrike(
+            [WBNB_ADDR, PANCAKE_ROUTER], 
+            [w3.to_bytes(hexstr=p_app), w3.to_bytes(hexstr=p_swp)], 
+            [0, 0], 0
+        ).build_transaction({
+            'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
+            'gas': GAS_LIMIT, 'gas_price': int(w3.eth.gas_price * 1.5)
         })
-        w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
-        notify(f"🛒 *COMPRA OK!*")
+        
+        h_buy = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
+        notify(f"🛒 *COMPRA ENVIADA!*")
+        
         time.sleep(TIEMPO_ESPERA_VENTA)
-        # Lógica de venta... (simplificada para estabilidad)
-    except Exception as e: print(f"❌ Error TX: {e}")
+        
+        # VENTA
+        bal = meme_c.functions.balanceOf(CONTRATO_ADDR).call()
+        if bal > 0:
+            p_app_s = meme_c.functions.approve(PANCAKE_ROUTER, bal).encode_abi()
+            p_swp_s = router_c.functions.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+                bal, 0, [target_token, WBNB_ADDR], CONTRATO_ADDR, int(time.time()) + 120
+            ).encode_abi()
+            tx_s = apex_c.functions.apexStrike(
+                [target_token, PANCAKE_ROUTER], 
+                [w3.to_bytes(hexstr=p_app_s), w3.to_bytes(hexstr=p_swp_s)], 
+                [0, 0], 0
+            ).build_transaction({
+                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
+                'gas': GAS_LIMIT, 'gas_price': int(w3.eth.gas_price * 1.5)
+            })
+            w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_s, PRIV_KEY).raw_transaction)
+            notify("💰 *VENTA COMPLETADA!*")
+    except Exception as e:
+        print(f"❌ Error TX: {e}")
+        notify(f"❌ Error en operacion: {str(e)[:50]}")
 
 def scan(last_b):
     try:
         now_b = w3.eth.block_number
         if now_b <= last_b: return last_b
-        
-        # SI EL SALTO ES MUY GRANDE, RESETEAMOS (Evita Error 413)
-        if (now_b - last_b) > 5:
-            print(f"⚠️ Salto detectado. Sincronizando al bloque {now_b}...")
-            last_b = now_b - 1
+        if (now_b - last_b) > 5: last_b = now_b - 1
 
         logs = w3.eth.contract(address=PANCAKE_FACTORY, abi=ABI_MIN).events.PairCreated.get_logs(from_block=last_b+1, to_block=now_b)
         for ev in logs:
@@ -79,16 +104,12 @@ def scan(last_b):
             if t and not es_honeypot(t): execute_strike(t)
         return now_b
     except Exception as e:
-        if "413" in str(e):
-            print("🛑 Error 413: Pedido muy grande. Saltando al presente...")
-            return w3.eth.block_number
-        print(f"⚠️ Error scan: {e}")
-        return last_b
+        return w3.eth.block_number
 
-print("🚀 Motor TrenchBot V3.9 (Anti-413) Iniciando...")
+print("🚀 Motor TrenchBot V4.0 (FIX ABI) Iniciando...")
 if w3.is_connected():
     last_block = w3.eth.block_number
-    notify("💰 *TRENCHBOT V3.9 ONLINE*")
+    notify("💰 *TRENCHBOT V4.0 ONLINE*")
     timer_hb = time.time()
     while True:
         try:
