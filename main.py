@@ -3,8 +3,8 @@ import requests
 from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware 
 
-# --- 🛰️ CONEXIÓN Y RED ---
-RPC_NODES = ["https://bsc-dataseed.binance.org/", "https://bsc-dataseed1.defibit.io/"]
+# --- 🛰️ CONEXIÓN Y NODOS ---
+RPC_NODES = ["https://bsc-dataseed.binance.org/", "https://bsc-dataseed1.defibit.io/", "https://bsc-dataseed1.ninicoin.io/"]
 
 def conectar_nodo():
     for rpc in RPC_NODES:
@@ -17,18 +17,18 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
-# --- 🧨 CONFIGURACIÓN DE ESTRATEGIA ---
-CAPITAL_SNIPER = 0.005 # BNB a invertir por token
-GAS_MULTIPLIER = 10.0  # Multiplicador de prioridad
-RETRASO_COMPRA = 5     # Segundos de espera para evadir el Anti-Bot
-RETRASO_VENTA = 15     # Segundos en hold antes de la venta total
+# --- 🧨 CONFIGURACIÓN DE COMBATE ---
+CAPITAL_SNIPER = 0.005 # Inversión por tiro
+GAS_MULTIPLIER = 10.0  # Prioridad en la red
+RETRASO_COMPRA = 5     # Para saltar Deadblocks
+RETRASO_VENTA = 15     # Hold para profit
 
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 FIRMA_CREACION = "0x519ebb10" 
-FIRMA_COMPRA = "0x87f27655"   # Método: buyTokenAMAP
-FIRMA_VENTA = "0x06e7b98f"    # Método: sellTokenAMAP
+FIRMA_COMPRA = "0x87f27655"   # buyTokenAMAP
+FIRMA_VENTA = "0x06e7b98f"    # sellTokenAMAP
 
-# --- 🔑 IDENTIDAD ---
+# --- 🔑 CREDENCIALES ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
 MI_BILLETERA = w3.eth.account.from_key(PRIV_KEY).address 
 TG_TOKEN = '8783847744:AAHdwwlEqP7HCgSXoFxRdD8snr5FRhT1OUo'
@@ -43,92 +43,85 @@ def notify(msg):
     except: pass
 
 def chequear_fondos():
-    """Verifica que haya BNB suficiente para la inversión y las comisiones de red."""
-    balance_wei = w3.eth.get_balance(MI_BILLETERA)
-    # Se exige el capital + un margen seguro de ~0.002 BNB para pagar el GAS
-    minimo_necesario = w3.to_wei(CAPITAL_SNIPER + 0.002, 'ether')
-    
-    if balance_wei < minimo_necesario:
-        print(f"⚠️ BNB INSUFICIENTE. Tenés {w3.from_wei(balance_wei, 'ether'):.4f} BNB. Necesitás recargar.", flush=True)
-        return False
-    return True
+    balance = w3.eth.get_balance(MI_BILLETERA)
+    return balance > w3.to_wei(CAPITAL_SNIPER + 0.003, 'ether')
 
 def fire_strike_full_cycle(token_addr):
     if token_addr in TOKENS_COMPRADOS: return
     TOKENS_COMPRADOS.add(token_addr)
     
-    # Check de seguridad antes de actuar
     if not chequear_fondos():
-        notify("🚨 *FONDOS INSUFICIENTES*\nEl radar detectó un token, pero no hay suficiente BNB para ejecutar la operación segura. Recargá la wallet.")
+        notify("⚠️ *SALDO BAJO*: No hay BNB para el próximo disparo.")
         return
 
-    print(f"\n🎯 OBJETIVO DETECTADO: {token_addr}", flush=True)
-    print(f"⏳ Esperando {RETRASO_COMPRA}s para evitar bloqueos...", flush=True)
-    notify(f"🎯 *TARGET FIJADO*\n`{token_addr}`\nIniciando ciclo automático...")
+    print(f"\n🎯 OBJETIVO FIJADO: {token_addr}", flush=True)
+    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nEsperando {RETRASO_COMPRA}s...")
     
     time.sleep(RETRASO_COMPRA)
     
     # --- 🛒 FASE 1: COMPRA RAW ---
     try:
         monto_wei = w3.to_wei(CAPITAL_SNIPER, 'ether')
-        
-        # Estructura AMAP: Function ID + Token + Funds + MinOut
         tx_data = FIRMA_COMPRA + token_addr.lower().replace("0x","").zfill(64) + \
                   hex(monto_wei).replace("0x","").zfill(64) + "0"*64
         
         tx_buy = {
             'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': monto_wei,
-            'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 800000, 
+            'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 850000, 
             'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER), 'data': tx_data
         }
         
-        tx_hash = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
-        print(f"✅ COMPRA ENVIADA: {w3.to_hex(tx_hash)}", flush=True)
+        tx_h_buy = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
+        print(f"✅ COMPRA ENVIADA: {w3.to_hex(tx_h_buy)}", flush=True)
 
         # --- ⏳ FASE 2: HOLD ---
-        print(f"⏳ Posición tomada. Esperando {RETRASO_VENTA}s para vender...", flush=True)
         time.sleep(RETRASO_VENTA)
 
-        # --- 💰 FASE 3: VENTA RAW ---
+        # --- 💰 FASE 3: VENTA REFORZADA ---
         token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
-        balance = token_c.functions.balanceOf(MI_BILLETERA).call()
         
+        # Re-intento de lectura de balance (3 veces)
+        balance = 0
+        for i in range(3):
+            balance = token_c.functions.balanceOf(MI_BILLETERA).call()
+            if balance > 0: break
+            time.sleep(1)
+
         if balance > 0:
             print(f"🔄 Liquidando {balance} tokens...", flush=True)
             
-            # 1. Autorización de gasto (Approve)
-            tx_app = token_c.functions.approve(FOUR_MEME_ROUTER, balance).build_transaction({
+            # 1. APPROVE MÁXIMO
+            tx_app = token_c.functions.approve(FOUR_MEME_ROUTER, 2**256 - 1).build_transaction({
                 'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
-                'gas': 120000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)})
+                'gas': 120000, 'gasPrice': int(w3.eth.gas_price * (GAS_MULTIPLIER + 2))})
             w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_app, PRIV_KEY).raw_transaction)
             
-            time.sleep(2) # Pausa técnica para asentamiento en la blockchain
+            print("⏳ Esperando confirmación de Approve (4s)...", flush=True)
+            time.sleep(4) # Buffer vital para que el Router vea el permiso
             
-            # 2. Venta total AMAP
+            # 2. VENTA RAW AMAP
             sell_data = FIRMA_VENTA + token_addr.lower().replace("0x","").zfill(64) + \
                         hex(balance).replace("0x","").zfill(64) + "0"*64
             
             tx_sell = {
                 'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': 0,
-                'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 800000,
-                'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER), 'data': sell_data
+                'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 900000,
+                'gasPrice': int(w3.eth.gas_price * (GAS_MULTIPLIER + 2)), 'data': sell_data
             }
             
             tx_h_sell = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_sell, PRIV_KEY).raw_transaction)
-            print(f"💰 VENTA EJECUTADA: {w3.to_hex(tx_h_sell)}", flush=True)
-            notify(f"💰 *CICLO COMPLETADO*\nOperación finalizada. TX de Venta: `{w3.to_hex(tx_h_sell)}`")
+            print(f"💰 VENTA ENVIADA: {w3.to_hex(tx_h_sell)}", flush=True)
+            notify(f"💰 *VENTA EJECUTADA*\nTX: `{w3.to_hex(tx_h_sell)}`")
         else:
-            print("❌ Balance de tokens en cero. La compra falló o se demoró demasiado.", flush=True)
+            print("❌ Saldo 0. No se pudo vender.", flush=True)
 
     except Exception as e: 
-        print(f"❌ Error operativo: {e}", flush=True)
+        print(f"❌ Error: {e}", flush=True)
+        notify(f"🚨 *FALLO EN OPERACIÓN*: {str(e)[:50]}")
 
 def scan_blocks():
     global w3
-    print(f"☢️ ASTRALIX FINAL EDITION. Escáner RAW activo.", flush=True)
-    if not chequear_fondos(): 
-        print("⚠️ Advertencia inicial: Fondos críticamente bajos.", flush=True)
-    
+    print(f"☢️ AstraliX V27: ULTIMATE PATCH. Escaneando Matrix...", flush=True)
     last_block = w3.eth.block_number
     while True:
         try:
@@ -152,5 +145,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX INICIADO*\nVersión final desplegada y protecciones activas.")
+    notify("🧨 *ASTRALIX V27 ONLINE*\nProtecciones de venta activadas.")
     scan_blocks()
