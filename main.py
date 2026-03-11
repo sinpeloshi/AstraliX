@@ -3,12 +3,8 @@ import requests
 from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware 
 
-# --- 🛰️ CONEXIÓN BLINDADA (NODOS OFICIALES) ---
-RPC_NODES = [
-    "https://bsc-dataseed.binance.org/",
-    "https://bsc-dataseed1.defibit.io/",
-    "https://bsc-dataseed1.ninicoin.io/"
-]
+# --- 🛰️ CONEXIÓN BLINDADA ---
+RPC_NODES = ["https://bsc-dataseed.binance.org/", "https://bsc-dataseed1.defibit.io/", "https://bsc-dataseed1.ninicoin.io/"]
 
 def conectar_nodo():
     for rpc in RPC_NODES:
@@ -21,13 +17,12 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
-# --- 🧨 CONFIGURACIÓN KAMIKAZE ---
 CAPITAL_SNIPER = 0.005 
 GAS_MULTIPLIER = 5.0   
 
-# 🎯 OBJETIVO: FOUR.MEME (EL QUE SÍ FUNCIONA)
+# 🎯 OBJETIVO: FOUR.MEME
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
-CREATE_METHOD_ID = "0xedf9e251" 
+CREATE_METHOD_ID = "0xedf9e251" # El ID clásico (por si acaso)
 
 # --- 🔑 IDENTIDAD ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -48,36 +43,26 @@ def notify(msg):
 
 def fire_strike(token_to_buy):
     token_addr = w3.to_checksum_address(token_to_buy)
-    
     print(f"\n🚨 ¡LANZAMIENTO EN FOUR.MEME DETECTADO!: {token_addr}", flush=True)
-    print("🔥 MODO AMETRALLADORA: DISPARANDO A CIEGAS (GAS 5.0x)...", flush=True)
-    notify(f"💥 *ATAQUE DIRECTO EN FOUR.MEME*\nObjetivo: `{token_addr}`\nSin filtros. Comprando YA.")
-    
+    notify(f"💥 *ATAQUE DIRECTO EN FOUR.MEME*\nObjetivo: `{token_addr}`")
     try:
         wbnb_c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
         four_c = w3.eth.contract(address=FOUR_MEME_ROUTER, abi=ABI_FOUR_MEME)
         apex_c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
         monto = w3.to_wei(CAPITAL_SNIPER, 'ether')
-
         p_app = wbnb_c.encode_abi("approve", args=[FOUR_MEME_ROUTER, monto])
         p_buy = four_c.encode_abi("buy", args=[token_addr, monto, 0])
-        
         tx = apex_c.functions.apexStrike(
             [WBNB_ADDR, FOUR_MEME_ROUTER], [w3.to_bytes(hexstr=p_app), w3.to_bytes(hexstr=p_buy)], [0, 0], 0
-        ).build_transaction({
-            'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
-            'gas': 900000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)
-        })
-        
+        ).build_transaction({'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 900000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)})
         tx_hash = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
         print(f"✅ ¡COMPRA ENVIADA!: {w3.to_hex(tx_hash)}", flush=True)
-        
     except Exception as e: print(f"❌ Error en disparo: {e}", flush=True)
 
 def scan_blocks():
     global w3
     if not w3: return
-    print("☢️ AstraliX V17.0: Four.meme Ametralladora. Nodos Oficiales.", flush=True)
+    print("☢️ AstraliX V17.1: CAZADOR DE FIRMAS. Analizando Method IDs...", flush=True)
     last_block = w3.eth.block_number
     
     while True:
@@ -88,24 +73,27 @@ def scan_blocks():
                 block = w3.eth.get_block(current_block, full_transactions=True)
                 for tx in block.transactions:
                     if tx.to and tx.to.lower() == FOUR_MEME_ROUTER.lower():
-                        # Mostramos el pulso para saber que el contrato respira
-                        print(f"   📡 Pulso de vida en Four.meme...", flush=True)
+                        # Extraemos los primeros 10 caracteres (La firma / Method ID)
+                        input_data = tx.input.hex()
+                        method_id = input_data[:10] if len(input_data) >= 10 else "0x00000000"
                         
-                        if tx.input.hex().startswith(CREATE_METHOD_ID):
+                        if method_id == CREATE_METHOD_ID:
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
                             for log in receipt['logs']:
                                 if len(log['topics']) > 0:
                                     potential_token = log['address']
                                     if potential_token.lower() != FOUR_MEME_ROUTER.lower():
                                         fire_strike(potential_token)
-                                        # Pausa larga después de disparar para no comprar 2 veces por error
                                         time.sleep(60) 
+                        else:
+                            # Imprimimos la firma desconocida
+                            print(f"   📡 Pulso (Firma detectada: {method_id})", flush=True)
+                            
                 last_block = current_block
             time.sleep(2)
-        except Exception as e:
+        except Exception:
             time.sleep(3)
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V17.0 ONLINE*\nAmetralladora en Four.meme lista.")
     scan_blocks()
