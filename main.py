@@ -18,95 +18,138 @@ def conectar_nodo():
 w3 = conectar_nodo()
 
 # --- 🧨 CONFIGURACIÓN KAMIKAZE ---
-CAPITAL_SNIPER = 0.005 
-GAS_MULTIPLIER = 5.0   
+CAPITAL_SNIPER = 0.005 # Inversión en BNB
+GAS_MULTIPLIER = 5.0   # MÁXIMA PRIORIDAD
+TIEMPO_VENTA = 15      # Segundos a esperar antes de vender
 
 # 🎯 OBJETIVO: FOUR.MEME
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
-
-# 💣 LA ESCOPETA (Dejamos SOLO la que confirmaste que es de Creación)
-FIRMACIONES_SOSPECHOSAS = ["0x519ebb10"]
+FIRMA_CREACION = "0x519ebb10" 
 
 # --- 🔑 IDENTIDAD ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
-CONTRATO_ADDR = w3.to_checksum_address("0xF44f4D75Efc8d60d9383319D1C69553A1201be28")
 MI_BILLETERA = w3.eth.account.from_key(PRIV_KEY).address 
+
 TG_TOKEN = '8783847744:AAHdwwlEqP7HCgSXoFxRdD8snr5FRhT1OUo'
 TG_ID = '6580309816'
-WBNB_ADDR = w3.to_checksum_address("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
 
-# --- 📜 ABIs ---
+# --- 📜 ABIs (Compra, Venta y ERC20) ---
 ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"},{"inputs":[{"name":"spender","type":"address"},{"name":"amount","type":"uint256"}],"name":"approve","outputs":[{"name":"bool","name":"","type":"bool"}],"type":"function"}]'
-ABI_FOUR_MEME = '[{"inputs":[{"name":"token","type":"address"},{"name":"amountIn","type":"uint256"},{"name":"minAmountOut","type":"uint256"}],"name":"buy","outputs":[],"type":"function"}]'
-ABI_APEX = '[{"inputs":[{"name":"targets","type":"address[]"},{"name":"payloads","type":"bytes[]"},{"name":"values","type":"uint256[]"},{"name":"minerBribe","type":"uint256"}],"name":"apexStrike","outputs":[],"type":"function"}]'
+ABI_FOUR_MEME_COMPRA = '[{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"minAmountOut","type":"uint256"}],"name":"buy","outputs":[],"stateMutability":"payable","type":"function"}]'
+# Asumimos una firma estándar de venta para clones de Pump.fun
+ABI_FOUR_MEME_VENTA = '[{"inputs":[{"internalType":"address","name":"token","type":"address"},{"internalType":"uint256","name":"amountIn","type":"uint256"},{"internalType":"uint256","name":"minAmountOut","type":"uint256"}],"name":"sell","outputs":[],"stateMutability":"nonpayable","type":"function"}]'
 
-# 🧠 MEMORIA DEL BOT (Para no comprar dos veces lo mismo)
 TOKENS_COMPRADOS = set()
 
 def notify(msg):
     try: requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage", json={"chat_id": TG_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
-def fire_strike(token_to_buy, firma):
+def auto_sell(token_addr):
+    print(f"\n⏳ Iniciando cuenta regresiva de {TIEMPO_VENTA} segundos para VENDER...", flush=True)
+    time.sleep(TIEMPO_VENTA)
+    
+    print(f"🔥 PREPARANDO VENTA DE EXTRACCIÓN...", flush=True)
+    try:
+        # 1. Chequeamos cuántos tokens compramos realmente
+        token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
+        balance = token_c.functions.balanceOf(MI_BILLETERA).call()
+        
+        if balance == 0:
+            print("❌ Balance cero. La compra falló o no se procesó a tiempo.", flush=True)
+            notify(f"⚠️ *FALLO EN VENTA*\nEl balance de `{token_addr}` es 0.")
+            return
+
+        print(f"💼 Balance detectado: {balance} tokens. Aprobando contrato...", flush=True)
+        
+        # 2. Aprobación (Approve) para que Four.meme pueda retirar tus tokens
+        nonce = w3.eth.get_transaction_count(MI_BILLETERA)
+        tx_app = token_c.functions.approve(FOUR_MEME_ROUTER, balance).build_transaction({
+            'from': MI_BILLETERA, 'nonce': nonce, 'gas': 100000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)
+        })
+        signed_app = w3.eth.account.sign_transaction(tx_app, PRIV_KEY)
+        tx_hash_app = w3.eth.send_raw_transaction(signed_app.raw_transaction)
+        
+        print("⏳ Esperando confirmación de la red para el Approve...", flush=True)
+        w3.eth.wait_for_transaction_receipt(tx_hash_app, timeout=30)
+        print("✅ Aprobación confirmada. Lanzando VENTA...", flush=True)
+        
+        # 3. Venta Total (Sell)
+        four_c_sell = w3.eth.contract(address=FOUR_MEME_ROUTER, abi=ABI_FOUR_MEME_VENTA)
+        nonce_sell = w3.eth.get_transaction_count(MI_BILLETERA)
+        tx_sell = four_c_sell.functions.sell(token_addr, balance, 0).build_transaction({
+            'from': MI_BILLETERA, 'nonce': nonce_sell, 'gas': 800000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)
+        })
+        signed_sell = w3.eth.account.sign_transaction(tx_sell, PRIV_KEY)
+        tx_hash_sell = w3.eth.send_raw_transaction(signed_sell.raw_transaction)
+        
+        print(f"💰 ¡VENTA ENVIADA!: https://bscscan.com/tx/{w3.to_hex(tx_hash_sell)}", flush=True)
+        notify(f"💰 *VENTA EJECUTADA EXITOSAMENTE*\nRevisa tu billetera. TX: `{w3.to_hex(tx_hash_sell)}`")
+        
+    except Exception as e:
+        print(f"❌ Error catastrófico en la venta: {e}", flush=True)
+        notify(f"🚨 *ERROR AL VENDER*\nTuviste un error: {e}\n¡Vende manual urgente!")
+
+
+def fire_strike_direct(token_to_buy):
     token_addr = w3.to_checksum_address(token_to_buy)
     
-    # Seguro anti-ráfagas
-    if token_addr in TOKENS_COMPRADOS:
-        return False
-        
-    TOKENS_COMPRADOS.add(token_addr) # Lo guardamos en la memoria
+    if token_addr in TOKENS_COMPRADOS: return False
+    TOKENS_COMPRADOS.add(token_addr)
     
-    print(f"\n🚨 ¡BLANCO DETECTADO! (Firma: {firma}) -> {token_addr}", flush=True)
-    notify(f"💥 *DISPARO ASTRALIX*\nObjetivo: `{token_addr}`")
+    print(f"\n🚨 ¡CREACIÓN DETECTADA! -> {token_addr}", flush=True)
+    print(f"🔥 DISPARANDO BNB DIRECTO (GAS 5.0x)...", flush=True)
+    notify(f"💥 *ENTRADA KAMIKAZE*\nObjetivo: `{token_addr}`")
+    
     try:
-        wbnb_c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
-        four_c = w3.eth.contract(address=FOUR_MEME_ROUTER, abi=ABI_FOUR_MEME)
-        apex_c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
-        monto = w3.to_wei(CAPITAL_SNIPER, 'ether')
+        four_c = w3.eth.contract(address=FOUR_MEME_ROUTER, abi=ABI_FOUR_MEME_COMPRA)
+        monto_bnb = w3.to_wei(CAPITAL_SNIPER, 'ether')
         
-        p_app = wbnb_c.encode_abi("approve", args=[FOUR_MEME_ROUTER, monto])
-        p_buy = four_c.encode_abi("buy", args=[token_addr, monto, 0])
+        tx = four_c.functions.buy(token_addr, 0).build_transaction({
+            'from': MI_BILLETERA, 'value': monto_bnb, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 
+            'gas': 800000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)
+        })
+        signed_tx = w3.eth.account.sign_transaction(tx, PRIV_KEY)
+        tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         
-        tx = apex_c.functions.apexStrike(
-            [WBNB_ADDR, FOUR_MEME_ROUTER], [w3.to_bytes(hexstr=p_app), w3.to_bytes(hexstr=p_buy)], [0, 0], 0
-        ).build_transaction({'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 900000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)})
+        print(f"✅ ¡COMPRA ENVIADA!: https://bscscan.com/tx/{w3.to_hex(tx_hash)}", flush=True)
         
-        tx_hash = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
-        print(f"✅ ¡COMPRA ENVIADA!: {w3.to_hex(tx_hash)}", flush=True)
+        # ⚡ INICIA SECUENCIA DE SALIDA AUTOMÁTICA
+        auto_sell(token_addr)
         return True
+        
     except Exception as e: 
-        print(f"❌ Disparo fallido: {e}", flush=True)
+        print(f"❌ Error en compra: {e}", flush=True)
         return False
+
 
 def scan_blocks():
     global w3
     if not w3: return
-    print("☢️ AstraliX V19: MIRA CALIBRADA A 0x519ebb10. Memoria Anti-Ráfaga ON.", flush=True)
+    print("☢️ AstraliX V21: AUTO-SELL (15 Segundos). BNB Nativo.", flush=True)
     last_block = w3.eth.block_number
     
     while True:
         try:
             current_block = w3.eth.block_number
             if current_block > last_block:
-                print(f"📦 Bloque {current_block}", flush=True)
+                print(f"📦 Bloque {current_block} - Escaneando...", flush=True)
                 block = w3.eth.get_block(current_block, full_transactions=True)
+                
                 for tx in block.transactions:
                     if tx.to and tx.to.lower() == FOUR_MEME_ROUTER.lower():
-                        
                         input_data = tx.input.hex()
                         method_id = "0x" + input_data[:8] if len(input_data) >= 8 else "0x00000000"
                         
-                        # AHORA SOLO BUSCAMOS LA FIRMA CONFIRMADA DE CREACIÓN
-                        if method_id in FIRMACIONES_SOSPECHOSAS:
-                            print(f"   ⚠️ FIRMA {method_id} DETECTADA. Analizando recibo...", flush=True)
+                        if method_id == FIRMA_CREACION:
+                            print(f"   ⚠️ FIRMA {FIRMA_CREACION} DETECTADA.", flush=True)
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
                             for log in receipt['logs']:
                                 if len(log['topics']) > 0:
                                     potential_token = log['address']
                                     if potential_token.lower() != FOUR_MEME_ROUTER.lower():
-                                        if fire_strike(potential_token, method_id):
-                                            break # Rompemos el loop para no disparar a los demás logs de esta misma TX
-                        
+                                        if fire_strike_direct(potential_token):
+                                            break 
                 last_block = current_block
             time.sleep(2)
         except Exception:
@@ -114,5 +157,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V19 ONLINE*\nSeguro anti-ráfagas activado.")
+    notify("🧨 *ASTRALIX V21 ONLINE*\nModo Auto-Sell en 15s Activado.")
     scan_blocks()
