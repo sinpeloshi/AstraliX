@@ -17,12 +17,22 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
+# --- 🧨 CONFIGURACIÓN KAMIKAZE ---
 CAPITAL_SNIPER = 0.005 
 GAS_MULTIPLIER = 5.0   
 
 # 🎯 OBJETIVO: FOUR.MEME
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
-CREATE_METHOD_ID = "0xedf9e251" # El ID clásico (por si acaso)
+
+# 💣 LA ESCOPETA (Todas las firmas sospechosas detectadas en el log)
+# Incluimos la vieja por si acaso y las nuevas encontradas
+FIRMACIONES_SOSPECHOSAS = [
+    "0xedf9e251", 
+    "0x0da74935", 
+    "0x06e7b98f", 
+    "0x3e11741f",
+    "0x519ebb10"  
+]
 
 # --- 🔑 IDENTIDAD ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -41,10 +51,10 @@ def notify(msg):
     try: requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage", json={"chat_id": TG_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
-def fire_strike(token_to_buy):
+def fire_strike(token_to_buy, firma):
     token_addr = w3.to_checksum_address(token_to_buy)
-    print(f"\n🚨 ¡LANZAMIENTO EN FOUR.MEME DETECTADO!: {token_addr}", flush=True)
-    notify(f"💥 *ATAQUE DIRECTO EN FOUR.MEME*\nObjetivo: `{token_addr}`")
+    print(f"\n🚨 ¡BLANCO DETECTADO! (Firma: {firma}) -> {token_addr}", flush=True)
+    notify(f"💥 *DISPARO ESCOPETA FOUR.MEME*\nFirma: {firma}\nObjetivo: `{token_addr}`")
     try:
         wbnb_c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
         four_c = w3.eth.contract(address=FOUR_MEME_ROUTER, abi=ABI_FOUR_MEME)
@@ -57,12 +67,12 @@ def fire_strike(token_to_buy):
         ).build_transaction({'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 900000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)})
         tx_hash = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
         print(f"✅ ¡COMPRA ENVIADA!: {w3.to_hex(tx_hash)}", flush=True)
-    except Exception as e: print(f"❌ Error en disparo: {e}", flush=True)
+    except Exception as e: print(f"❌ Disparo fallido: {e}", flush=True)
 
 def scan_blocks():
     global w3
     if not w3: return
-    print("☢️ AstraliX V17.1: CAZADOR DE FIRMAS. Analizando Method IDs...", flush=True)
+    print("☢️ AstraliX V18: ESCOPETA MULTI-FIRMA. Buscando anomalías...", flush=True)
     last_block = w3.eth.block_number
     
     while True:
@@ -73,22 +83,23 @@ def scan_blocks():
                 block = w3.eth.get_block(current_block, full_transactions=True)
                 for tx in block.transactions:
                     if tx.to and tx.to.lower() == FOUR_MEME_ROUTER.lower():
-                        # Extraemos los primeros 10 caracteres (La firma / Method ID)
-                        input_data = tx.input.hex()
-                        method_id = input_data[:10] if len(input_data) >= 10 else "0x00000000"
                         
-                        if method_id == CREATE_METHOD_ID:
+                        input_data = tx.input.hex()
+                        # Formateamos el string para que tenga el "0x" y sea comparable
+                        method_id = "0x" + input_data[:8] if len(input_data) >= 8 else "0x00000000"
+                        
+                        # MODO ESCOPETA: Si la firma coincide con alguna de las sospechosas
+                        if method_id in FIRMACIONES_SOSPECHOSAS:
+                            print(f"   ⚠️ FIRMA {method_id} DETECTADA. Analizando recibo...", flush=True)
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
                             for log in receipt['logs']:
                                 if len(log['topics']) > 0:
                                     potential_token = log['address']
                                     if potential_token.lower() != FOUR_MEME_ROUTER.lower():
-                                        fire_strike(potential_token)
-                                        time.sleep(60) 
-                        else:
-                            # Imprimimos la firma desconocida
-                            print(f"   📡 Pulso (Firma detectada: {method_id})", flush=True)
-                            
+                                        fire_strike(potential_token, method_id)
+                                        # Hacemos una pausa para evitar que dispare dos veces a lo mismo
+                                        time.sleep(30) 
+                        
                 last_block = current_block
             time.sleep(2)
         except Exception:
@@ -96,4 +107,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
+    notify("🧨 *ASTRALIX V18 ONLINE*\nModo Escopeta Multi-Firma Activado.")
     scan_blocks()
