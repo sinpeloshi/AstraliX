@@ -24,15 +24,8 @@ GAS_MULTIPLIER = 5.0
 # 🎯 OBJETIVO: FOUR.MEME
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 
-# 💣 LA ESCOPETA (Todas las firmas sospechosas detectadas en el log)
-# Incluimos la vieja por si acaso y las nuevas encontradas
-FIRMACIONES_SOSPECHOSAS = [
-    "0xedf9e251", 
-    "0x0da74935", 
-    "0x06e7b98f", 
-    "0x3e11741f",
-    "0x519ebb10"  
-]
+# 💣 LA ESCOPETA (Dejamos SOLO la que confirmaste que es de Creación)
+FIRMACIONES_SOSPECHOSAS = ["0x519ebb10"]
 
 # --- 🔑 IDENTIDAD ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -47,32 +40,48 @@ ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"na
 ABI_FOUR_MEME = '[{"inputs":[{"name":"token","type":"address"},{"name":"amountIn","type":"uint256"},{"name":"minAmountOut","type":"uint256"}],"name":"buy","outputs":[],"type":"function"}]'
 ABI_APEX = '[{"inputs":[{"name":"targets","type":"address[]"},{"name":"payloads","type":"bytes[]"},{"name":"values","type":"uint256[]"},{"name":"minerBribe","type":"uint256"}],"name":"apexStrike","outputs":[],"type":"function"}]'
 
+# 🧠 MEMORIA DEL BOT (Para no comprar dos veces lo mismo)
+TOKENS_COMPRADOS = set()
+
 def notify(msg):
     try: requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage", json={"chat_id": TG_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
 def fire_strike(token_to_buy, firma):
     token_addr = w3.to_checksum_address(token_to_buy)
+    
+    # Seguro anti-ráfagas
+    if token_addr in TOKENS_COMPRADOS:
+        return False
+        
+    TOKENS_COMPRADOS.add(token_addr) # Lo guardamos en la memoria
+    
     print(f"\n🚨 ¡BLANCO DETECTADO! (Firma: {firma}) -> {token_addr}", flush=True)
-    notify(f"💥 *DISPARO ESCOPETA FOUR.MEME*\nFirma: {firma}\nObjetivo: `{token_addr}`")
+    notify(f"💥 *DISPARO ASTRALIX*\nObjetivo: `{token_addr}`")
     try:
         wbnb_c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
         four_c = w3.eth.contract(address=FOUR_MEME_ROUTER, abi=ABI_FOUR_MEME)
         apex_c = w3.eth.contract(address=CONTRATO_ADDR, abi=ABI_APEX)
         monto = w3.to_wei(CAPITAL_SNIPER, 'ether')
+        
         p_app = wbnb_c.encode_abi("approve", args=[FOUR_MEME_ROUTER, monto])
         p_buy = four_c.encode_abi("buy", args=[token_addr, monto, 0])
+        
         tx = apex_c.functions.apexStrike(
             [WBNB_ADDR, FOUR_MEME_ROUTER], [w3.to_bytes(hexstr=p_app), w3.to_bytes(hexstr=p_buy)], [0, 0], 0
         ).build_transaction({'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 900000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)})
+        
         tx_hash = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
         print(f"✅ ¡COMPRA ENVIADA!: {w3.to_hex(tx_hash)}", flush=True)
-    except Exception as e: print(f"❌ Disparo fallido: {e}", flush=True)
+        return True
+    except Exception as e: 
+        print(f"❌ Disparo fallido: {e}", flush=True)
+        return False
 
 def scan_blocks():
     global w3
     if not w3: return
-    print("☢️ AstraliX V18: ESCOPETA MULTI-FIRMA. Buscando anomalías...", flush=True)
+    print("☢️ AstraliX V19: MIRA CALIBRADA A 0x519ebb10. Memoria Anti-Ráfaga ON.", flush=True)
     last_block = w3.eth.block_number
     
     while True:
@@ -85,10 +94,9 @@ def scan_blocks():
                     if tx.to and tx.to.lower() == FOUR_MEME_ROUTER.lower():
                         
                         input_data = tx.input.hex()
-                        # Formateamos el string para que tenga el "0x" y sea comparable
                         method_id = "0x" + input_data[:8] if len(input_data) >= 8 else "0x00000000"
                         
-                        # MODO ESCOPETA: Si la firma coincide con alguna de las sospechosas
+                        # AHORA SOLO BUSCAMOS LA FIRMA CONFIRMADA DE CREACIÓN
                         if method_id in FIRMACIONES_SOSPECHOSAS:
                             print(f"   ⚠️ FIRMA {method_id} DETECTADA. Analizando recibo...", flush=True)
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
@@ -96,9 +104,8 @@ def scan_blocks():
                                 if len(log['topics']) > 0:
                                     potential_token = log['address']
                                     if potential_token.lower() != FOUR_MEME_ROUTER.lower():
-                                        fire_strike(potential_token, method_id)
-                                        # Hacemos una pausa para evitar que dispare dos veces a lo mismo
-                                        time.sleep(30) 
+                                        if fire_strike(potential_token, method_id):
+                                            break # Rompemos el loop para no disparar a los demás logs de esta misma TX
                         
                 last_block = current_block
             time.sleep(2)
@@ -107,5 +114,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V18 ONLINE*\nModo Escopeta Multi-Firma Activado.")
+    notify("🧨 *ASTRALIX V19 ONLINE*\nSeguro anti-ráfagas activado.")
     scan_blocks()
