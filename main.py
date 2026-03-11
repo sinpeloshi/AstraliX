@@ -66,8 +66,18 @@ def fire_strike(token_to_buy):
     except Exception as e: print(f"❌ Error en disparo: {e}", flush=True)
 
 def scan_blocks():
-    print("☢️ AstraliX V16.0: MODO AMETRALLADORA ACTIVADO (Sin Filtros).", flush=True)
-    last_block = w3.eth.block_number
+    print("☢️ AstraliX V16.1: MODO AMETRALLADORA (Anti-Ban 429 activado).", flush=True)
+    
+    # Arranque a prueba de fallos
+    last_block = None
+    while last_block is None:
+        try:
+            last_block = w3.eth.block_number
+            print(f"✅ Conectado. Arrancando en bloque {last_block}", flush=True)
+        except Exception as e:
+            print(f"⚠️ Nodo saturado. Enfriando motores 5s...", flush=True)
+            time.sleep(5)
+
     while True:
         try:
             current_block = w3.eth.block_number
@@ -76,18 +86,21 @@ def scan_blocks():
                 block = w3.eth.get_block(current_block, full_transactions=True)
                 for tx in block.transactions:
                     if tx.to and tx.to.lower() == GRAFUN_ROUTER.lower():
-                        # Si es la función de lanzamiento de GraFun
                         if tx.input.hex().startswith(CREATE_METHOD_ID):
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
                             for log in receipt['logs']:
                                 potential_token = log['address']
                                 if potential_token.lower() != GRAFUN_ROUTER.lower():
-                                    # VA DIRECTO AL DISPARO
                                     fire_strike(potential_token)
                 last_block = current_block
-            time.sleep(1)
-        except Exception: time.sleep(2)
+            
+            # Respiro vital para que QuickNode no nos bloquee
+            time.sleep(2) 
+            
+        except Exception as e:
+            print(f"⚠️ Límite de red alcanzado. Relajando 5s... ({e})", flush=True)
+            time.sleep(5)
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V16.0 ONLINE*\nFiltros desactivados. Disparando a todo lo que se mueva en GraFun.")
+    notify("🧨 *ASTRALIX V16.1 ONLINE*\nFiltros desactivados. Protección Anti-Ban activa.")
     scan_blocks()
