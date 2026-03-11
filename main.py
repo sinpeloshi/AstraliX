@@ -52,7 +52,6 @@ def fire_strike_raw(token_to_buy):
     notify(f"💥 *FRANCOTIRADOR RAW ACTIVADO*\nObjetivo: `{token_addr}`\nEntrando con BNB Nativo.")
     
     try:
-        # 🧠 CONSTRUCCIÓN EXACTA DEL PAYLOAD HEXADECIMAL
         method_id = FIRMA_COMPRA
         clean_token = token_addr.lower().replace("0x", "")
         padded_token = clean_token.zfill(64)
@@ -60,9 +59,8 @@ def fire_strike_raw(token_to_buy):
         
         tx_data = method_id + padded_token + padded_amount
 
-        # 🛠️ DICCIONARIO BLINDADO (Incluye chainId: 56 obligatorio para BSC)
         tx = {
-            'chainId': 56, # <--- ESTO NOS SALVÓ LA VIDA
+            'chainId': 56, 
             'from': MI_BILLETERA,
             'to': FOUR_MEME_ROUTER,
             'value': w3.to_wei(CAPITAL_SNIPER, 'ether'),
@@ -86,7 +84,7 @@ def fire_strike_raw(token_to_buy):
 def scan_blocks():
     global w3
     if not w3: return
-    print("☢️ AstraliX V22.1: RAW HEX SNIPER. Auditado. Munición lista.", flush=True)
+    print("☢️ AstraliX V22.2: RAW HEX SNIPER. (Radar Visual Encendido).", flush=True)
     last_block = w3.eth.block_number
     
     while True:
@@ -99,12 +97,11 @@ def scan_blocks():
                 for tx in block.transactions:
                     if tx.to and tx.to.lower() == FOUR_MEME_ROUTER.lower():
                         
-                        # Extracción blindada de la firma
                         raw_input = w3.to_hex(tx["input"])
                         method_id = raw_input[:10] if len(raw_input) >= 10 else "0x00000000"
                         
                         if method_id == FIRMA_CREACION:
-                            print(f"   ⚠️ FIRMA {FIRMA_CREACION} DETECTADA. Analizando...", flush=True)
+                            print(f"   ⚠️ FIRMA DE CREACIÓN {FIRMA_CREACION} DETECTADA. Analizando...", flush=True)
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
                             
                             for log in receipt['logs']:
@@ -113,7 +110,10 @@ def scan_blocks():
                                     if potential_token.lower() != FOUR_MEME_ROUTER.lower():
                                         if fire_strike_raw(potential_token):
                                             break 
-                        
+                        else:
+                            # ESTA ES LA LÍNEA QUE TE DEVUELVE LA TRANQUILIDAD
+                            print(f"   📡 Pulso detectado en Four.meme (Firma: {method_id})", flush=True)
+                            
                 last_block = current_block
             time.sleep(2)
         except Exception:
@@ -121,5 +121,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V22.1 ONLINE*\nFrancotirador Raw Hex montado y Auditado.")
+    notify("🧨 *ASTRALIX V22.2 ONLINE*\nRadar visual encendido.")
     scan_blocks()
