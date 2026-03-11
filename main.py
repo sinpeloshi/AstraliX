@@ -3,10 +3,26 @@ import requests
 from web3 import Web3
 from web3.middleware import ExtraDataToPOAMiddleware 
 
-# --- 🛰️ CONEXIÓN ---
-HTTP_URL = "https://solemn-orbital-thunder.bsc.quiknode.pro/70d0d80f07303278accd2349e2fc01c95018d18c/"
-w3 = Web3(Web3.HTTPProvider(HTTP_URL, request_kwargs={'timeout': 20}))
-w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0) 
+# --- 🛰️ CONEXIÓN (NODOS PÚBLICOS DE BINANCE) ---
+# Tiramos el QuickNode bloqueado y usamos los oficiales
+RPC_NODES = [
+    "https://bsc-dataseed.binance.org/",
+    "https://bsc-dataseed1.defibit.io/",
+    "https://bsc-dataseed1.ninicoin.io/"
+]
+
+def conectar_nodo():
+    for rpc in RPC_NODES:
+        try:
+            w3 = Web3(Web3.HTTPProvider(rpc, request_kwargs={'timeout': 15}))
+            w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
+            if w3.is_connected():
+                print(f"✅ Conectado exitosamente a: {rpc}", flush=True)
+                return w3
+        except: pass
+    return None
+
+w3 = conectar_nodo()
 
 # --- 🧨 CONFIGURACIÓN KAMIKAZE ---
 CAPITAL_SNIPER = 0.005 
@@ -42,7 +58,7 @@ def fire_strike(token_to_buy):
     
     print(f"\n🚨 [Tiro #{TOTAL_DISPAROS}] ¡NUEVO TOKEN EN GRAFUN!: {token_addr}", flush=True)
     print("🔥 DISPARANDO SIN FILTROS (GAS 5.0x)...", flush=True)
-    notify(f"💥 *ATAQUE AMETRALLADORA*\nObjetivo: `{token_addr}`\n¡Entrando con todo!")
+    notify(f"💥 *ATAQUE AMETRALLADORA*\nObjetivo: `{token_addr}`")
     
     try:
         wbnb_c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
@@ -66,18 +82,14 @@ def fire_strike(token_to_buy):
     except Exception as e: print(f"❌ Error en disparo: {e}", flush=True)
 
 def scan_blocks():
-    print("☢️ AstraliX V16.1: MODO AMETRALLADORA (Anti-Ban 429 activado).", flush=True)
-    
-    # Arranque a prueba de fallos
-    last_block = None
-    while last_block is None:
-        try:
-            last_block = w3.eth.block_number
-            print(f"✅ Conectado. Arrancando en bloque {last_block}", flush=True)
-        except Exception as e:
-            print(f"⚠️ Nodo saturado. Enfriando motores 5s...", flush=True)
-            time.sleep(5)
+    global w3
+    if not w3:
+        print("❌ CRÍTICO: No hay nodos disponibles.", flush=True)
+        return
 
+    print("☢️ AstraliX V16.2: Nodos Binance Oficiales. (Sin Filtros).", flush=True)
+    last_block = w3.eth.block_number
+    
     while True:
         try:
             current_block = w3.eth.block_number
@@ -93,14 +105,12 @@ def scan_blocks():
                                 if potential_token.lower() != GRAFUN_ROUTER.lower():
                                     fire_strike(potential_token)
                 last_block = current_block
-            
-            # Respiro vital para que QuickNode no nos bloquee
-            time.sleep(2) 
-            
+            time.sleep(2)
         except Exception as e:
-            print(f"⚠️ Límite de red alcanzado. Relajando 5s... ({e})", flush=True)
-            time.sleep(5)
+            print(f"⚠️ Error de red. Reconectando... ({e})", flush=True)
+            time.sleep(3)
+            w3 = conectar_nodo() # Si el nodo falla, busca uno nuevo
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V16.1 ONLINE*\nFiltros desactivados. Protección Anti-Ban activa.")
+    notify("🧨 *ASTRALIX V16.2 ONLINE*\nNodos rotativos activados. Modo Ametralladora.")
     scan_blocks()
