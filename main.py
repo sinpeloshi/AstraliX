@@ -10,18 +10,16 @@ w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
 # --- 🧨 CONFIGURACIÓN KAMIKAZE ---
 CAPITAL_SNIPER = 0.005 
-GAS_MULTIPLIER = 5.0   # ⚡ MÁXIMA PRIORIDAD
+GAS_MULTIPLIER = 5.0   
 TARGET_PROFIT = 1.15   
 
-# 🎯 OBJETIVO: GRAFUN (Corregido)
 GRAFUN_ROUTER = w3.to_checksum_address("0x63395669b9213ef3A1343750529d3851538356E2")
-CREATE_METHOD_ID = "0x1f748108" # ID real de "Launch" en GraFun
+CREATE_METHOD_ID = "0x1f748108" 
 
 # --- 🔑 IDENTIDAD ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
 CONTRATO_ADDR = w3.to_checksum_address("0xF44f4D75Efc8d60d9383319D1C69553A1201be28")
 MI_BILLETERA = w3.eth.account.from_key(PRIV_KEY).address 
-
 TG_TOKEN = '8783847744:AAHdwwlEqP7HCgSXoFxRdD8snr5FRhT1OUo'
 TG_ID = '6580309816'
 WBNB_ADDR = w3.to_checksum_address("0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c")
@@ -31,23 +29,20 @@ ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"na
 ABI_GRAFUN = '[{"inputs":[{"name":"token","type":"address"},{"name":"amountIn","type":"uint256"},{"name":"minAmountOut","type":"uint256"}],"name":"buy","outputs":[],"type":"function"}]'
 ABI_APEX = '[{"inputs":[{"name":"targets","type":"address[]"},{"name":"payloads","type":"bytes[]"},{"name":"values","type":"uint256[]"},{"name":"minerBribe","type":"uint256"}],"name":"apexStrike","outputs":[],"type":"function"}]'
 
+TOTAL_DISPAROS = 0
+
 def notify(msg):
     try: requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage", json={"chat_id": TG_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
     except: pass
 
 def fire_strike(token_to_buy):
+    global TOTAL_DISPAROS
     token_addr = w3.to_checksum_address(token_to_buy)
-    last_4 = token_addr[-4:]
+    TOTAL_DISPAROS += 1
     
-    print(f"   🔎 Analizando contrato GraFun: ...{last_4}", end=" ", flush=True)
-    
-    # 🎯 FILTRO VANITY (Solo 4444 o 7777)
-    if not token_addr.lower().endswith(('4444', '7777')):
-        print("-> [IGNORADO]", flush=True)
-        return
-
-    print("\n🚨 ¡OBJETIVO GRAFUN IDENTIFICADO! DISPARANDO...", flush=True)
-    notify(f"🎯 *ATAQUE GRAFUN:* `{token_addr}`\nTerminación: {last_4}\nGas: 5.0x")
+    print(f"\n🚨 [Tiro #{TOTAL_DISPAROS}] ¡NUEVO TOKEN EN GRAFUN!: {token_addr}", flush=True)
+    print("🔥 DISPARANDO SIN FILTROS (GAS 5.0x)...", flush=True)
+    notify(f"💥 *ATAQUE AMETRALLADORA*\nObjetivo: `{token_addr}`\n¡Entrando con todo!")
     
     try:
         wbnb_c = w3.eth.contract(address=WBNB_ADDR, abi=ABI_ERC20)
@@ -66,13 +61,12 @@ def fire_strike(token_to_buy):
         })
         
         tx_hash = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx, PRIV_KEY).raw_transaction)
-        print(f"✅ BALA EN EL AIRE: {w3.to_hex(tx_hash)}", flush=True)
+        print(f"✅ ¡COMPRA ENVIADA!: {w3.to_hex(tx_hash)}", flush=True)
         
-    except Exception as e:
-        print(f"❌ Error disparo: {e}", flush=True)
+    except Exception as e: print(f"❌ Error en disparo: {e}", flush=True)
 
 def scan_blocks():
-    print("☢️ AstraliX V14.1 Solar GraFun: Iniciando patrullaje...", flush=True)
+    print("☢️ AstraliX V16.0: MODO AMETRALLADORA ACTIVADO (Sin Filtros).", flush=True)
     last_block = w3.eth.block_number
     while True:
         try:
@@ -82,21 +76,18 @@ def scan_blocks():
                 block = w3.eth.get_block(current_block, full_transactions=True)
                 for tx in block.transactions:
                     if tx.to and tx.to.lower() == GRAFUN_ROUTER.lower():
-                        # Si es actividad general en GraFun
-                        print(f"   📡 Pulso en GraFun...", flush=True)
-                        # Buscamos la función de lanzamiento (LAUNCH)
+                        # Si es la función de lanzamiento de GraFun
                         if tx.input.hex().startswith(CREATE_METHOD_ID):
-                            print("   🚨 ¡LANZAMIENTO DETECTADO! Buscando address...", flush=True)
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
                             for log in receipt['logs']:
                                 potential_token = log['address']
                                 if potential_token.lower() != GRAFUN_ROUTER.lower():
+                                    # VA DIRECTO AL DISPARO
                                     fire_strike(potential_token)
                 last_block = current_block
             time.sleep(1)
-        except Exception:
-            time.sleep(2)
+        except Exception: time.sleep(2)
 
 if __name__ == "__main__":
-    notify("🛰️ *ASTRALIX V14.1 ONLINE*\nObjetivo: GraFun Sniper.")
+    notify("🧨 *ASTRALIX V16.0 ONLINE*\nFiltros desactivados. Disparando a todo lo que se mueva en GraFun.")
     scan_blocks()
