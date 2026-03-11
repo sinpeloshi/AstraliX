@@ -16,16 +16,16 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
-# --- 🧨 CONFIGURACIÓN ---
+# --- 🧨 CONFIGURACIÓN DE ALTA PRECISIÓN ---
 CAPITAL_SNIPER = 0.005 
-GAS_MULTIPLIER = 10.0  
-RETRASO_COMPRA = 3     # 3s para saltar Deadblocks
-RETRASO_VENTA = 15     # 15s para sacar profit
+GAS_MULTIPLIER = 12.0  # Gas ultra agresivo para ganar el bloque 5
+RETRASO_COMPRA = 15    # 15s para saltar cualquier escudo (5 bloques)
+RETRASO_VENTA = 15     # 15s de hold para profit
 
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 FIRMA_CREACION = "0x519ebb10" 
-FIRMA_COMPRA = "0x87f27655"   # LA NUEVA QUE ENCONTRASTE
-FIRMA_VENTA = "0x06e7b98f"    # Venta AMAP
+FIRMA_COMPRA = "0x87f27655"   # buyTokenAMAP
+FIRMA_VENTA = "0x06e7b98f"    # sellTokenAMAP
 
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
 MI_BILLETERA = w3.eth.account.from_key(PRIV_KEY).address 
@@ -44,60 +44,74 @@ def fire_strike_full_cycle(token_addr):
     if token_addr in TOKENS_COMPRADOS: return
     TOKENS_COMPRADOS.add(token_addr)
     
-    print(f"\n🚨 OBJETIVO: {token_addr}. Esperando {RETRASO_COMPRA}s...", flush=True)
+    print(f"\n🎯 OBJETIVO DETECTADO: {token_addr}", flush=True)
+    print(f"⏳ Iniciando espera de {RETRASO_COMPRA}s para saltar Deadblocks...", flush=True)
+    notify(f"🎯 *TARGET FIJADO*\n`{token_addr}`\nEsperando {RETRASO_COMPRA}s...")
+    
     time.sleep(RETRASO_COMPRA)
     
-    # --- 🛒 FASE DE COMPRA ---
+    # --- 🛒 FASE DE COMPRA RAW ---
     try:
         monto_wei = w3.to_wei(CAPITAL_SNIPER, 'ether')
-        # Payload: ID + token(32b) + funds(32b) + minAmount(32b)
+        # Payload exacto: ID + token(32b) + funds(32b) + minAmount(32b)
         tx_data = FIRMA_COMPRA + token_addr.lower().replace("0x","").zfill(64) + \
                   hex(monto_wei).replace("0x","").zfill(64) + "0"*64
         
-        tx_buy = {'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': monto_wei,
-                  'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 800000, 
-                  'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER), 'data': tx_data}
+        tx_buy = {
+            'chainId': 56, 
+            'from': MI_BILLETERA, 
+            'to': FOUR_MEME_ROUTER, 
+            'value': monto_wei,
+            'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 
+            'gas': 800000, 
+            'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER), 
+            'data': tx_data
+        }
         
         tx_hash = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
-        print(f"✅ COMPRA ENVIADA: {w3.to_hex(tx_hash)}", flush=True)
-        notify(f"🛒 *COMPRA ENVIADA*\nToken: `{token_addr}`\nEsperando {RETRASO_VENTA}s para vender...")
+        print(f"✅ COMPRA ENVIADA (15s): {w3.to_hex(tx_hash)}", flush=True)
+        notify(f"🛒 *COMPRA ENVIADA*\nTX: `{w3.to_hex(tx_hash)}`")
 
-        # --- ⏳ ESPERA PARA PROFIT ---
+        # --- ⏳ HOLD PARA PROFIT ---
+        print(f"⏳ Tomando posición. Esperando {RETRASO_VENTA}s para vender...", flush=True)
         time.sleep(RETRASO_VENTA)
 
-        # --- 💰 FASE DE VENTA ---
+        # --- 💰 FASE DE VENTA RAW ---
         token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
         balance = token_c.functions.balanceOf(MI_BILLETERA).call()
         
         if balance > 0:
-            print(f"🔄 Vendiendo {balance} tokens...", flush=True)
-            # Aprobar
+            print(f"🔄 Liquidando {balance} tokens...", flush=True)
+            # 1. Approve rápido
             tx_app = token_c.functions.approve(FOUR_MEME_ROUTER, balance).build_transaction({
                 'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
-                'gas': 100000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)})
+                'gas': 120000, 'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER)})
             w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_app, PRIV_KEY).raw_transaction)
-            time.sleep(2) # Pausa para que el approve asiente
+            time.sleep(2) # Pausa para confirmación de red
             
-            # Vender (Payload RAW para sellTokenAMAP)
-            # Payload: ID + token(32b) + amountIn(32b) + minAmountOut(32b)
+            # 2. Sell RAW (ID + token + balance + minOut)
             sell_data = FIRMA_VENTA + token_addr.lower().replace("0x","").zfill(64) + \
                         hex(balance).replace("0x","").zfill(64) + "0"*64
             
-            tx_sell = {'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': 0,
-                       'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 800000,
-                       'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER), 'data': sell_data}
+            tx_sell = {
+                'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': 0,
+                'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 800000,
+                'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER), 'data': sell_data
+            }
             
             tx_h_sell = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_sell, PRIV_KEY).raw_transaction)
             print(f"💰 VENTA ENVIADA: {w3.to_hex(tx_h_sell)}", flush=True)
-            notify(f"💰 *VENTA ENVIADA*\nTX: `{w3.to_hex(tx_h_sell)}`")
+            notify(f"💰 *VENTA EJECUTADA*\nTX: `{w3.to_hex(tx_h_sell)}`")
         else:
-            print("❌ No hay tokens para vender.", flush=True)
+            print("❌ No se detectó balance para vender.", flush=True)
 
-    except Exception as e: print(f"❌ Error: {e}", flush=True)
+    except Exception as e: 
+        print(f"❌ Error en el ciclo: {e}", flush=True)
+        notify(f"🚨 *ERROR EN OPERACIÓN*\n{e}")
 
 def scan_blocks():
     global w3
-    print(f"☢️ AstraliX V25: FULL CYCLE (3s/15s). Firma {FIRMA_COMPRA}.", flush=True)
+    print(f"☢️ AstraliX V26: 15s DELAY SNIPER. Modo Seguro ON.", flush=True)
     last_block = w3.eth.block_number
     while True:
         try:
