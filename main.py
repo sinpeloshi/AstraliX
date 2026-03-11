@@ -18,13 +18,13 @@ def conectar_nodo():
 w3 = conectar_nodo()
 
 # --- 🧨 CONFIGURACIÓN KAMIKAZE ---
-CAPITAL_SNIPER = 0.005 # Inversión en BNB Nativo (Efectivo)
-GAS_MULTIPLIER = 5.0   # 500% de prioridad en la red
+CAPITAL_SNIPER = 0.005 # Inversión en BNB Nativo
+GAS_MULTIPLIER = 5.0   
 
 # 🎯 OBJETIVO: FOUR.MEME
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
-FIRMA_CREACION = "0x519ebb10" # La firma que lanza tokens
-FIRMA_COMPRA = "0xcce7ec13"   # LA LLAVE MAESTRA QUE ENCONTRASTE
+FIRMA_CREACION = "0x519ebb10" # Firma que crea el token
+FIRMA_COMPRA = "0xcce7ec13"   # LLAVE MAESTRA RAW DE COMPRA
 
 # --- 🔑 IDENTIDAD ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -33,7 +33,7 @@ MI_BILLETERA = w3.eth.account.from_key(PRIV_KEY).address
 TG_TOKEN = '8783847744:AAHdwwlEqP7HCgSXoFxRdD8snr5FRhT1OUo'
 TG_ID = '6580309816'
 
-# 🧠 MEMORIA DEL BOT (Para no disparar dos veces al mismo token)
+# 🧠 MEMORIA DEL BOT 
 TOKENS_COMPRADOS = set()
 
 def notify(msg):
@@ -52,30 +52,26 @@ def fire_strike_raw(token_to_buy):
     notify(f"💥 *FRANCOTIRADOR RAW ACTIVADO*\nObjetivo: `{token_addr}`\nEntrando con BNB Nativo.")
     
     try:
-        # 🧠 HACK: CONSTRUIMOS EL PAYLOAD HEXADECIMAL MANUALMENTE
-        # 1. El Method ID secreto que descubriste
+        # 🧠 CONSTRUCCIÓN EXACTA DEL PAYLOAD HEXADECIMAL
         method_id = FIRMA_COMPRA
-        # 2. La dirección del token limpia (sin el '0x') y rellenada a 64 caracteres
         clean_token = token_addr.lower().replace("0x", "")
         padded_token = clean_token.zfill(64)
-        # 3. El monto mínimo de salida (0) rellenado a 64 caracteres
         padded_amount = "0" * 64
         
-        # Unimos todo para hacer la llave perfecta
         tx_data = method_id + padded_token + padded_amount
 
-        # Armamos la transacción directa desde tu billetera
+        # 🛠️ DICCIONARIO BLINDADO (Incluye chainId: 56 obligatorio para BSC)
         tx = {
+            'chainId': 56, # <--- ESTO NOS SALVÓ LA VIDA
             'from': MI_BILLETERA,
             'to': FOUR_MEME_ROUTER,
             'value': w3.to_wei(CAPITAL_SNIPER, 'ether'),
             'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
             'gas': 800000,
             'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER),
-            'data': tx_data # Metemos nuestra llave acá
+            'data': tx_data 
         }
         
-        # Firmamos y disparamos
         signed_tx = w3.eth.account.sign_transaction(tx, PRIV_KEY)
         tx_hash = w3.eth.send_raw_transaction(signed_tx.raw_transaction)
         
@@ -90,7 +86,7 @@ def fire_strike_raw(token_to_buy):
 def scan_blocks():
     global w3
     if not w3: return
-    print("☢️ AstraliX V22: RAW HEX SNIPER. Munición lista.", flush=True)
+    print("☢️ AstraliX V22.1: RAW HEX SNIPER. Auditado. Munición lista.", flush=True)
     last_block = w3.eth.block_number
     
     while True:
@@ -102,10 +98,11 @@ def scan_blocks():
                 
                 for tx in block.transactions:
                     if tx.to and tx.to.lower() == FOUR_MEME_ROUTER.lower():
-                        input_data = tx.input.hex()
-                        method_id = "0x" + input_data[:8] if len(input_data) >= 8 else "0x00000000"
                         
-                        # Buscamos la creación
+                        # Extracción blindada de la firma
+                        raw_input = w3.to_hex(tx["input"])
+                        method_id = raw_input[:10] if len(raw_input) >= 10 else "0x00000000"
+                        
                         if method_id == FIRMA_CREACION:
                             print(f"   ⚠️ FIRMA {FIRMA_CREACION} DETECTADA. Analizando...", flush=True)
                             receipt = w3.eth.get_transaction_receipt(tx.hash)
@@ -124,5 +121,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V22 ONLINE*\nFrancotirador Raw Hex montado.")
+    notify("🧨 *ASTRALIX V22.1 ONLINE*\nFrancotirador Raw Hex montado y Auditado.")
     scan_blocks()
