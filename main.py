@@ -17,16 +17,16 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
-# --- 🧨 CONFIGURACIÓN DE COMBATE ---
-CAPITAL_SNIPER = 0.005 # Inversión por tiro
-GAS_MULTIPLIER = 10.0  # Prioridad en la red
-RETRASO_COMPRA = 5     # Para saltar Deadblocks
-RETRASO_VENTA = 15     # Hold para profit
+# --- 🧨 CONFIGURACIÓN AJUSTADA AL SALDO ACTUAL ---
+CAPITAL_SNIPER = 0.005 # Tu inversión por tiro
+GAS_MULTIPLIER = 10.0  
+RETRASO_COMPRA = 5     
+RETRASO_VENTA = 15     
 
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 FIRMA_CREACION = "0x519ebb10" 
-FIRMA_COMPRA = "0x87f27655"   # buyTokenAMAP
-FIRMA_VENTA = "0x06e7b98f"    # sellTokenAMAP
+FIRMA_COMPRA = "0x87f27655"   
+FIRMA_VENTA = "0x06e7b98f"    
 
 # --- 🔑 CREDENCIALES ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -44,22 +44,23 @@ def notify(msg):
 
 def chequear_fondos():
     balance = w3.eth.get_balance(MI_BILLETERA)
-    return balance > w3.to_wei(CAPITAL_SNIPER + 0.003, 'ether')
+    # AJUSTE: Ahora requiere 0.0065 BNB mínimo (Inversión 0.005 + 0.0015 de reserva)
+    reserva_seguridad = 0.0015
+    return balance > w3.to_wei(CAPITAL_SNIPER + reserva_seguridad, 'ether')
 
 def fire_strike_full_cycle(token_addr):
     if token_addr in TOKENS_COMPRADOS: return
     TOKENS_COMPRADOS.add(token_addr)
     
     if not chequear_fondos():
-        notify("⚠️ *SALDO BAJO*: No hay BNB para el próximo disparo.")
+        notify("⚠️ *SALDO BAJO*: El radar detectó un token pero el saldo está al límite.")
         return
 
     print(f"\n🎯 OBJETIVO FIJADO: {token_addr}", flush=True)
-    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nEsperando {RETRASO_COMPRA}s...")
+    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nProcesando con saldo ajustado...")
     
     time.sleep(RETRASO_COMPRA)
     
-    # --- 🛒 FASE 1: COMPRA RAW ---
     try:
         monto_wei = w3.to_wei(CAPITAL_SNIPER, 'ether')
         tx_data = FIRMA_COMPRA + token_addr.lower().replace("0x","").zfill(64) + \
@@ -74,13 +75,10 @@ def fire_strike_full_cycle(token_addr):
         tx_h_buy = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
         print(f"✅ COMPRA ENVIADA: {w3.to_hex(tx_h_buy)}", flush=True)
 
-        # --- ⏳ FASE 2: HOLD ---
         time.sleep(RETRASO_VENTA)
 
-        # --- 💰 FASE 3: VENTA REFORZADA ---
         token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
         
-        # Re-intento de lectura de balance (3 veces)
         balance = 0
         for i in range(3):
             balance = token_c.functions.balanceOf(MI_BILLETERA).call()
@@ -90,16 +88,13 @@ def fire_strike_full_cycle(token_addr):
         if balance > 0:
             print(f"🔄 Liquidando {balance} tokens...", flush=True)
             
-            # 1. APPROVE MÁXIMO
             tx_app = token_c.functions.approve(FOUR_MEME_ROUTER, 2**256 - 1).build_transaction({
                 'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
                 'gas': 120000, 'gasPrice': int(w3.eth.gas_price * (GAS_MULTIPLIER + 2))})
             w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_app, PRIV_KEY).raw_transaction)
             
-            print("⏳ Esperando confirmación de Approve (4s)...", flush=True)
-            time.sleep(4) # Buffer vital para que el Router vea el permiso
+            time.sleep(4) 
             
-            # 2. VENTA RAW AMAP
             sell_data = FIRMA_VENTA + token_addr.lower().replace("0x","").zfill(64) + \
                         hex(balance).replace("0x","").zfill(64) + "0"*64
             
@@ -121,7 +116,7 @@ def fire_strike_full_cycle(token_addr):
 
 def scan_blocks():
     global w3
-    print(f"☢️ AstraliX V27: ULTIMATE PATCH. Escaneando Matrix...", flush=True)
+    print(f"☢️ AstraliX V27.1: Modo Saldo Ajustado Activo. Escaneando...", flush=True)
     last_block = w3.eth.block_number
     while True:
         try:
@@ -145,5 +140,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V27 ONLINE*\nProtecciones de venta activadas.")
+    notify("🧨 *ASTRALIX V27.1 ONLINE*\nRadar calibrado para saldo de 0.0079 BNB.")
     scan_blocks()
