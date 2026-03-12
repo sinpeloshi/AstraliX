@@ -17,11 +17,11 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
-# --- 🧨 CONFIGURACIÓN CLÁSICA Y ESTABLE ---
+# --- 🧨 LA FÓRMULA EXACTA DE DENIS ---
 CAPITAL_SNIPER = 0.005 
 GAS_MULTIPLIER = 10.0  
-RETRASO_COMPRA = 5     
-RETRASO_VENTA = 15     
+RETRASO_COMPRA = 3     # EL PUNTO DULCE CONFIRMADO
+RETRASO_VENTA = 15     # Hold para profit
 
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 FIRMA_CREACION = "0x519ebb10" 
@@ -51,15 +51,15 @@ def fire_strike_full_cycle(token_addr):
     TOKENS_COMPRADOS.add(token_addr)
     
     if not chequear_fondos():
-        notify("⚠️ *SALDO BAJO*: El radar detectó un token pero no hay saldo suficiente.")
+        notify("⚠️ *SALDO BAJO*: El radar detectó un token pero el saldo está al límite.")
         return
 
     print(f"\n🎯 OBJETIVO FIJADO: {token_addr}", flush=True)
-    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nIniciando compra...")
+    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nIniciando compra en {RETRASO_COMPRA}s...")
     
     time.sleep(RETRASO_COMPRA)
     
-    # --- 🛒 FASE 1: COMPRA (Restaurada a V27.1) ---
+    # --- 🛒 FASE 1: LA COMPRA QUE ANDUVO PERFECTA ---
     try:
         monto_wei = w3.to_wei(CAPITAL_SNIPER, 'ether')
         tx_data = FIRMA_COMPRA + token_addr.lower().replace("0x","").zfill(64) + \
@@ -77,10 +77,9 @@ def fire_strike_full_cycle(token_addr):
         # --- ⏳ FASE 2: HOLD ---
         time.sleep(RETRASO_VENTA)
 
-        # --- 💰 FASE 3: VENTA (Restaurada a V26) ---
+        # --- 💰 FASE 3: LA VENTA REPARADA ---
         token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
         
-        # Leemos el balance 3 veces por si la red viene lenta
         balance = 0
         for i in range(3):
             balance = token_c.functions.balanceOf(MI_BILLETERA).call()
@@ -90,7 +89,7 @@ def fire_strike_full_cycle(token_addr):
         if balance > 0:
             print(f"🔄 Liquidando {balance} tokens...", flush=True)
             
-            # VOLVEMOS A APROBAR EL BALANCE EXACTO (Evita el rechazo de seguridad del token)
+            # Approve Exacto 
             tx_app = token_c.functions.approve(FOUR_MEME_ROUTER, balance).build_transaction({
                 'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
                 'gas': 120000, 'gasPrice': int(w3.eth.gas_price * (GAS_MULTIPLIER + 2))})
@@ -120,7 +119,7 @@ def fire_strike_full_cycle(token_addr):
 
 def scan_blocks():
     global w3
-    print(f"☢️ AstraliX V29: REGRESO A LA BASE. Escaneando Matrix...", flush=True)
+    print(f"☢️ AstraliX V31: LA FÓRMULA DE DENIS (3s Buy). Escaneando...", flush=True)
     last_block = w3.eth.block_number
     while True:
         try:
@@ -144,5 +143,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V29 ONLINE*\nMotor clásico estabilizado.")
+    notify("🧨 *ASTRALIX V31 ONLINE*\nMotor de 3 segundos activado. Saldo calibrado.")
     scan_blocks()
