@@ -7,9 +7,16 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 load_dotenv()
 
-# Configuración de Base de Datos (PostgreSQL en Railway)
+# ==========================================
+# 🛠️ MOTOR DE BASE DE DATOS (A prueba de fallos)
+# ==========================================
 DATABASE_URL = os.getenv("DATABASE_URL")
-if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+
+# Si Railway no nos da la URL, usamos SQLite como salvavidas automático
+if DATABASE_URL is None:
+    print("⚠️ DATABASE_URL no encontrada. Usando base de datos SQLite de emergencia...")
+    DATABASE_URL = "sqlite:///astralix_radar.db"
+elif DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 engine = create_engine(DATABASE_URL)
@@ -39,18 +46,15 @@ PANCAKESWAP_ROUTERS = [
 
 def procesar_bloque(numero_bloque):
     try:
-        # Obtenemos el bloque con todas sus transacciones
         bloque = w3.eth.get_block(numero_bloque, full_transactions=True)
         print(f"🔍 Escaneando Bloque {numero_bloque} | Transacciones: {len(bloque.transactions)}")
         
         nuevas_wallets = 0
         
         for tx in bloque.transactions:
-            # tx['to'] puede ser None si es creación de contrato
             if tx['to'] and tx['to'].lower() in PANCAKESWAP_ROUTERS:
                 wallet_trader = tx['from'].lower()
                 
-                # Verificamos si ya la tenemos en la base de datos
                 wallet_db = session.query(WalletDescubierta).filter_by(address=wallet_trader).first()
                 
                 if wallet_db:
