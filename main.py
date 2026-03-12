@@ -1,7 +1,7 @@
 import os
 import time
 from web3 import Web3
-from web3.middleware import geth_poa_middleware # <-- LA MAGIA ESTÁ ACÁ
+from web3.middleware import ExtraDataToPOAMiddleware # <-- MAGIA ACTUALIZADA PARA WEB3 V6+
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -40,8 +40,8 @@ Base.metadata.create_all(engine)
 BSC_RPC_URL = "https://bsc-dataseed.binance.org/"
 w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL))
 
-# ¡INYECCIÓN DEL PARCHE PARA BSC (POA)!
-w3.middleware_onion.inject(geth_poa_middleware, layer=0)
+# ¡INYECCIÓN DEL PARCHE PARA BSC (POA) VERSIÓN 6!
+w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
 # Contratos de PancakeSwap (V2 y V3 Routers)
 PANCAKESWAP_ROUTERS = [
