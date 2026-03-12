@@ -17,18 +17,19 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
-# --- 🧨 LA FÓRMULA GUERRILLA ---
-CAPITAL_SNIPER = 0.0015 # Inversión reducida para tus 0.006 BNB
-GAS_MULTIPLIER = 10.0  
-RETRASO_COMPRA = 3      # EL PUNTO DULCE 
-RETRASO_VENTA = 5       # Hold relámpago
+# --- 🧨 LA FÓRMULA GUERRILLA: MODO MICRO-SNIPER ---
+CAPITAL_SNIPER = 0.0005 # Reducido a 0.0005 BNB para adaptarse a tu saldo de 0.0023 BNB
+RETRASO_COMPRA = 3      
+RETRASO_VENTA = 3       
+
+# 🛡️ GESTIÓN DE GAS (Ajustada al milímetro)
+GAS_COMPRA_GWEI = w3.to_wei(1.5, 'gwei') 
+GAS_VENTA_GWEI = w3.to_wei(2.0, 'gwei')  
 
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 FIRMA_CREACION = "0x519ebb10" 
-FIRMA_COMPRA = "0x87f27655"   # buyTokenAMAP (Confirmada que anda)
-
-# 💥 LA FIRMA QUE DESCUBRIÓ DENIS
-FIRMA_VENTA = "0x0da74935"    # sellToken (La clásica)
+FIRMA_COMPRA = "0x87f27655"   
+FIRMA_VENTA = "0x0da74935"    
 
 # --- 🔑 CREDENCIALES ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -46,6 +47,8 @@ def notify(msg):
 
 def chequear_fondos():
     balance = w3.eth.get_balance(MI_BILLETERA)
+    # Ajustamos el margen de seguridad para que permita operar con tu saldo bajo
+    # Necesita al menos CAPITAL_SNIPER (0.0005) + Gas Estimado (0.001) = 0.0015 BNB
     return balance > w3.to_wei(CAPITAL_SNIPER + 0.001, 'ether')
 
 def fire_strike_full_cycle(token_addr):
@@ -53,7 +56,7 @@ def fire_strike_full_cycle(token_addr):
     TOKENS_COMPRADOS.add(token_addr)
     
     if not chequear_fondos():
-        notify("⚠️ *SALDO BAJO*: El radar detectó un token pero no llegamos al mínimo.")
+        notify("⚠️ *SALDO BAJO*: El radar detectó un token pero no llegamos al mínimo operativo (0.0015 BNB).")
         return
 
     print(f"\n🎯 OBJETIVO FIJADO: {token_addr}", flush=True)
@@ -61,7 +64,7 @@ def fire_strike_full_cycle(token_addr):
     
     time.sleep(RETRASO_COMPRA)
     
-    # --- 🛒 FASE 1: COMPRA (INTACTA) ---
+    # --- 🛒 FASE 1: COMPRA ---
     try:
         monto_wei = w3.to_wei(CAPITAL_SNIPER, 'ether')
         tx_data = FIRMA_COMPRA + token_addr.lower().replace("0x","").zfill(64) + \
@@ -69,17 +72,19 @@ def fire_strike_full_cycle(token_addr):
         
         tx_buy = {
             'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': monto_wei,
-            'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 850000, 
-            'gasPrice': int(w3.eth.gas_price * GAS_MULTIPLIER), 'data': tx_data
+            'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 
+            'gas': 350000, # Bajado de 600k a 350k para no saturar tu saldo retenido
+            'gasPrice': GAS_COMPRA_GWEI, 
+            'data': tx_data
         }
         
         tx_h_buy = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
         print(f"✅ COMPRA ENVIADA: {w3.to_hex(tx_h_buy)}", flush=True)
 
         # --- ⏳ FASE 2: HOLD RELÁMPAGO ---
-        time.sleep(RETRASO_VENTA)
+        time.sleep(RETRASO_VENTA) 
 
-        # --- 💰 FASE 3: VENTA (EL PROTOCOLO DENIS) ---
+        # --- 💰 FASE 3: VENTA (EL PROTOCOLO DENIS MEJORADO) ---
         token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
         
         balance = 0
@@ -89,18 +94,22 @@ def fire_strike_full_cycle(token_addr):
             time.sleep(1)
 
         if balance > 0:
-            print(f"🔄 Liquidando {balance} tokens...", flush=True)
+            print(f"🔄 Preparando liquidación de {balance} tokens...", flush=True)
             
-            # Approve Exacto 
+            # 🔥 MAGIA DEL NONCE
+            current_nonce = w3.eth.get_transaction_count(MI_BILLETERA)
+            
+            # 1. Approve
             tx_app = token_c.functions.approve(FOUR_MEME_ROUTER, balance).build_transaction({
-                'from': MI_BILLETERA, 'nonce': w3.eth.get_transaction_count(MI_BILLETERA),
-                'gas': 120000, 'gasPrice': int(w3.eth.gas_price * (GAS_MULTIPLIER + 2))})
-            w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_app, PRIV_KEY).raw_transaction)
+                'from': MI_BILLETERA, 
+                'nonce': current_nonce,
+                'gas': 60000, 
+                'gasPrice': GAS_VENTA_GWEI
+            })
+            tx_h_app = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_app, PRIV_KEY).raw_transaction)
+            print(f"🔓 Approve enviado: {w3.to_hex(tx_h_app)}", flush=True)
             
-            print("⏳ Esperando confirmación de Approve (4s)...", flush=True)
-            time.sleep(4) 
-            
-            # EL PAYLOAD EXACTO QUE SACASTE DE BSCSCAN
+            # 2. Venta Inmediata
             origin_param = "0" * 64
             token_param = token_addr.lower().replace("0x","").zfill(64)
             amount_param = hex(balance).replace("0x","").zfill(64)
@@ -110,8 +119,10 @@ def fire_strike_full_cycle(token_addr):
             
             tx_sell = {
                 'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': 0,
-                'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 'gas': 900000,
-                'gasPrice': int(w3.eth.gas_price * (GAS_MULTIPLIER + 2)), 'data': sell_data
+                'nonce': current_nonce + 1, 
+                'gas': 400000, # Bajado de 600k a 400k
+                'gasPrice': GAS_VENTA_GWEI, 
+                'data': sell_data
             }
             
             tx_h_sell = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_sell, PRIV_KEY).raw_transaction)
@@ -150,5 +161,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V33 ONLINE*\nMotor Guerrilla activado con Venta Nativa (0x0da74935).")
+    notify("🧨 *ASTRALIX V33 ONLINE*\nMotor Micro-Guerrilla activado (Tiempos y Gas Maximizados).")
     scan_blocks()
