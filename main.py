@@ -1,7 +1,8 @@
 import os
 import time
 from web3 import Web3
-from web3.middleware import ExtraDataToPOAMiddleware # <-- MAGIA ACTUALIZADA PARA WEB3 V6+
+# 👇 CAMBIO CLAVE PARA LA VERSIÓN NUEVA DE WEB3
+from web3.middleware import ExtraDataToPOAMiddleware 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -9,12 +10,12 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 load_dotenv()
 
 # ==========================================
-# 🛠️ MOTOR DE BASE DE DATOS
+# 🛠️ MOTOR DE BASE DE DATOS (Railway o Local)
 # ==========================================
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL is None:
-    print("⚠️ DATABASE_URL no encontrada. Usando base de datos SQLite de emergencia...")
+    print("⚠️ DATABASE_URL no encontrada. Usando SQLite de emergencia...")
     DATABASE_URL = "sqlite:///astralix_radar.db"
 elif DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
@@ -24,10 +25,8 @@ Base = declarative_base()
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# Tabla para guardar las Wallets descubiertas
 class WalletDescubierta(Base):
     __tablename__ = 'wallets_detectadas'
-    
     address = Column(String, primary_key=True)
     interacciones_pancakeswap = Column(Integer, default=1)
     ultimo_visto = Column(Integer)
@@ -35,15 +34,14 @@ class WalletDescubierta(Base):
 Base.metadata.create_all(engine)
 
 # ==========================================
-# 📡 CONEXIÓN A LA BLOCKCHAIN (BSC)
+# 📡 CONEXIÓN A BSC (BINANCE SMART CHAIN)
 # ==========================================
 BSC_RPC_URL = "https://bsc-dataseed.binance.org/"
 w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL))
 
-# ¡INYECCIÓN DEL PARCHE PARA BSC (POA) VERSIÓN 6!
+# 👇 INYECCIÓN DE LA MAGIA ACTUALIZADA
 w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
 
-# Contratos de PancakeSwap (V2 y V3 Routers)
 PANCAKESWAP_ROUTERS = [
     "0x10ED43C718714eb63d5aA57B78B54704E256024E".lower(), # V2
     "0x13f4EA83D0bd40E75C8222255bc855a974568Dd4".lower()  # V3
@@ -52,14 +50,12 @@ PANCAKESWAP_ROUTERS = [
 def procesar_bloque(numero_bloque):
     try:
         bloque = w3.eth.get_block(numero_bloque, full_transactions=True)
-        print(f"🔍 Escaneando Bloque {numero_bloque} | Transacciones: {len(bloque.transactions)}")
+        print(f"🔍 AstraliX Escaneando Bloque {numero_bloque} | Tx: {len(bloque.transactions)}")
         
         nuevas_wallets = 0
-        
         for tx in bloque.transactions:
             if tx['to'] and tx['to'].lower() in PANCAKESWAP_ROUTERS:
                 wallet_trader = tx['from'].lower()
-                
                 wallet_db = session.query(WalletDescubierta).filter_by(address=wallet_trader).first()
                 
                 if wallet_db:
@@ -76,29 +72,23 @@ def procesar_bloque(numero_bloque):
         
         session.commit()
         if nuevas_wallets > 0:
-            print(f"🎯 ¡Se atraparon {nuevas_wallets} nuevas wallets operando en PancakeSwap!")
+            print(f"🎯 ¡Atrapadas {nuevas_wallets} nuevas wallets!")
 
     except Exception as e:
-        print(f"Error procesando el bloque: {e}")
+        print(f"Error bloque: {e}")
 
 def iniciar_escucha():
     if not w3.is_connected():
         print("❌ Error de conexión al nodo BSC.")
         return
-
-    print("📡 Conectado a BSC. Escuchando operaciones en PancakeSwap...")
-    
-    ultimo_bloque_procesado = w3.eth.block_number
-
+    print("📡 AstraliX Conectado. Escuchando mercado...")
+    ultimo_bloque = w3.eth.block_number
     while True:
-        bloque_actual = w3.eth.block_number
-        
-        if bloque_actual > ultimo_bloque_procesado:
-            for n_bloque in range(ultimo_bloque_procesado + 1, bloque_actual + 1):
-                procesar_bloque(n_bloque)
-            ultimo_bloque_procesado = bloque_actual
-        
-        # Pausa para no saturar el nodo público gratuito
+        actual = w3.eth.block_number
+        if actual > ultimo_bloque:
+            for n in range(ultimo_bloque + 1, actual + 1):
+                procesar_bloque(n)
+            ultimo_bloque = actual
         time.sleep(3)
 
 if __name__ == "__main__":
