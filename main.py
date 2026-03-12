@@ -1,165 +1,107 @@
+import os
 import time
 import requests
-from web3 import Web3
-from web3.middleware import ExtraDataToPOAMiddleware 
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, Column, String, Float, Integer, Boolean
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-# --- 🛰️ CONEXIÓN Y NODOS ---
-RPC_NODES = ["https://bsc-dataseed.binance.org/", "https://bsc-dataseed1.defibit.io/", "https://bsc-dataseed1.ninicoin.io/"]
+# Cargar variables de entorno
+load_dotenv()
 
-def conectar_nodo():
-    for rpc in RPC_NODES:
-        try:
-            w3 = Web3(Web3.HTTPProvider(rpc, request_kwargs={'timeout': 15}))
-            w3.middleware_onion.inject(ExtraDataToPOAMiddleware, layer=0)
-            if w3.is_connected(): return w3
-        except: pass
-    return None
+# Configuración de Base de Datos
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
-w3 = conectar_nodo()
+engine = create_engine(DATABASE_URL)
+Base = declarative_base()
+Session = sessionmaker(bind=engine)
+session = Session()
 
-# --- 🧨 LA FÓRMULA GUERRILLA ---
-CAPITAL_SNIPER = 0.0004 
-RETRASO_COMPRA = 3      
-RETRASO_VENTA = 3       
+# API Key de BscScan
+BSCSCAN_API_KEY = os.getenv("BSCSCAN_API_KEY")
 
-# 🛡️ GESTIÓN DE GAS (Ajustado según capturas de Denis)
-GAS_PRICE_GWEI = w3.to_wei(1.05, 'gwei') 
-GAS_LIMIT_COMPRA = 250000
-GAS_LIMIT_APPROVE = 75000  # Captura mostró ~46,000 usados
-GAS_LIMIT_VENTA = 250000   # Captura mostró ~160,000 usados
-
-FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
-
-# 💥 LAS FIRMAS RAW
-FIRMA_CREACION = "0x519ebb10" 
-FIRMA_COMPRA = "0x87f27655"   
-FIRMA_APPROVE = "0x095ea7b3"  
-FIRMA_VENTA = "0x0da74935"    
-
-# --- 🔑 CREDENCIALES ---
-PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
-MI_BILLETERA = w3.eth.account.from_key(PRIV_KEY).address 
-TG_TOKEN = '8783847744:AAHdwwlEqP7HCgSXoFxRdD8snr5FRhT1OUo'
-TG_ID = '6580309816'
-
-ABI_ERC20 = '[{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"type":"function"}]'
-
-TOKENS_COMPRADOS = set()
-
-def notify(msg):
-    try: requests.post(f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage", json={"chat_id": TG_ID, "text": msg, "parse_mode": "Markdown"}, timeout=5)
-    except: pass
-
-def chequear_fondos():
-    balance = w3.eth.get_balance(MI_BILLETERA)
-    return balance >= w3.to_wei(CAPITAL_SNIPER + 0.0005, 'ether')
-
-def fire_strike_full_cycle(token_addr):
-    if token_addr in TOKENS_COMPRADOS: return
-    TOKENS_COMPRADOS.add(token_addr)
+# Modelo de la tabla en PostgreSQL
+class Transaccion(Base):
+    __tablename__ = 'transacciones_smart_wallets'
     
-    if not chequear_fondos():
-        notify("⚠️ *SALDO BAJO*: Radar activo, pero saldo insuficiente para operar.")
-        return
+    hash_tx = Column(String, primary_key=True)
+    wallet = Column(String)
+    token_symbol = Column(String)
+    token_address = Column(String)
+    cantidad = Column(Float)
+    tipo = Column(String) # COMPRA o VENTA
+    timestamp = Column(Integer)
 
-    print(f"\n🎯 OBJETIVO FIJADO: {token_addr}", flush=True)
-    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nSecuencia RAW iniciada...")
-    
-    time.sleep(RETRASO_COMPRA)
-    
-    # --- 🛒 FASE 1: COMPRA RAW ---
+# Crear la tabla si no existe
+Base.metadata.create_all(engine)
+
+# Wallets que queremos rastrear (Tus "Smart Wallets" de prueba)
+TARGET_WALLETS = [
+    "0x...PegaAcaLaWallet1...", 
+    "0x...PegaAcaLaWallet2..."
+]
+
+def obtener_transacciones(wallet):
+    url = f"https://api.bscscan.com/api?module=account&action=tokentx&address={wallet}&page=1&offset=50&sort=desc&apikey={BSCSCAN_API_KEY}"
     try:
-        monto_wei = w3.to_wei(CAPITAL_SNIPER, 'ether')
-        tx_data_buy = FIRMA_COMPRA + token_addr.lower().replace("0x","").zfill(64) + hex(monto_wei).replace("0x","").zfill(64) + "0"*64
+        res = requests.get(url).json()
+        if res['status'] == '1':
+            return res['result']
+    except Exception as e:
+        print(f"Error conectando a BscScan: {e}")
+    return []
+
+def procesar_y_guardar(wallet):
+    print(f"Buscando datos para {wallet}...")
+    txs = obtener_transacciones(wallet)
+    
+    nuevas_txs = 0
+    for tx in txs:
+        # Verificar si la transacción ya existe en la base de datos
+        existe = session.query(Transaccion).filter_by(hash_tx=tx['hash']).first()
         
-        tx_buy = {
-            'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': monto_wei,
-            'nonce': w3.eth.get_transaction_count(MI_BILLETERA), 
-            'gas': GAS_LIMIT_COMPRA, 'gasPrice': GAS_PRICE_GWEI, 'data': tx_data_buy
-        }
-        
-        tx_h_buy = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
-        print(f"✅ COMPRA ENVIADA: {w3.to_hex(tx_h_buy)}", flush=True)
+        if not existe:
+            # Calcular cantidad real usando los decimales del token
+            cantidad_real = float(tx['value']) / (10 ** int(tx['tokenDecimal']))
+            
+            # Determinar si es compra o venta
+            tipo_tx = "COMPRA" if tx['to'].lower() == wallet.lower() else "VENTA"
+            
+            nueva_tx = Transaccion(
+                hash_tx=tx['hash'],
+                wallet=wallet,
+                token_symbol=tx['tokenSymbol'],
+                token_address=tx['contractAddress'],
+                cantidad=cantidad_real,
+                tipo=tipo_tx,
+                timestamp=int(tx['timeStamp'])
+            )
+            session.add(nueva_tx)
+            nuevas_txs += 1
+            print(f"NUEVA {tipo_tx}: {cantidad_real:.2f} {tx['tokenSymbol']}")
+            
+    if nuevas_txs > 0:
+        session.commit()
+        print(f"✅ Se guardaron {nuevas_txs} transacciones nuevas en la base de datos.")
+    else:
+        print("Sin movimientos nuevos.")
 
-        # --- ⏳ FASE 2: HOLD RELÁMPAGO ---
-        time.sleep(RETRASO_VENTA) 
-
-        # --- 💰 FASE 3: APPROVE + VENTA (Bypass Slippage) ---
-        token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
-        
-        balance = 0
-        for i in range(3):
-            balance = token_c.functions.balanceOf(MI_BILLETERA).call()
-            if balance > 0: break
-            time.sleep(1)
-
-        if balance > 0:
-            print(f"🔄 Liquidando {balance} tokens...", flush=True)
-            current_nonce = w3.eth.get_transaction_count(MI_BILLETERA)
-            
-            # 1. APPROVE RAW (Al contrato del Token)
-            router_param = FOUR_MEME_ROUTER.lower().replace("0x","").zfill(64)
-            approve_amount_param = hex(balance).replace("0x","").zfill(64)
-            tx_data_app = FIRMA_APPROVE + router_param + approve_amount_param
-            
-            tx_app = {
-                'chainId': 56, 'from': MI_BILLETERA, 'to': token_addr, 'value': 0, 
-                'nonce': current_nonce, 
-                'gas': GAS_LIMIT_APPROVE, 'gasPrice': GAS_PRICE_GWEI, 'data': tx_data_app
-            }
-            tx_h_app = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_app, PRIV_KEY).raw_transaction)
-            print(f"🔓 APPROVE ENVIADO: {w3.to_hex(tx_h_app)}", flush=True)
-            
-            # 2. VENTA RAW (Con "minFunds" dinámico)
-            origin_param = "0" * 64
-            token_param = token_addr.lower().replace("0x","").zfill(64)
-            amount_param = hex(balance).replace("0x","").zfill(64)
-            
-            # EL TRUCO: minFunds = 1 Wei (Hex: 0x1) en lugar de ceros.
-            minFunds_param = hex(1).replace("0x","").zfill(64) 
-            
-            tx_data_sell = FIRMA_VENTA + origin_param + token_param + amount_param + minFunds_param
-            
-            tx_sell = {
-                'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': 0, 
-                'nonce': current_nonce + 1, # Disparo doble
-                'gas': GAS_LIMIT_VENTA, 'gasPrice': GAS_PRICE_GWEI, 'data': tx_data_sell
-            }
-            tx_h_sell = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_sell, PRIV_KEY).raw_transaction)
-            print(f"💰 VENTA ENVIADA: {w3.to_hex(tx_h_sell)}", flush=True)
-            notify(f"💰 *VENTA EJECUTADA*\nTX: `{w3.to_hex(tx_h_sell)}`")
-        else:
-            print("❌ Saldo 0. No se pudo vender.", flush=True)
-
-    except Exception as e: 
-        print(f"❌ Error: {e}", flush=True)
-        notify(f"🚨 *FALLO EN OPERACIÓN*: {str(e)[:50]}")
-
-def scan_blocks():
-    global w3
-    print(f"☢️ AstraliX V35: MODO BYPASS SLIPPAGE. Escaneando...", flush=True)
-    last_block = w3.eth.block_number
+def iniciar_radar():
+    print("🚀 Iniciando Radar de Smart Wallets en BSC...")
     while True:
-        try:
-            current_block = w3.eth.block_number
-            if current_block > last_block:
-                block = w3.eth.get_block(current_block, full_transactions=True)
-                for tx in block.transactions:
-                    if tx.to and tx.to.lower() == FOUR_MEME_ROUTER.lower():
-                        if w3.to_hex(tx["input"])[:10] == FIRMA_CREACION:
-                            receipt = w3.eth.get_transaction_receipt(tx.hash)
-                            for log in receipt['logs']:
-                                if len(log['topics']) > 0:
-                                    t = log['address']
-                                    if t.lower() != FOUR_MEME_ROUTER.lower():
-                                        fire_strike_full_cycle(t)
-                                        break
-                last_block = current_block
-            time.sleep(1)
-        except:
-            time.sleep(2)
-            w3 = conectar_nodo()
+        for wallet in TARGET_WALLETS:
+            # Evitar analizar wallets vacías o mal configuradas
+            if len(wallet) == 42 and wallet.startswith("0x"):
+                procesar_y_guardar(wallet)
+                # Pausa de 5 segundos entre wallets para no saturar la API gratuita
+                time.sleep(5) 
+            
+        print("⏳ Esperando 60 segundos para el próximo escaneo...")
+        time.sleep(60)
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V35 ONLINE*\nSlippage Dinámico inyectado.")
-    scan_blocks()
+    if not BSCSCAN_API_KEY or not DATABASE_URL:
+        print("❌ Faltan configurar las variables de entorno (DATABASE_URL o BSCSCAN_API_KEY).")
+    else:
+        iniciar_radar()
