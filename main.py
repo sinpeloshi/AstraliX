@@ -1,6 +1,7 @@
 import os
 import time
 from web3 import Web3
+from web3.middleware import geth_poa_middleware # <-- LA MAGIA ESTÁ ACÁ
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.orm import declarative_base, sessionmaker
@@ -8,11 +9,10 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 load_dotenv()
 
 # ==========================================
-# 🛠️ MOTOR DE BASE DE DATOS (A prueba de fallos)
+# 🛠️ MOTOR DE BASE DE DATOS
 # ==========================================
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Si Railway no nos da la URL, usamos SQLite como salvavidas automático
 if DATABASE_URL is None:
     print("⚠️ DATABASE_URL no encontrada. Usando base de datos SQLite de emergencia...")
     DATABASE_URL = "sqlite:///astralix_radar.db"
@@ -34,9 +34,14 @@ class WalletDescubierta(Base):
 
 Base.metadata.create_all(engine)
 
-# Conexión al Nodo Público de BSC
+# ==========================================
+# 📡 CONEXIÓN A LA BLOCKCHAIN (BSC)
+# ==========================================
 BSC_RPC_URL = "https://bsc-dataseed.binance.org/"
 w3 = Web3(Web3.HTTPProvider(BSC_RPC_URL))
+
+# ¡INYECCIÓN DEL PARCHE PARA BSC (POA)!
+w3.middleware_onion.inject(geth_poa_middleware, layer=0)
 
 # Contratos de PancakeSwap (V2 y V3 Routers)
 PANCAKESWAP_ROUTERS = [
