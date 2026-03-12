@@ -17,16 +17,18 @@ def conectar_nodo():
 
 w3 = conectar_nodo()
 
-# --- 🧨 LA FÓRMULA EXACTA DE DENIS ---
-CAPITAL_SNIPER = 0.005 
+# --- 🧨 LA FÓRMULA GUERRILLA ---
+CAPITAL_SNIPER = 0.0015 # Inversión reducida para tus 0.006 BNB
 GAS_MULTIPLIER = 10.0  
-RETRASO_COMPRA = 3     # EL PUNTO DULCE CONFIRMADO
-RETRASO_VENTA = 15     # Hold para profit
+RETRASO_COMPRA = 3      # EL PUNTO DULCE 
+RETRASO_VENTA = 5       # Hold relámpago
 
 FOUR_MEME_ROUTER = w3.to_checksum_address("0x5c952063c7fc8610ffdb798152d69f0b9550762b")
 FIRMA_CREACION = "0x519ebb10" 
-FIRMA_COMPRA = "0x87f27655"   
-FIRMA_VENTA = "0x06e7b98f"    
+FIRMA_COMPRA = "0x87f27655"   # buyTokenAMAP (Confirmada que anda)
+
+# 💥 LA FIRMA QUE DESCUBRIÓ DENIS
+FIRMA_VENTA = "0x0da74935"    # sellToken (La clásica)
 
 # --- 🔑 CREDENCIALES ---
 PRIV_KEY = "0x8f270281b31526697669d03a48e7e930509657662cbf1f4d6e89b3dfd0413c6e"
@@ -44,22 +46,22 @@ def notify(msg):
 
 def chequear_fondos():
     balance = w3.eth.get_balance(MI_BILLETERA)
-    return balance > w3.to_wei(CAPITAL_SNIPER + 0.0015, 'ether')
+    return balance > w3.to_wei(CAPITAL_SNIPER + 0.001, 'ether')
 
 def fire_strike_full_cycle(token_addr):
     if token_addr in TOKENS_COMPRADOS: return
     TOKENS_COMPRADOS.add(token_addr)
     
     if not chequear_fondos():
-        notify("⚠️ *SALDO BAJO*: El radar detectó un token pero el saldo está al límite.")
+        notify("⚠️ *SALDO BAJO*: El radar detectó un token pero no llegamos al mínimo.")
         return
 
     print(f"\n🎯 OBJETIVO FIJADO: {token_addr}", flush=True)
-    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nIniciando compra en {RETRASO_COMPRA}s...")
+    notify(f"🎯 *TARGET DETECTADO*\n`{token_addr}`\nIniciando micro-compra en {RETRASO_COMPRA}s...")
     
     time.sleep(RETRASO_COMPRA)
     
-    # --- 🛒 FASE 1: LA COMPRA QUE ANDUVO PERFECTA ---
+    # --- 🛒 FASE 1: COMPRA (INTACTA) ---
     try:
         monto_wei = w3.to_wei(CAPITAL_SNIPER, 'ether')
         tx_data = FIRMA_COMPRA + token_addr.lower().replace("0x","").zfill(64) + \
@@ -74,10 +76,10 @@ def fire_strike_full_cycle(token_addr):
         tx_h_buy = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_buy, PRIV_KEY).raw_transaction)
         print(f"✅ COMPRA ENVIADA: {w3.to_hex(tx_h_buy)}", flush=True)
 
-        # --- ⏳ FASE 2: HOLD ---
+        # --- ⏳ FASE 2: HOLD RELÁMPAGO ---
         time.sleep(RETRASO_VENTA)
 
-        # --- 💰 FASE 3: LA VENTA REPARADA ---
+        # --- 💰 FASE 3: VENTA (EL PROTOCOLO DENIS) ---
         token_c = w3.eth.contract(address=token_addr, abi=ABI_ERC20)
         
         balance = 0
@@ -98,8 +100,13 @@ def fire_strike_full_cycle(token_addr):
             print("⏳ Esperando confirmación de Approve (4s)...", flush=True)
             time.sleep(4) 
             
-            sell_data = FIRMA_VENTA + token_addr.lower().replace("0x","").zfill(64) + \
-                        hex(balance).replace("0x","").zfill(64) + "0"*64
+            # EL PAYLOAD EXACTO QUE SACASTE DE BSCSCAN
+            origin_param = "0" * 64
+            token_param = token_addr.lower().replace("0x","").zfill(64)
+            amount_param = hex(balance).replace("0x","").zfill(64)
+            minFunds_param = "0" * 64
+            
+            sell_data = FIRMA_VENTA + origin_param + token_param + amount_param + minFunds_param
             
             tx_sell = {
                 'chainId': 56, 'from': MI_BILLETERA, 'to': FOUR_MEME_ROUTER, 'value': 0,
@@ -108,7 +115,7 @@ def fire_strike_full_cycle(token_addr):
             }
             
             tx_h_sell = w3.eth.send_raw_transaction(w3.eth.account.sign_transaction(tx_sell, PRIV_KEY).raw_transaction)
-            print(f"💰 VENTA ENVIADA: {w3.to_hex(tx_h_sell)}", flush=True)
+            print(f"💰 VENTA ENVIADA (Fórmula Denis): {w3.to_hex(tx_h_sell)}", flush=True)
             notify(f"💰 *VENTA EJECUTADA*\nTX: `{w3.to_hex(tx_h_sell)}`")
         else:
             print("❌ Saldo 0. No se pudo vender.", flush=True)
@@ -119,7 +126,7 @@ def fire_strike_full_cycle(token_addr):
 
 def scan_blocks():
     global w3
-    print(f"☢️ AstraliX V31: LA FÓRMULA DE DENIS (3s Buy). Escaneando...", flush=True)
+    print(f"☢️ AstraliX V33: PROTOCOLO DENIS. Escaneando Matrix...", flush=True)
     last_block = w3.eth.block_number
     while True:
         try:
@@ -143,5 +150,5 @@ def scan_blocks():
             w3 = conectar_nodo()
 
 if __name__ == "__main__":
-    notify("🧨 *ASTRALIX V31 ONLINE*\nMotor de 3 segundos activado. Saldo calibrado.")
+    notify("🧨 *ASTRALIX V33 ONLINE*\nMotor Guerrilla activado con Venta Nativa (0x0da74935).")
     scan_blocks()
