@@ -30,6 +30,7 @@ func main() {
 
 	fmt.Printf("¡Bloque Génesis Minado!\nHash: %s\nTiempo: %s\n", genesis.Hash, elapsed)
 	
+	// ---> ESTO REEMPLAZA AL select {} <---
 	// Creamos una ruta web para ver el bloque y mantener el nodo vivo
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
