@@ -15,7 +15,7 @@ var Mempool []core.Transaction
 
 func main() {
 	const Difficulty = 4 
-	// Asegúrate de poner tu dirección AX generada aquí para ver tus fondos
+	// RECUERDA: Pon aquí tu dirección AX generada con tu clave de 512 bits
 	creatorAddr := "AXdc3acc7c0b91eb485d0e3bb78059bb58a3999c14b56cfe6ca0428670afc6410c"
 
 	genTx := core.Transaction{Sender: "SYSTEM", Recipient: creatorAddr, Amount: 1000002021}
@@ -80,198 +80,156 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" { port = "8080" }
-	fmt.Printf("🌐 AstraliX White Node running on port %s\n", port)
+	fmt.Printf("🌐 AstraliX 512-bit Node running on port %s\n", port)
 	http.ListenAndServe("0.0.0.0:"+port, nil)
 }
 
 const dashboardHTML = `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>AstraliX | Digital Banking & Network</title>
+    <title>AstraliX | Network L1 OS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --main-blue: #003366; --celeste: #74ACDF; --bg-light: #F4F7F9; --white: #FFFFFF; }
-        body { background: var(--bg-light); color: #333; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; }
+        :root { --ax-blue: #003366; --ax-celeste: #74ACDF; --ax-cyan: #00ffa3; --bg: #f8f9fc; }
+        body { background: var(--bg); color: #333; font-family: 'Inter', system-ui, sans-serif; }
         
-        /* Layout */
-        .sidebar { background: var(--main-blue); height: 100vh; position: fixed; width: 260px; color: white; transition: 0.3s; z-index: 1000; }
-        .content { margin-left: 260px; padding: 30px; }
+        .sidebar { background: var(--ax-blue); height: 100vh; position: fixed; width: 260px; color: white; transition: 0.3s; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
+        .content { margin-left: 260px; padding: 40px; }
         
-        /* Sidebar Nav */
-        .nav-link { color: rgba(255,255,255,0.7); padding: 15px 25px; margin: 5px 15px; border-radius: 10px; transition: 0.2s; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
-        .nav-link:hover, .nav-link.active { background: var(--celeste); color: white; }
-        .nav-link i { width: 25px; font-size: 18px; }
+        .nav-link { color: rgba(255,255,255,0.6); padding: 14px 22px; margin: 8px 15px; border-radius: 12px; transition: 0.3s; cursor: pointer; text-decoration: none; display: flex; align-items: center; font-weight: 500; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--ax-celeste); }
+        .nav-link i { width: 30px; font-size: 18px; }
 
-        /* Components */
-        .card-custom { background: var(--white); border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px; }
-        .balance-card { background: linear-gradient(135deg, var(--main-blue) 0%, var(--celeste) 100%); color: white; }
-        .btn-primary-ax { background: var(--main-blue); color: white; border: none; border-radius: 12px; padding: 12px 25px; font-weight: 600; }
-        .btn-celeste { background: var(--celeste); color: white; border: none; border-radius: 12px; padding: 12px 25px; font-weight: 600; }
+        .card-elite { background: white; border: none; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,51,102,0.06); padding: 30px; margin-bottom: 25px; transition: 0.3s; }
+        .card-elite:hover { transform: translateY(-5px); box-shadow: 0 15px 45px rgba(0,51,102,0.1); }
         
-        .status-dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .addr-pill { background: #E9ECEF; padding: 8px 15px; border-radius: 10px; font-family: monospace; font-size: 0.85rem; color: #666; word-break: break-all; }
+        .balance-hero { background: linear-gradient(135deg, var(--ax-blue) 0%, #001a33 100%); color: white; position: relative; overflow: hidden; }
+        .balance-hero::after { content: ""; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: var(--ax-celeste); filter: blur(100px); opacity: 0.2; }
+        
+        .btn-ax { background: var(--ax-blue); color: white; border-radius: 14px; padding: 14px 28px; font-weight: 700; border: none; transition: 0.3s; }
+        .btn-ax:hover { background: var(--ax-celeste); transform: scale(1.02); }
+        
+        .addr-box { background: #f1f3f5; padding: 12px 18px; border-radius: 12px; font-family: monospace; font-size: 0.85rem; color: #555; word-break: break-all; border: 1px solid #e9ecef; }
+        .badge-512 { background: rgba(0, 255, 163, 0.1); color: #00a86b; font-weight: 800; padding: 5px 12px; border-radius: 8px; font-size: 11px; }
 
-        @media (max-width: 992px) {
-            .sidebar { transform: translateX(-100%); }
-            .content { margin-left: 0; padding: 15px; }
-            .sidebar.active { transform: translateX(0); }
-            .mobile-header { display: flex !important; }
-        }
+        @media (max-width: 992px) { .sidebar { transform: translateX(-100%); } .content { margin-left: 0; padding: 20px; } .sidebar.active { transform: translateX(0); } }
     </style>
 </head>
 <body>
 
     <div class="sidebar" id="sidebar">
         <div class="p-4 mb-4 text-center">
-            <h3 class="fw-bold mb-0">ASTRALIX</h3>
-            <small class="opacity-50">Secure 512-bit Protocol</small>
+            <h2 class="fw-black mb-0" style="letter-spacing: -2px;">ASTRALIX</h2>
+            <div class="badge-512">512-BIT SECURE</div>
         </div>
         <nav>
-            <a class="nav-link active" onclick="showPage('dash', this)"><i class="fas fa-home"></i> <span>Dashboard</span></a>
-            <a class="nav-link" onclick="showPage('wallet', this)"><i class="fas fa-wallet"></i> <span>My Wallet</span></a>
-            <a class="nav-link" onclick="showPage('explorer', this)"><i class="fas fa-cubes"></i> <span>Explorer</span></a>
-            <a class="nav-link" onclick="showPage('stats', this)"><i class="fas fa-chart-line"></i> <span>Network Stats</span></a>
-            <a class="nav-link" onclick="showPage('contacts', this)"><i class="fas fa-address-book"></i> <span>Contacts</span></a>
+            <a class="nav-link active" onclick="show('dash', this)"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a class="nav-link" onclick="show('wallet', this)"><i class="fas fa-wallet"></i> My Assets</a>
+            <a class="nav-link" onclick="show('explorer', this)"><i class="fas fa-database"></i> Network Explorer</a>
+            <a class="nav-link" onclick="show('security', this)"><i class="fas fa-shield-halved"></i> Key Management</a>
         </nav>
     </div>
 
     <div class="content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div class="mobile-header d-none align-items-center">
-                <button class="btn btn-dark me-3" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
-                <h4 class="mb-0 fw-bold">AstraliX</h4>
-            </div>
-            <div class="d-none d-lg-block">
-                <h4 class="fw-bold text-dark mb-0">Network Overview</h4>
-                <small class="text-muted"><span class="status-dot"></span> Node is Synchronized</small>
-            </div>
-            <div class="d-flex align-items-center">
-                <div class="text-end me-3 d-none d-sm-block">
-                    <small class="text-muted d-block">Node Port</small>
-                    <span class="fw-bold">8080 (Cloud)</span>
-                </div>
-                <button class="btn btn-light rounded-circle p-3 shadow-sm" onclick="location.reload()"><i class="fas fa-sync"></i></button>
-            </div>
-        </div>
-
-        <div id="page-dash" class="page">
+        <div id="view-dash" class="view">
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <div class="card-custom balance-card">
+                    <div class="card-elite balance-hero">
                         <div class="row align-items-center">
-                            <div class="col-md-7">
-                                <h6 class="text-uppercase opacity-75">Available AX Balance</h6>
-                                <h1 id="bal-main" class="fw-bold display-4 mb-3">0.00</h1>
-                                <div id="connected-addr" class="addr-pill bg-white bg-opacity-10 text-white border-0 text-truncate">Connect your wallet to start</div>
+                            <div class="col-md-8">
+                                <small class="text-uppercase opacity-50 fw-bold">Portfolio Balance</small>
+                                <h1 id="bal-main" class="display-3 fw-bold my-2">0.00 AX</h1>
+                                <div id="pub-addr" class="small opacity-50 text-truncate">Connect your 512-bit keys to sync</div>
                             </div>
-                            <div class="col-md-5 text-end d-none d-md-block">
-                                <i class="fas fa-shield-alt fa-8x opacity-25"></i>
+                            <div class="col-md-4 text-end d-none d-md-block">
+                                <i class="fas fa-satellite-dish fa-6x opacity-10"></i>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card-custom">
-                        <h5 class="fw-bold mb-4">Recent Blocks</h5>
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead class="text-muted small">
-                                    <tr><th>Block #</th><th>Hash</th><th>TXs</th><th>Time</th></tr>
-                                </thead>
-                                <tbody id="mini-explorer"></tbody>
-                            </table>
+                    <div class="card-elite">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-bold m-0">Live Network Feed</h5>
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="mine()">Mine Next Block</button>
                         </div>
+                        <div id="mini-chain"></div>
                     </div>
                 </div>
                 
                 <div class="col-lg-4">
-                    <div class="card-custom">
-                        <h5 class="fw-bold mb-3">Quick Actions</h5>
-                        <button class="btn btn-primary-ax w-100 mb-2" onclick="showPage('wallet')">Send Money</button>
-                        <button class="btn btn-outline-dark w-100 mb-4" onclick="mine()">Mine Next Block</button>
-                        <hr>
-                        <h6 class="text-muted small mb-3">Network Summary</h6>
-                        <div class="d-flex justify-content-between mb-2"><span>Supply</span><span class="fw-bold">1.0B AX</span></div>
-                        <div class="d-flex justify-content-between mb-2"><span>Height</span><span id="stat-height" class="fw-bold">0</span></div>
-                        <div class="d-flex justify-content-between mb-2"><span>Difficulty</span><span class="fw-bold text-primary">4 (PoW)</span></div>
+                    <div class="card-elite">
+                        <h5 class="fw-bold mb-4">Quick Actions</h5>
+                        <button class="btn btn-ax w-100 mb-3" onclick="show('wallet')">Transfer Tokens</button>
+                        <button class="btn btn-light w-100 border py-3 rounded-4" onclick="show('security')">Check Keys</button>
+                        <hr class="my-4">
+                        <div class="d-flex justify-content-between mb-2"><small>Network Status</small><span class="badge bg-success rounded-pill">Active</span></div>
+                        <div class="d-flex justify-content-between mb-2"><small>Protocol</small><b style="font-size: 12px;">SHA-512 (Elite)</b></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div id="page-wallet" class="page" style="display:none">
+        <div id="view-wallet" class="view" style="display:none">
+            <div class="card-elite max-w-500 mx-auto">
+                <h4 class="fw-bold mb-4">New Transaction</h4>
+                <div class="mb-3">
+                    <label class="small fw-bold text-muted mb-2">Recipient Address</label>
+                    <input type="text" id="tx-to" class="form-control p-3 border-0 bg-light" placeholder="AX...">
+                </div>
+                <div class="mb-4">
+                    <label class="small fw-bold text-muted mb-2">Amount (AX)</label>
+                    <input type="number" id="tx-amt" class="form-control p-3 border-0 bg-light" placeholder="0.00">
+                </div>
+                <button class="btn btn-ax w-100 py-3" onclick="sendTx()">BROADCAST TO NETWORK</button>
+            </div>
+        </div>
+
+        <div id="view-security" class="view" style="display:none">
             <div class="row g-4">
                 <div class="col-md-6">
-                    <div class="card-custom">
-                        <h4 class="fw-bold mb-4">Transfer AX</h4>
-                        <div class="mb-3">
-                            <label class="form-label small text-muted">Recipient Address</label>
-                            <input type="text" id="tx-to" class="form-control p-3 border-0 bg-light" placeholder="AX...">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label small text-muted">Amount</label>
-                            <input type="number" id="tx-amt" class="form-control p-3 border-0 bg-light" placeholder="0.00">
-                        </div>
-                        <button class="btn btn-celeste w-100 py-3 fw-bold" onclick="sendTx()">AUTHORIZE TRANSACTION</button>
+                    <div class="card-elite h-100">
+                        <h4 class="fw-bold mb-4">Import Identity</h4>
+                        <input type="password" id="imp-priv" class="form-control p-3 border-0 bg-light mb-3" placeholder="Enter Private Key">
+                        <button class="btn btn-ax w-100" onclick="importWallet()">SYNC WITH NODE</button>
+                        <button class="btn btn-link w-100 text-danger mt-3 text-decoration-none" onclick="logout()">Logout</button>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card-custom">
-                        <h4 class="fw-bold mb-4">Access Account</h4>
-                        <div class="mb-4">
-                            <label class="form-label small text-muted">Private Key (512-bit Secret)</label>
-                            <input type="password" id="imp-priv" class="form-control p-3 border-0 bg-light" placeholder="Enter Secret Key">
-                        </div>
-                        <button class="btn btn-primary-ax w-100 mb-3" onclick="importWallet()">CONNECT SESSION</button>
-                        <button class="btn btn-link w-100 text-danger text-decoration-none small" onclick="logout()">Disconnect Wallet</button>
-                    </div>
-                    <div class="card-custom bg-light border-0 shadow-none">
-                        <h5 class="fw-bold">Need a New Wallet?</h5>
-                        <p class="small text-muted">Generate a secure cryptographic keypair for the network.</p>
-                        <button class="btn btn-outline-dark btn-sm rounded-pill" onclick="createNew()">Generate New Identity</button>
-                        <div id="keys-box" class="mt-3 small" style="display:none">
-                            <div class="addr-pill mb-2 bg-white" id="gen-priv"></div>
-                            <div class="addr-pill bg-white text-primary fw-bold" id="gen-pub"></div>
+                    <div class="card-elite h-100">
+                        <h4 class="fw-bold mb-4">Seed Phrase</h4>
+                        <button class="btn btn-outline-dark w-100 py-3" onclick="gen()">Generate 12 Words</button>
+                        <div id="seed-res" class="mt-3" style="display:none">
+                            <div class="addr-box small" id="gen-priv"></div>
+                            <div class="addr-box small mt-2 fw-bold text-primary" id="gen-pub"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div id="page-explorer" class="page" style="display:none">
-            <div class="card-custom">
-                <h4 class="fw-bold mb-4">Chain Explorer</h4>
-                <div id="full-chain"></div>
             </div>
         </div>
     </div>
 
     <script>
-        async function deriveAddress(priv) {
-            const msgBuffer = new TextEncoder().encode(priv);
-            const hashBuffer = await crypto.subtle.digest('SHA-512', msgBuffer);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return 'AX' + hashHex.substring(0, 64);
+        async function derive(priv) {
+            const msg = new TextEncoder().encode(priv);
+            const hash = await crypto.subtle.digest('SHA-512', msg);
+            return 'AX' + Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('').substring(0,64);
         }
 
         let wallet = JSON.parse(localStorage.getItem('ax_session')) || null;
 
-        function showPage(id, el) {
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            document.getElementById('page-' + id).style.display = 'block';
-            if(el) {
-                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                el.classList.add('active');
-            }
+        function show(id, el) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.getElementById('view-' + id).style.display = 'block';
+            if(el) { document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
         }
 
         async function importWallet() {
             const priv = document.getElementById('imp-priv').value;
-            const pub = await deriveAddress(priv);
+            const pub = await derive(priv);
             wallet = { pub, priv };
             localStorage.setItem('ax_session', JSON.stringify(wallet));
             location.reload();
@@ -281,52 +239,36 @@ const dashboardHTML = `
 
         async function load() {
             if(wallet) {
-                document.getElementById('connected-addr').innerText = wallet.pub;
+                document.getElementById('pub-addr').innerText = wallet.pub;
                 const r = await fetch('/api/balance/' + wallet.pub);
                 const d = await r.json();
                 document.getElementById('bal-main').innerText = d.balance.toLocaleString() + ' AX';
             }
-            const resC = await fetch('/api/chain');
-            const chain = await resC.json();
-            document.getElementById('stat-height').innerText = chain.length;
-
-            const mini = document.getElementById('mini-explorer');
-            const full = document.getElementById('full-chain');
-            mini.innerHTML = ''; full.innerHTML = '';
-
-            chain.slice().reverse().forEach(b => {
-                const row = ` + "`" + `<tr><td>#${b.index}</td><td class="text-muted small">${b.hash.substring(0,24)}...</td><td>${b.transactions?b.transactions.length:0}</td><td>${new Date(b.timestamp*1000).toLocaleTimeString()}</td></tr>` + "`" + `;
-                mini.innerHTML += row;
-                
-                full.innerHTML += ` + "`" + `<div class="card-custom border mb-3"><div class="d-flex justify-content-between"><span class="fw-bold text-primary">BLOCK #${b.index}</span><small class="text-muted">${new Date(b.timestamp*1000).toLocaleString()}</small></div><div class="addr-pill my-2">${b.hash}</div><div class="small">Prev Hash: ${b.prev_hash || 'None'}</div></div>` + "`" + `;
+            const rc = await fetch('/api/chain');
+            const c = await rc.json();
+            const feed = document.getElementById('mini-chain');
+            feed.innerHTML = '';
+            c.reverse().forEach(b => {
+                feed.innerHTML += ` + "`" + `<div class="p-3 border-bottom d-flex justify-content-between align-items-center"><div class="small"><b>Block #${b.index}</b><br><span class="text-muted">${b.hash.substring(0,32)}...</span></div><small class="text-muted">${new Date(b.timestamp*1000).toLocaleTimeString()}</small></div>` + "`" + `;
             });
         }
 
-        async function mine() {
-            const r = await fetch('/api/mine');
-            if(r.ok) { alert("Block Successfully Mined!"); load(); } else { alert("Mempool Empty"); }
-        }
-
+        async function mine() { await fetch('/api/mine'); alert("Mined!"); load(); }
         async function sendTx() {
-            if(!wallet) return showPage('wallet');
             const tx = { sender: wallet.pub, recipient: document.getElementById('tx-to').value, amount: parseFloat(document.getElementById('tx-amt').value) };
             await fetch('/api/transactions/new', { method: 'POST', body: JSON.stringify(tx) });
-            alert("Transaction Broadcasted!"); showPage('dash'); load();
+            alert("Sent!"); show('dash'); load();
         }
 
-        async function createNew() {
-            const priv = btoa(Math.random().toString()).substring(0, 128);
-            const pub = await deriveAddress(priv);
-            document.getElementById('keys-box').style.display = 'block';
-            document.getElementById('gen-priv').innerText = 'Priv: ' + priv;
-            document.getElementById('gen-pub').innerText = 'Pub: ' + pub;
+        async function gen() {
+            const p = btoa(Math.random()).substring(0,64);
+            const pb = await derive(p);
+            document.getElementById('seed-res').style.display = 'block';
+            document.getElementById('gen-priv').innerText = 'Priv: ' + p;
+            document.getElementById('gen-pub').innerText = 'Pub: ' + pb;
         }
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
-
-        load();
-        setInterval(load, 20000);
+        load(); setInterval(load, 20000);
     </script>
 </body>
 </html>
-`
