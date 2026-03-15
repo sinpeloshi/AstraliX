@@ -81,18 +81,28 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Blockchain)
 	})
+	
+	// API MINE: El candado está acá
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
 		if miner == "" { http.Error(w, "Address req", 400); return }
+		
+		// ANTI-SPAM: Si no hay transacciones de usuarios, no se mina bloque ni hay premio.
+		if len(Mempool) == 0 { 
+			http.Error(w, "Mempool empty", 400)
+			return 
+		}
+
 		reward := 50.0
 		var txs []core.Transaction
-		if len(Mempool) > 0 { txs = append(txs, Mempool...) }
+		txs = append(txs, Mempool...) 
+		
 		if getBalance(TREASURY_POOL_ADDR) >= reward {
 			rewardTx := core.Transaction{Sender: TREASURY_POOL_ADDR, Recipient: miner, Amount: reward}
 			rewardTx.TxID = rewardTx.CalculateHash()
 			txs = append(txs, rewardTx)
 		}
-		if len(txs) == 0 { http.Error(w, "Nothing to mine", 400); return }
+		
 		prev := Blockchain[len(Blockchain)-1]
 		newBlock := core.Block{Index: int64(len(Blockchain)), Timestamp: time.Now().Unix(), Transactions: txs, PrevHash: prev.Hash, Difficulty: Difficulty}
 		newBlock.Mine()
@@ -101,6 +111,7 @@ func main() {
 		saveChain()
 		json.NewEncoder(w).Encode(newBlock)
 	})
+
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
@@ -109,6 +120,7 @@ func main() {
 		Mempool = append(Mempool, tx)
 		w.WriteHeader(201)
 	})
+	
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, dashboardHTML)
@@ -150,7 +162,6 @@ const dashboardHTML = `
 
         .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 20px; font-weight: 700; border: none; width: 100%; margin-top: 10px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; }
         
-        /* Explorer Card Styles */
         .block-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 15px; width: 100%; border: 1px solid #E2E8F0; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.02); box-sizing: border-box; }
         .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .block-idx { background: #E0E7FF; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; color: var(--primary); }
@@ -248,7 +259,6 @@ const dashboardHTML = `
             const revChain = chain.reverse();
             for(let i=0; i<revChain.length; i++) {
                 let b = revChain[i];
-                // CORRECCIÓN: Compatibilidad entre minúsculas (Go JSON nativo) y mayúsculas
                 let idx = b.index !== undefined ? b.index : b.Index;
                 let ts = b.timestamp || b.Timestamp;
                 let hash = b.hash || b.Hash || "Calculando...";
