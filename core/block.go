@@ -7,17 +7,16 @@ import (
 )
 
 type Block struct {
-	Index        int64
-	Timestamp    int64
-	Transactions []Transaction // Usamos el tipo Transaction definido en el otro archivo
-	PrevHash     string
-	Hash         string
-	Nonce        int
-	Difficulty   int
+	Index        int64         `json:"index"`
+	Timestamp    int64         `json:"timestamp"`
+	Transactions []Transaction `json:"transactions"`
+	PrevHash     string        `json:"prev_hash"`
+	Hash         string        `json:"hash"`
+	Nonce        int           `json:"nonce"`
+	Difficulty   int           `json:"difficulty"`
 }
 
 func (b *Block) CalculateHash() string {
-	// Convertimos las transacciones a texto para incluirlas en el Hash
 	txData := fmt.Sprintf("%v", b.Transactions)
 	record := fmt.Sprintf("%d%d%s%s%d", b.Index, b.Timestamp, txData, b.PrevHash, b.Nonce)
 	h := sha512.New()
