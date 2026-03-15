@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"time"
 	"astralix/core"
-	"astralix/wallet" // <-- Importamos tu nuevo módulo de billeteras
+	"astralix/wallet"
 )
 
 func main() {
@@ -15,7 +16,6 @@ func main() {
 
 	fmt.Println("--- AstraliX Network Central Node ---")
 	
-	// ¡Generamos la billetera del creador!
 	creadorWallet := wallet.NewWallet()
 	direccionCreador := creadorWallet.GetAddress()
 	
@@ -42,8 +42,14 @@ func main() {
 		json.NewEncoder(w).Encode(genesis)
 	})
 
-	fmt.Println("🌐 API de AstraliX activa. Nodo escuchando en el puerto 8080...")
-	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
+	// Capturamos el puerto que Railway nos impone, o usamos 8080 por defecto
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	fmt.Printf("🌐 API de AstraliX activa. Nodo escuchando en el puerto %s...\n", port)
+	if err := http.ListenAndServe("0.0.0.0:"+port, nil); err != nil {
 		fmt.Printf("Error iniciando el servidor: %s\n", err)
 	}
 }
