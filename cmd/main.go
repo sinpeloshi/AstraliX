@@ -20,7 +20,9 @@ const TREASURY_POOL_ADDR = "AX5def33f67eda5560561837935709169eb17955ffe13c1f112b
 
 func loadChain() {
 	file, err := os.ReadFile(DB_FILE)
-	if err == nil { json.Unmarshal(file, &Blockchain) }
+	if err == nil {
+		json.Unmarshal(file, &Blockchain)
+	}
 }
 
 func saveChain() {
@@ -41,7 +43,7 @@ func getBalance(addr string) float64 {
 
 func main() {
 	const Difficulty = 4 
-	// ROOT GENESIS (Matches your existing key but displays full 128 chars in frontend)
+	// ROOT GENESIS ADDRESS (128 HEX CHARACTERS)
 	rootAddr := "AX5eaba583bf646e0e39f41da6f9d8fa6db929c2e858bd32dffe6ac0cee2e3e97400000000000000000000000000000000000000000000000000000000000000000"
 
 	loadChain()
@@ -51,7 +53,8 @@ func main() {
 		genesisTx.TxID = genesisTx.CalculateHash()
 		
 		genesisBlock := core.Block{
-			Index: 0, Timestamp: 1773561600,
+			Index: 0, 
+			Timestamp: 1773561600,
 			Transactions: []core.Transaction{genesisTx},
 			PrevHash: strings.Repeat("0", 128),
 			Difficulty: Difficulty,
@@ -66,9 +69,16 @@ func main() {
 		json.NewEncoder(w).Encode(map[string]interface{}{"balance": getBalance(addr)})
 	})
 
+	http.HandleFunc("/api/chain", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(Blockchain)
+	})
+
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
-		if miner == "" || len(Mempool) == 0 { http.Error(w, "Mempool empty", 400); return }
+		if miner == "" || len(Mempool) == 0 { 
+			http.Error(w, "Mempool empty", 400); return 
+		}
 
 		reward := 50.0
 		treasuryBalance := getBalance(TREASURY_POOL_ADDR)
@@ -97,8 +107,10 @@ func main() {
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
-		if tx.Sender != "SYSTEM" && tx.Sender != TREASURY_POOL_ADDR && getBalance(tx.Sender) < tx.Amount {
-			http.Error(w, "Insufficient balance", 400); return
+		if tx.Sender != "SYSTEM" && tx.Sender != TREASURY_POOL_ADDR {
+			if getBalance(tx.Sender) < tx.Amount {
+				http.Error(w, "Low balance", 400); return
+			}
 		}
 		tx.TxID = tx.CalculateHash()
 		Mempool = append(Mempool, tx)
@@ -197,68 +209,52 @@ const dashboardHTML = `
     </div>
 
     <script>
-        // PURE 512-BIT DERIVATION (128 HEX CHARS)
         async function derive(priv) {
             const buf = new TextEncoder().encode(priv);
-            const hash = await crypto.subtle.digest('SHA-512', buf);
-            const hex = Array.from(new Uint8Array(hash)).map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
-            return 'AX' + hex; 
+            const hash = await crypto.subtle.digest("SHA-512", buf);
+            const hex = Array.from(new Uint8Array(hash)).map(function(b) { 
+                return b.toString(16).padStart(2,"0"); 
+            }).join("");
+            return "AX" + hex; 
         }
 
-        let session = JSON.parse(localStorage.getItem('ax_core_v16_session')) || null;
+        let session = JSON.parse(localStorage.getItem("ax_core_v16_session")) || null;
 
         function nav(id, el) {
-            document.querySelectorAll('.view').forEach(function(v) { v.style.display = 'none'; });
-            document.getElementById('v-' + id).style.display = 'block';
-            document.querySelectorAll('.nav-link-ax, .m-nav-item').forEach(function(n) { n.classList.remove('active'); });
-            if(el) el.classList.add('active');
+            document.querySelectorAll(".view").forEach(function(v) { v.style.display = "none"; });
+            document.getElementById("v-" + id).style.display = "block";
+            document.querySelectorAll(".nav-link-ax, .m-nav-item").forEach(function(n) { n.classList.remove("active"); });
+            if(el) el.classList.add("active");
         }
 
         async function login() {
-            const p = document.getElementById('i-priv').value;
+            const p = document.getElementById("i-priv").value;
             const pb = await derive(p);
             session = { pub: pb, priv: p };
-            localStorage.setItem('ax_core_v16_session', JSON.stringify(session));
+            localStorage.setItem("ax_core_v16_session", JSON.stringify(session));
             location.reload();
         }
 
         async function load() {
             if(session) {
-                const r = await fetch('/api/balance/' + session.pub);
+                const r = await fetch("/api/balance/" + session.pub);
                 const d = await r.json();
-                document.getElementById('bal-txt').innerText = d.balance.toLocaleString() + ' AX';
-                document.getElementById('addr-txt').innerText = session.pub.substring(0,40) + "...";
+                document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
+                document.getElementById("addr-txt").innerText = session.pub.substring(0,40) + "...";
             }
-            // Fetch Rewards Pool using the 128-char treasury address
-            const rp = await fetch('/api/balance/AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef5400000000000000000000000000000000000000000000000000000000000000000');
+            const rp = await fetch("/api/balance/AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef5400000000000000000000000000000000000000000000000000000000000000000");
             const dp = await rp.json();
-            document.getElementById('pool-txt').innerText = dp.balance.toLocaleString() + ' AX';
-
-            const res = await fetch('/api/chain');
-            const chain = await res.json();
+            document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
         }
 
         async function mine() {
-            if(!session) return alert('Sync first');
-            const r = await fetch('/api/mine?address=' + session.pub);
-            if(r.ok) { alert('Mined!'); load(); } else { alert('Mempool or Treasury issue.'); }
+            if(!session) return alert("Sync first");
+            const r = await fetch("/api/mine?address=" + session.pub);
+            if(r.ok) { alert("Mined!"); load(); } else { alert("Mempool or Treasury issue."); }
         }
 
         async function send() {
-            const tx = { sender: session.pub, recipient: document.getElementById('tx-to').value, amount: parseFloat(document.getElementById('tx-amt').value) };
-            const r = await fetch('/api/transactions/new', { method: 'POST', body: JSON.stringify(tx) });
-            if(r.ok) { alert('Broadcasted!'); nav('dash'); load(); } else { alert('Error: Low balance.'); }
+            const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
+            const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
+            if(r.ok) { alert("Broadcasted!"); nav("dash"); load(); } else { alert("Error: Check balance."); }
         }
-
-        async function gen() {
-            const p = btoa(Math.random().toString() + Date.now()).substring(0,64);
-            const pb = await derive(p);
-            document.getElementById('g-res').style.display = 'block';
-            document.getElementById('g-priv').innerText = p;
-            document.getElementById('g-pub').innerText = pb;
-        }
-
-        load(); setInterval(load, 15000);
-    </script>
-</body>
-</html>
