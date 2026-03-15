@@ -1,7 +1,7 @@
 package core
 
 import (
-	"crypto/sha256"
+	"crypto/sha512"
 	"encoding/hex"
 	"fmt"
 )
@@ -18,7 +18,8 @@ type Block struct {
 
 func (b *Block) CalculateHash() string {
 	record := fmt.Sprintf("%d%d%s%s%d", b.Index, b.Timestamp, b.Data, b.PrevHash, b.Nonce)
-	h := sha256.New()
+	// ¡Upgrade a SHA-512!
+	h := sha512.New()
 	h.Write([]byte(record))
 	return hex.EncodeToString(h.Sum(nil))
 }
