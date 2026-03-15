@@ -120,75 +120,111 @@ const dashboardHTML = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AX Core | Clean OS</title>
+    <title>AX Core | OS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        :root { --ax-dark: #020617; --ax-blue: #2563EB; --ax-bg: #F8FAFC; }
-        body { background: var(--ax-bg); font-family: "Inter", sans-serif; margin: 0; padding-bottom: 110px; overflow-x: hidden; }
-        .nav-header { background: var(--ax-dark); color: white; padding: 25px; text-align: center; border-bottom: 2px solid var(--ax-blue); }
-        .card-ax { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); padding: 25px; margin: 20px; border: none; }
-        .hero { background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: white; border-radius: 30px; }
-        .pill-512 { background: #F1F5F9; padding: 15px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; word-break: break-all; margin-top: 15px; line-height: 1.6; color: #475569; border: 1px solid #E2E8F0; }
-        .hero .pill-512 { background: rgba(255,255,255,0.08); color: #CBD5E1; border: none; }
-        .btn-ax { background: var(--ax-blue); color: white; border-radius: 20px; padding: 20px; font-weight: 800; border: none; width: 100%; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2); }
-        .bottom-bar { background: white; position: fixed; bottom: 0; width: 100%; height: 95px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 99999; padding-bottom: 15px; }
-        .nav-link-ax { color: #94A3B8; text-align: center; text-decoration: none; flex: 1; font-size: 11px; font-weight: 700; cursor: pointer; }
-        .nav-link-ax.active { color: var(--ax-blue); }
-        .nav-link-ax i { font-size: 26px; display: block; margin-bottom: 6px; }
-        @media (min-width: 992px) {
-            .bottom-bar { width: 280px; height: 100vh; flex-direction: column; left: 0; top: 0; justify-content: start; padding-top: 60px; }
-            .main-content { margin-left: 280px; padding: 40px; }
-            .nav-link-ax { width: 100%; padding: 25px 0; }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+        
+        :root { --bg: #F4F7F9; --card: #FFFFFF; --primary: #0D6EFD; --text: #1E293B; }
+        body { background: var(--bg); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 100px; color: var(--text); -webkit-font-smoothing: antialiased; }
+        
+        .header-ax { padding: 30px 20px 10px; text-align: center; }
+        .header-ax h5 { font-weight: 800; letter-spacing: 1.5px; margin: 0; color: #0F172A; font-size: 1.2rem; }
+        
+        .view-ax { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
+        
+        .card-ax { background: var(--card); border-radius: 28px; box-shadow: 0 12px 35px rgba(0,0,0,0.03); padding: 30px; margin: 15px 20px; width: calc(100% - 40px); box-sizing: border-box; }
+        .card-dark { background: linear-gradient(145deg, #0B1120 0%, #1E293B 100%); color: white; border: 1px solid rgba(255,255,255,0.05); }
+        .card-light { background: #FFFFFF; border: 1px solid #E2E8F0; }
+        
+        .balance-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.6; font-weight: 600; display: block; margin-bottom: 5px; }
+        .balance-amount { font-size: 2.2rem; font-weight: 800; margin: 5px 0 20px; letter-spacing: -1px; }
+        .text-primary { color: var(--primary); }
+        
+        .pill-address { background: rgba(0,0,0,0.15); padding: 12px 14px; border-radius: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; word-break: break-all; color: rgba(255,255,255,0.5); line-height: 1.5; text-align: left; }
+        .card-light .pill-address { background: #F8FAFC; color: #94A3B8; border: 1px solid #F1F5F9; }
+        
+        .btn-ax { background: var(--primary); color: white; border-radius: 18px; padding: 18px; font-weight: 600; border: none; width: calc(100% - 40px); margin: 10px 20px; font-size: 1rem; box-shadow: 0 8px 20px rgba(13, 110, 253, 0.25); transition: 0.2s; cursor: pointer; font-family: 'Outfit', sans-serif; }
+        .btn-ax:active { transform: translateY(2px); box-shadow: 0 2px 10px rgba(13, 110, 253, 0.2); }
+        .btn-outline { background: transparent; border: 2px solid #E2E8F0; color: var(--text); box-shadow: none; margin-top: 5px; }
+        
+        .bottom-bar { background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); position: fixed; bottom: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(0,0,0,0.05); z-index: 999; }
+        .nav-link-ax { color: #94A3B8; text-align: center; text-decoration: none; flex: 1; font-size: 10px; font-weight: 600; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; transition: color 0.2s; }
+        .nav-link-ax.active { color: var(--primary); }
+        .nav-link-ax i { font-size: 22px; }
+        
+        .form-group { text-align: left; margin-bottom: 20px; }
+        .form-label { font-size: 0.75rem; font-weight: 600; color: #64748B; margin-bottom: 8px; display: block; }
+        input.form-control { width: 100%; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 14px; padding: 16px; font-size: 0.9rem; font-family: 'JetBrains Mono', monospace; box-sizing: border-box; color: var(--text); transition: border-color 0.2s; outline: none; }
+        input.form-control:focus { border-color: var(--primary); background: #FFFFFF; }
+        
+        hr { border: 0; height: 1px; background: #E2E8F0; margin: 25px 0; }
     </style>
 </head>
 <body>
+
+    <div class="header-ax">
+        <h5>AX CORE</h5>
+    </div>
+
+    <div id="v-dash" class="view-ax">
+        <div class="card-ax card-dark text-center">
+            <span class="balance-label">Personal Balance</span>
+            <div id="bal-txt" class="balance-amount">0.00 AX</div>
+            <div id="addr-txt" class="pill-address text-center">Wallet Not Synced</div>
+        </div>
+
+        <div class="card-ax card-light text-center">
+            <span class="balance-label">Treasury Rewards Pool</span>
+            <div id="pool-txt" class="balance-amount text-primary">0.00 AX</div>
+            <div class="pill-address">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
+        </div>
+
+        <button class="btn-ax" onclick="mine()">VALIDATE NETWORK (+50.00 AX)</button>
+    </div>
+
+    <div id="v-wallet" class="view-ax" style="display:none">
+        <div class="card-ax card-light">
+            <div class="form-group">
+                <span class="form-label">Recipient Address (128 chars)</span>
+                <input type="text" id="tx-to" class="form-control" placeholder="AX...">
+            </div>
+            <div class="form-group">
+                <span class="form-label">Amount (AX)</span>
+                <input type="number" id="tx-amt" class="form-control" style="font-family: 'Outfit', sans-serif;" placeholder="0.00">
+            </div>
+        </div>
+        <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
+    </div>
+
+    <div id="v-sec" class="view-ax" style="display:none">
+        <div class="card-ax card-light">
+            <div class="form-group">
+                <span class="form-label">Sync Identity</span>
+                <input type="password" id="i-priv" class="form-control" placeholder="Enter Private Key">
+            </div>
+            <button class="btn-ax" style="width:100%; margin:0;" onclick="login()">CONNECT WALLET</button>
+            
+            <hr>
+            
+            <button class="btn-ax btn-outline" style="width:100%; margin:0;" onclick="gen()">GENERATE NEW KEYS</button>
+            <div id="g-res" class="mt-4 text-left" style="display:none">
+                <span class="form-label">Private Key (Save securely):</span>
+                <div class="pill-address mb-3" id="g-priv" style="background: #F1F5F9; color: #334155; border: none;"></div>
+                <span class="form-label text-primary">Public Address:</span>
+                <div class="pill-address text-primary" id="g-pub" style="background: rgba(13, 110, 253, 0.05); border: 1px solid rgba(13, 110, 253, 0.1);"></div>
+            </div>
+        </div>
+    </div>
+
     <div class="bottom-bar">
-        <div class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-line"></i>Overview</div>
-        <div class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Transfer</div>
-        <div class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</div>
+        <a class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>Overview</a>
+        <a class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Transfer</a>
+        <a class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</a>
     </div>
-    <div class="main-content">
-        <div class="nav-header"><h5 class="fw-bold m-0" style="letter-spacing: 2px;">AX CORE OS</h5></div>
-        <div id="v-dash" class="view-ax">
-            <div class="card-ax hero text-center">
-                <small class="text-uppercase fw-bold opacity-50">Personal Balance</small>
-                <h1 id="bal-txt" class="display-4 fw-bold my-2">0.00 AX</h1>
-                <div id="addr-txt" class="pill-512 text-center">Wallet Not Synced</div>
-            </div>
-            <div class="card-ax text-center" style="border: 2px dashed #CBD5E1;">
-                <small class="fw-bold text-muted text-uppercase">Treasury Rewards Pool</small>
-                <h3 id="pool-txt" class="fw-bold m-0 text-primary">0.00 AX</h3>
-                <div class="pill-512">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
-            </div>
-            <div class="px-3"><button class="btn-ax" onclick="mine()">VALIDATE NETWORK (+50.00 AX)</button></div>
-        </div>
-        <div id="v-wallet" class="view-ax" style="display:none">
-            <div class="card-ax">
-                <h4 class="fw-bold mb-4">Send Assets</h4>
-                <input type="text" id="tx-to" class="form-control p-3 mb-3 border-0 bg-light rounded-4" style="font-size: 0.75rem;" placeholder="Destination AX Address">
-                <input type="number" id="tx-amt" class="form-control p-3 mb-4 border-0 bg-light rounded-4" placeholder="0.00">
-                <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
-            </div>
-        </div>
-        <div id="v-sec" class="view-ax" style="display:none">
-            <div class="card-ax">
-                <h4 class="fw-bold mb-4">Identity Sync</h4>
-                <input type="password" id="i-priv" class="form-control p-3 mb-3 border-0 bg-light rounded-4" placeholder="Private Key">
-                <button class="btn-ax mb-4" onclick="login()">CONNECT WALLET</button>
-                <hr>
-                <button class="btn btn-outline-dark w-100 py-3 rounded-4 mt-3" onclick="gen()">GENERATE NEW KEYS</button>
-                <div id="g-res" class="mt-4" style="display:none">
-                    <small class="fw-bold">Private Key (512-bit Entropy):</small>
-                    <div class="pill-512" id="g-priv"></div>
-                    <small class="fw-bold text-primary">Public Address:</small>
-                    <div class="pill-512 text-primary fw-bold" id="g-pub"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+
     <script>
         async function derive(priv) {
             const buf = new TextEncoder().encode(priv);
@@ -199,7 +235,7 @@ const dashboardHTML = `
         let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
         function nav(id) {
             document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
-            document.getElementById("v-" + id).style.display = "block";
+            document.getElementById("v-" + id).style.display = "flex";
             document.querySelectorAll(".nav-link-ax").forEach(n => n.classList.remove("active"));
             document.getElementById("n-" + id).classList.add("active");
             window.scrollTo(0,0);
@@ -226,7 +262,7 @@ const dashboardHTML = `
         async function mine() {
             if(!session) return alert("Sync required");
             const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("Mined!"); load(); } else { alert("Error."); }
+            if(r.ok) { alert("Block Mined!"); load(); } else { alert("Error: Mempool or Treasury."); }
         }
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
@@ -234,7 +270,6 @@ const dashboardHTML = `
             if(r.ok) { alert("Sent!"); nav("dash"); load(); } else { alert("Check funds."); }
         }
         async function gen() {
-            // NEW: 512-bit Real Cryptographic Entropy
             const array = new Uint8Array(64);
             window.crypto.getRandomValues(array);
             const p = btoa(String.fromCharCode.apply(null, array));
