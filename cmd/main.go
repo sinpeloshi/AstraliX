@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -8,30 +9,38 @@ import (
 	"strings"
 	"time"
 	"astralix/core"
+	"astralix/wallet"
 )
 
 func main() {
 	const TotalSupply = 1000002021
 	const Difficulty = 4 
 
-	fmt.Println("--- AstraliX Network Central Node ---")
+	fmt.Println("--- AstraliX Network Central Node (512-bit Edition) ---")
 	
-	// 1. Hardcode your Official Public Address forever (Genesis Wallet)
-	creatorAddress := "AX1c1769524d7a291e259ee96dd11e76c76b1fdb64de732d035bbcff5bbef71471"
+	// 1. Generate a brand new Wallet from scratch
+	creatorWallet := wallet.NewWallet()
+	creatorAddress := creatorWallet.GetAddress()
 	
-	fmt.Printf("🏦 Master Address (Genesis): %s\n", creatorAddress)
+	// 2. Extract the NEW Private Key
+	privKeyBytes := creatorWallet.PrivateKey.D.Bytes()
+	privKeyHex := hex.EncodeToString(privKeyBytes)
+	
+	fmt.Printf("\n⚠️ WARNING: SAVE THIS PRIVATE KEY IN A SAFE PLACE ⚠️\n")
+	fmt.Printf("🔑 Private Key (Secret): %s\n", privKeyHex)
+	fmt.Printf("🏦 Public Address: %s\n", creatorAddress)
+	fmt.Printf("💰 Total Supply: %d AX allocated to this address.\n", TotalSupply)
+	fmt.Println("-------------------------------------------------------------------\n")
+	
 	fmt.Println("Mining Genesis Block...")
 
-	// 128 zeros for SHA-512 Previous Hash
 	emptyPrevHash := strings.Repeat("0", 128)
-	
-	// Genesis block data allocation
 	genesisData := fmt.Sprintf("Genesis: %d AX allocated to master wallet %s", TotalSupply, creatorAddress)
 
+	// 3. Create a fresh Genesis Block with the current time
 	genesis := &core.Block{
 		Index:      0,
-		// 2. Fix the creation date (Unix Time) to make the Hash immutable
-		Timestamp:  1742025600, 
+		Timestamp:  time.Now().Unix(),
 		Data:       genesisData,
 		PrevHash:   emptyPrevHash,
 		Difficulty: Difficulty,
@@ -43,13 +52,11 @@ func main() {
 
 	fmt.Printf("Genesis Block Mined!\nHash: %s\nTime: %s\n", genesis.Hash, elapsed)
 	
-	// Web server to expose the blockchain state
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(genesis)
 	})
 
-	// Dynamic port routing for Railway
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
