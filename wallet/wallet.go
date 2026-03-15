@@ -6,6 +6,7 @@ import (
 	"crypto/rand"
 	"crypto/sha512"
 	"encoding/hex"
+	"math/big"
 )
 
 type Wallet struct {
@@ -14,21 +15,23 @@ type Wallet struct {
 }
 
 func NewWallet() *Wallet {
-	// ¡Upgrade a la curva P-521 (Nivel Máximo del NIST)!
-	private, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-	if err != nil {
-		panic(err)
-	}
-	
+	private, _ := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
 	pubKey := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
 	return &Wallet{private, pubKey}
 }
 
 func (w *Wallet) GetAddress() string {
-	// Hasheamos la pública con SHA-512
 	pubKeyHash := sha512.Sum512(w.PublicKey)
-	
-	// Generamos la nueva dirección AstraliX ultra-segura (64 caracteres)
-	address := "AX" + hex.EncodeToString(pubKeyHash[:])[:64]
-	return address
+	return "AX" + hex.EncodeToString(pubKeyHash[:])[:64]
+}
+
+// Sign firma el hash de una transacción con tu clave privada
+func Sign(privKey *ecdsa.PrivateKey, txID string) (string, error) {
+	hash, _ := hex.DecodeString(txID)
+	r, s, err := ecdsa.Sign(rand.Reader, privKey, hash)
+	if err != nil {
+		return "", err
+	}
+	signature := append(r.Bytes(), s.Bytes()...)
+	return hex.EncodeToString(signature), nil
 }
