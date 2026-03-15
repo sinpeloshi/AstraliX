@@ -137,23 +137,17 @@ const dashboardHTML = `
     <style>
         :root { --ax-dark: #020617; --ax-blue: #2563EB; --ax-bg: #F8FAFC; --ax-card: #FFFFFF; }
         body { background: var(--ax-bg); font-family: "Inter", sans-serif; margin: 0; padding-bottom: 110px; overflow-x: hidden; }
-        
         .nav-header { background: var(--ax-dark); color: white; padding: 25px; text-align: center; border-bottom: 2px solid var(--ax-blue); }
-        
         .card-ax { background: var(--ax-card); border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); padding: 25px; margin: 20px; border: none; }
         .hero { background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: white; border-radius: 30px; }
-        
         .pill-512 { background: #F1F5F9; padding: 15px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; word-break: break-all; margin-top: 15px; line-height: 1.6; color: #475569; border: 1px solid #E2E8F0; text-align: left; }
         .hero .pill-512 { background: rgba(255,255,255,0.08); color: #CBD5E1; border: none; }
-        
         .btn-ax { background: var(--ax-blue); color: white; border-radius: 20px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 1rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2); transition: 0.3s; }
         .btn-ax:active { transform: scale(0.98); opacity: 0.9; }
-
         .bottom-bar { background: white; position: fixed; bottom: 0; width: 100%; height: 95px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 99999; padding-bottom: 15px; }
         .nav-link-ax { color: #94A3B8; text-align: center; text-decoration: none; flex: 1; font-size: 11px; font-weight: 700; cursor: pointer; }
         .nav-link-ax.active { color: var(--ax-blue); }
         .nav-link-ax i { font-size: 26px; display: block; margin-bottom: 6px; }
-
         @media (min-width: 992px) {
             .bottom-bar { width: 280px; height: 100vh; flex-direction: column; left: 0; top: 0; justify-content: start; padding-top: 60px; }
             .main-content { margin-left: 280px; padding: 40px; }
@@ -162,54 +156,45 @@ const dashboardHTML = `
     </style>
 </head>
 <body>
-
     <div class="bottom-bar">
         <div class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-line"></i>Overview</div>
         <div class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Transfer</div>
         <div class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</div>
     </div>
-
     <div class="main-content">
         <div class="nav-header">
             <h5 class="fw-bold m-0" style="letter-spacing: 2px;">AX CORE OS</h5>
         </div>
-
         <div id="v-dash" class="view-ax">
             <div class="card-ax hero text-center">
                 <small class="text-uppercase fw-bold opacity-50" style="letter-spacing: 1px;">Network Balance</small>
                 <h1 id="bal-txt" class="display-4 fw-bold my-2">0.00 AX</h1>
                 <div id="addr-txt" class="pill-512 text-center">Wallet Not Synced</div>
             </div>
-
-            <div class="card-ax text-center" style="border: 1px dashed #CBD5E1;">
-                <small class="fw-bold text-muted">FIXED REWARDS POOL ($2^{512}$)</small>
+            <div class="card-ax text-center" style="border: 2px dashed #CBD5E1;">
+                <small class="fw-bold text-muted text-uppercase">Treasury Rewards Pool</small>
                 <h3 id="pool-txt" class="fw-bold m-0 text-primary">0.00 AX</h3>
                 <div class="pill-512">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
             </div>
-
-            <div class="px-3">
-                <button class="btn-ax" onclick="mine()">VALIDATE BLOCK (+50.00 AX)</button>
-            </div>
+            <div class="px-3"><button class="btn-ax" onclick="mine()">VALIDATE NETWORK (+50.00 AX)</button></div>
         </div>
-
         <div id="v-wallet" class="view-ax" style="display:none">
             <div class="card-ax">
                 <h4 class="fw-bold mb-4">Send Assets</h4>
-                <label class="small fw-bold text-muted mb-2">Recipient Address (128 chars)</label>
+                <label class="small fw-bold text-muted mb-2">Recipient Address</label>
                 <input type="text" id="tx-to" class="form-control p-3 mb-3 border-0 bg-light rounded-4" style="font-size: 0.75rem;" placeholder="AX Address">
                 <label class="small fw-bold text-muted mb-2">Amount</label>
                 <input type="number" id="tx-amt" class="form-control p-3 mb-4 border-0 bg-light rounded-4" placeholder="0.00">
                 <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
             </div>
         </div>
-
         <div id="v-sec" class="view-ax" style="display:none">
             <div class="card-ax">
                 <h4 class="fw-bold mb-4">Identity Sync</h4>
                 <input type="password" id="i-priv" class="form-control p-3 mb-3 border-0 bg-light rounded-4" placeholder="Private Key">
                 <button class="btn-ax mb-4" onclick="login()">CONNECT WALLET</button>
                 <hr>
-                <button class="btn btn-outline-dark w-100 py-3 rounded-4 mt-3" onclick="gen()">GENERATE NEW $2^{512}$ KEYS</button>
+                <button class="btn btn-outline-dark w-100 py-3 rounded-4 mt-3" onclick="gen()">GENERATE NEW KEYS</button>
                 <div id="g-res" class="mt-4" style="display:none">
                     <small class="fw-bold">Private Key:</small>
                     <div class="pill-512" id="g-priv"></div>
@@ -219,7 +204,6 @@ const dashboardHTML = `
             </div>
         </div>
     </div>
-
     <script>
         async function derive(priv) {
             const buf = new TextEncoder().encode(priv);
@@ -227,9 +211,7 @@ const dashboardHTML = `
             const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,"0")).join("");
             return "AX" + hex;
         }
-
         let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
-
         function nav(id) {
             document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
             document.getElementById("v-" + id).style.display = "block";
@@ -237,7 +219,6 @@ const dashboardHTML = `
             document.getElementById("n-" + id).classList.add("active");
             window.scrollTo(0,0);
         }
-
         async function login() {
             const p = document.getElementById("i-priv").value;
             if(!p) return;
@@ -246,7 +227,6 @@ const dashboardHTML = `
             localStorage.setItem("ax_v18_session", JSON.stringify(session));
             location.reload();
         }
-
         async function load() {
             if(session) {
                 const r = await fetch("/api/balance/" + session.pub);
@@ -258,19 +238,16 @@ const dashboardHTML = `
             const dp = await rp.json();
             document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
         }
-
         async function mine() {
             if(!session) return alert("Sync required");
             const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("Mined!"); load(); } else { alert("Nothing to validate or Treasury empty."); }
+            if(r.ok) { alert("Mined!"); load(); } else { alert("Insufficient funds in Treasury."); }
         }
-
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
             const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
-            if(r.ok) { alert("Broadcasted!"); nav("dash"); load(); } else { alert("Check funds."); }
+            if(r.ok) { alert("Sent!"); nav("dash"); load(); } else { alert("Check funds."); }
         }
-
         async function gen() {
             const p = btoa(Math.random().toString() + Date.now()).substring(0,64);
             const pb = await derive(p);
@@ -278,7 +255,6 @@ const dashboardHTML = `
             document.getElementById("g-priv").innerText = p;
             document.getElementById("g-pub").innerText = pb;
         }
-
         load(); setInterval(load, 15000);
     </script>
 </body>
