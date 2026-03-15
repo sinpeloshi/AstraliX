@@ -14,15 +14,11 @@ var Blockchain []core.Block
 var Mempool []core.Transaction
 
 const DB_FILE = "blockchain_data.json"
-
-// DEFINITIVE 512-BIT REWARDS TREASURY
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 func loadChain() {
 	file, err := os.ReadFile(DB_FILE)
-	if err == nil {
-		json.Unmarshal(file, &Blockchain)
-	}
+	if err == nil { json.Unmarshal(file, &Blockchain) }
 }
 
 func saveChain() {
@@ -43,7 +39,6 @@ func getBalance(addr string) float64 {
 
 func main() {
 	const Difficulty = 4 
-	// DEFINITIVE 512-BIT GENESIS ROOT
 	rootAddr := "AX5eaba583bf646e0e39f41da6f9d8fa6db929c2e858bd32dffe6ac0cee2e3e974dc3ff66cb2d73bdabdc9a49279bea46da35d10d925aaf71416e5e351a3f74b56"
 
 	loadChain()
@@ -53,8 +48,7 @@ func main() {
 		genesisTx.TxID = genesisTx.CalculateHash()
 		
 		genesisBlock := core.Block{
-			Index: 0, 
-			Timestamp: 1773561600,
+			Index: 0, Timestamp: 1773561600,
 			Transactions: []core.Transaction{genesisTx},
 			PrevHash: strings.Repeat("0", 128),
 			Difficulty: Difficulty,
@@ -79,19 +73,15 @@ func main() {
 		if miner == "" || len(Mempool) == 0 { 
 			http.Error(w, "Mempool empty", 400); return 
 		}
-
 		reward := 50.0
 		treasuryBalance := getBalance(TREASURY_POOL_ADDR)
-		
 		var txs []core.Transaction
 		txs = append(txs, Mempool...)
-
 		if treasuryBalance >= reward {
 			rewardTx := core.Transaction{Sender: TREASURY_POOL_ADDR, Recipient: miner, Amount: reward}
 			rewardTx.TxID = rewardTx.CalculateHash()
 			txs = append(txs, rewardTx)
 		}
-
 		prev := Blockchain[len(Blockchain)-1]
 		newBlock := core.Block{
 			Index: int64(len(Blockchain)), Timestamp: time.Now().Unix(),
@@ -130,20 +120,19 @@ const dashboardHTML = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AX Core | Global Enterprise</title>
+    <title>AX Core | Clean OS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --ax-dark: #020617; --ax-blue: #2563EB; --ax-bg: #F8FAFC; --ax-card: #FFFFFF; }
+        :root { --ax-dark: #020617; --ax-blue: #2563EB; --ax-bg: #F8FAFC; }
         body { background: var(--ax-bg); font-family: "Inter", sans-serif; margin: 0; padding-bottom: 110px; overflow-x: hidden; }
         .nav-header { background: var(--ax-dark); color: white; padding: 25px; text-align: center; border-bottom: 2px solid var(--ax-blue); }
-        .card-ax { background: var(--ax-card); border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); padding: 25px; margin: 20px; border: none; }
+        .card-ax { background: white; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); padding: 25px; margin: 20px; border: none; }
         .hero { background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: white; border-radius: 30px; }
-        .pill-512 { background: #F1F5F9; padding: 15px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; word-break: break-all; margin-top: 15px; line-height: 1.6; color: #475569; border: 1px solid #E2E8F0; text-align: left; }
+        .pill-512 { background: #F1F5F9; padding: 15px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; word-break: break-all; margin-top: 15px; line-height: 1.6; color: #475569; border: 1px solid #E2E8F0; }
         .hero .pill-512 { background: rgba(255,255,255,0.08); color: #CBD5E1; border: none; }
-        .btn-ax { background: var(--ax-blue); color: white; border-radius: 20px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 1rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2); transition: 0.3s; }
-        .btn-ax:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-ax { background: var(--ax-blue); color: white; border-radius: 20px; padding: 20px; font-weight: 800; border: none; width: 100%; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2); }
         .bottom-bar { background: white; position: fixed; bottom: 0; width: 100%; height: 95px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 99999; padding-bottom: 15px; }
         .nav-link-ax { color: #94A3B8; text-align: center; text-decoration: none; flex: 1; font-size: 11px; font-weight: 700; cursor: pointer; }
         .nav-link-ax.active { color: var(--ax-blue); }
@@ -162,12 +151,10 @@ const dashboardHTML = `
         <div class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</div>
     </div>
     <div class="main-content">
-        <div class="nav-header">
-            <h5 class="fw-bold m-0" style="letter-spacing: 2px;">AX CORE OS</h5>
-        </div>
+        <div class="nav-header"><h5 class="fw-bold m-0" style="letter-spacing: 2px;">AX CORE OS</h5></div>
         <div id="v-dash" class="view-ax">
             <div class="card-ax hero text-center">
-                <small class="text-uppercase fw-bold opacity-50" style="letter-spacing: 1px;">Network Balance</small>
+                <small class="text-uppercase fw-bold opacity-50">Personal Balance</small>
                 <h1 id="bal-txt" class="display-4 fw-bold my-2">0.00 AX</h1>
                 <div id="addr-txt" class="pill-512 text-center">Wallet Not Synced</div>
             </div>
@@ -181,9 +168,7 @@ const dashboardHTML = `
         <div id="v-wallet" class="view-ax" style="display:none">
             <div class="card-ax">
                 <h4 class="fw-bold mb-4">Send Assets</h4>
-                <label class="small fw-bold text-muted mb-2">Recipient Address</label>
-                <input type="text" id="tx-to" class="form-control p-3 mb-3 border-0 bg-light rounded-4" style="font-size: 0.75rem;" placeholder="AX Address">
-                <label class="small fw-bold text-muted mb-2">Amount</label>
+                <input type="text" id="tx-to" class="form-control p-3 mb-3 border-0 bg-light rounded-4" style="font-size: 0.75rem;" placeholder="Destination AX Address">
                 <input type="number" id="tx-amt" class="form-control p-3 mb-4 border-0 bg-light rounded-4" placeholder="0.00">
                 <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
             </div>
@@ -196,7 +181,7 @@ const dashboardHTML = `
                 <hr>
                 <button class="btn btn-outline-dark w-100 py-3 rounded-4 mt-3" onclick="gen()">GENERATE NEW KEYS</button>
                 <div id="g-res" class="mt-4" style="display:none">
-                    <small class="fw-bold">Private Key:</small>
+                    <small class="fw-bold">Private Key (512-bit Entropy):</small>
                     <div class="pill-512" id="g-priv"></div>
                     <small class="fw-bold text-primary">Public Address:</small>
                     <div class="pill-512 text-primary fw-bold" id="g-pub"></div>
@@ -241,7 +226,7 @@ const dashboardHTML = `
         async function mine() {
             if(!session) return alert("Sync required");
             const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("Mined!"); load(); } else { alert("Insufficient funds in Treasury."); }
+            if(r.ok) { alert("Mined!"); load(); } else { alert("Error."); }
         }
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
@@ -249,7 +234,10 @@ const dashboardHTML = `
             if(r.ok) { alert("Sent!"); nav("dash"); load(); } else { alert("Check funds."); }
         }
         async function gen() {
-            const p = btoa(Math.random().toString() + Date.now()).substring(0,64);
+            // NEW: 512-bit Real Cryptographic Entropy
+            const array = new Uint8Array(64);
+            window.crypto.getRandomValues(array);
+            const p = btoa(String.fromCharCode.apply(null, array));
             const pb = await derive(p);
             document.getElementById("g-res").style.display = "block";
             document.getElementById("g-priv").innerText = p;
