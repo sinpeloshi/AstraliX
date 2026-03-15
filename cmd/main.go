@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -17,17 +18,23 @@ func main() {
 
 	fmt.Println("--- AstraliX Network Central Node (512-bit Edition) ---")
 	
-	// Generamos tu Billetera Maestra P-521
+	// Generamos tu Billetera Maestra
 	creadorWallet := wallet.NewWallet()
 	direccionCreador := creadorWallet.GetAddress()
 	
-	fmt.Printf("Dirección Maestra: %s\n", direccionCreador)
+	// EXTRAEMOS TU CLAVE PRIVADA PARA QUE LA GUARDES
+	privKeyBytes := creadorWallet.PrivateKey.D.Bytes()
+	privKeyHex := hex.EncodeToString(privKeyBytes)
+	
+	fmt.Printf("\n⚠️ ATENCIÓN: GUARDA ESTA CLAVE PRIVADA EN UN LUGAR SEGURO ⚠️\n")
+	fmt.Printf("🔑 Clave Privada (Secreta): %s\n", privKeyHex)
+	fmt.Printf("🏦 Dirección Pública: %s\n", direccionCreador)
+	fmt.Printf("💰 Supply Total: %d AX asignados a esta dirección.\n", TotalSupply)
+	fmt.Println("-------------------------------------------------------------------\n")
+	
 	fmt.Println("Minando Bloque Génesis...")
 
-	// El Hash previo ahora necesita 128 ceros por el SHA-512
 	prevHashVacio := strings.Repeat("0", 128)
-
-	// Asignamos el supply directamente a tu dirección en el bloque
 	datosGenesis := fmt.Sprintf("Génesis: %d AX asignados a la billetera maestra %s", TotalSupply, direccionCreador)
 
 	genesis := &core.Block{
@@ -49,12 +56,13 @@ func main() {
 		json.NewEncoder(w).Encode(genesis)
 	})
 
+	// Ruteo dinámico de puertos para que Railway no apague el contenedor
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	fmt.Printf("🌐 API activa. Nodo Blindado escuchando en el puerto %s...\n", port)
+	fmt.Printf("🌐 API activa. Nodo escuchando en el puerto %s...\n", port)
 	if err := http.ListenAndServe("0.0.0.0:"+port, nil); err != nil {
 		fmt.Printf("Error iniciando el servidor: %s\n", err)
 	}
