@@ -6,8 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
-	"astralix/core"
+	"astralix/core" // Eliminamos "time" porque ya no se usa aquí
 )
 
 // Global Blockchain state
@@ -32,11 +31,13 @@ func main() {
 
 	genesis := core.Block{
 		Index:        0,
-		Timestamp:    1773561600,
+		Timestamp:    1773561600, // Fecha fija
 		Transactions: []core.Transaction{genesisTx},
 		PrevHash:     strings.Repeat("0", 128),
 		Difficulty:   Difficulty,
 	}
+	
+	fmt.Println("Mining Genesis Block...")
 	genesis.Mine()
 	Blockchain = append(Blockchain, genesis)
 
@@ -59,5 +60,10 @@ func main() {
 	if port == "" { port = "8080" }
 
 	fmt.Printf("🌐 Node running on port %s. Launching AstraliX L1...\n", port)
-	http.ListenAndServe("0.0.0.0:"+port, nil)
+	
+	// Levantamos el servidor
+	err := http.ListenAndServe("0.0.0.0:"+port, nil)
+	if err != nil {
+		fmt.Printf("Critical Error: %v", err)
+	}
 }
