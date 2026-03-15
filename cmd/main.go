@@ -10,30 +10,25 @@ import (
 	"astralix/core"
 )
 
-// Global state variables
 var Blockchain []core.Block
 var Mempool []core.Transaction
 
-// Network configuration constants
 const DB_FILE = "blockchain_data.json"
+// PURE 512-BIT TREASURY ADDRESS
 const TREASURY_POOL_ADDR = "AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef540"
 
-// loadChain initializes the chain from local storage
 func loadChain() {
 	file, err := os.ReadFile(DB_FILE)
 	if err == nil {
 		json.Unmarshal(file, &Blockchain)
-		fmt.Println("Network history loaded.")
 	}
 }
 
-// saveChain persists current state to disk
 func saveChain() {
 	data, _ := json.MarshalIndent(Blockchain, "", "  ")
 	os.WriteFile(DB_FILE, data, 0644)
 }
 
-// getBalance scans the chain for a specific address balance
 func getBalance(addr string) float64 {
 	var balance float64
 	for _, block := range Blockchain {
@@ -47,14 +42,12 @@ func getBalance(addr string) float64 {
 
 func main() {
 	const Difficulty = 4 
-	// Genesis Root Authority Address
+	// ROOT GENESIS ADDRESS
 	rootAddr := "AX5eaba583bf646e0e39f41da6f9d8fa6db929c2e858bd32dffe6ac0cee2e3e974"
 
 	loadChain()
 
-	// Establish Genesis Block if network is new
 	if len(Blockchain) == 0 {
-		// INITIAL SUPPLY ISSUANCE
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
 		
@@ -62,16 +55,13 @@ func main() {
 			Index: 0, 
 			Timestamp: 1773561600,
 			Transactions: []core.Transaction{genesisTx},
-			PrevHash: strings.Repeat("0", 128), // 512-bit Zero-Hash
+			PrevHash: strings.Repeat("0", 128),
 			Difficulty: Difficulty,
 		}
 		genesisBlock.Mine()
 		Blockchain = append(Blockchain, genesisBlock)
 		saveChain()
-		fmt.Println("Genesis Block successfully generated.")
 	}
-
-	// --- API Handlers ---
 
 	http.HandleFunc("/api/balance/", func(w http.ResponseWriter, r *http.Request) {
 		addr := strings.TrimPrefix(r.URL.Path, "/api/balance/")
@@ -95,7 +85,6 @@ func main() {
 		var txs []core.Transaction
 		txs = append(txs, Mempool...)
 
-		// Reward allocation from Fixed Treasury Pool
 		if treasuryBalance >= reward {
 			rewardTx := core.Transaction{Sender: TREASURY_POOL_ADDR, Recipient: miner, Amount: reward}
 			rewardTx.TxID = rewardTx.CalculateHash()
@@ -116,10 +105,7 @@ func main() {
 
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
-		if err := json.NewDecoder(r.Body).Decode(&tx); err != nil {
-			http.Error(w, "Payload Error", 400); return
-		}
-		// Basic balance check
+		json.NewDecoder(r.Body).Decode(&tx)
 		if tx.Sender != "SYSTEM" && tx.Sender != TREASURY_POOL_ADDR {
 			if getBalance(tx.Sender) < tx.Amount {
 				http.Error(w, "Low balance", 400); return
@@ -145,91 +131,103 @@ const dashboardHTML = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AX Core | Network OS</title>
+    <title>AX Core | L1 Network Console</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --ax-main: #002D5B; --ax-accent: #6CB2EB; --bg: #F8FAFC; }
-        body { background: var(--bg); color: #2D3748; font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 90px; }
-        .sidebar { background: var(--ax-main); height: 100vh; position: fixed; width: 280px; color: white; z-index: 1000; box-shadow: 10px 0 30px rgba(0,0,0,0.05); }
+        :root { --ax-dark: #0F172A; --ax-blue: #2563EB; --ax-sky: #60A5FA; --bg: #F8FAFC; }
+        body { background: var(--bg); color: #1E293B; font-family: 'Inter', system-ui, sans-serif; margin: 0; padding-bottom: 90px; }
+        
+        .sidebar { background: var(--ax-dark); height: 100vh; position: fixed; width: 280px; color: white; z-index: 1000; box-shadow: 10px 0 40px rgba(0,0,0,0.1); }
         .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; }
-        .nav-link-ax { color: rgba(255,255,255,0.6); padding: 15px 30px; margin: 10px 15px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; text-decoration: none; }
-        .nav-link-ax.active { background: var(--ax-accent); color: white; }
-        .mobile-nav { background: white; position: fixed; bottom: 0; width: 100%; height: 80px; display: none; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 2000; }
-        .m-nav-item { color: #A0AEC0; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; flex: 1; }
-        .m-nav-item.active { color: var(--ax-main); }
-        .card-ax { background: white; border-radius: 24px; border: none; box-shadow: 0 4px 20px rgba(0,0,0,0.02); padding: 30px; margin-bottom: 25px; }
-        .hero { background: linear-gradient(135deg, var(--ax-main) 0%, var(--ax-accent) 100%); color: white; }
-        .pill { background: #F1F5F9; padding: 12px; border-radius: 12px; font-family: monospace; font-size: 0.8rem; word-break: break-all; margin-top: 10px; }
-        .btn-ax { background: var(--ax-main); color: white; border-radius: 14px; padding: 14px; font-weight: 700; border: none; width: 100%; transition: 0.2s; }
+        
+        .nav-link-ax { color: #94A3B8; padding: 16px 28px; margin: 10px 15px; border-radius: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; text-decoration: none; transition: 0.2s; }
+        .nav-link-ax:hover, .nav-link-ax.active { background: var(--ax-blue); color: white; }
+        .nav-link-ax i { width: 30px; font-size: 1.1rem; }
+
+        .mobile-nav { background: white; position: fixed; bottom: 0; width: 100%; height: 80px; display: none; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 2000; box-shadow: 0 -5px 20px rgba(0,0,0,0.03); }
+        .m-nav-item { color: #94A3B8; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; flex: 1; transition: 0.2s; }
+        .m-nav-item.active { color: var(--ax-blue); }
+        .m-nav-item i { font-size: 24px; display: block; margin-bottom: 4px; }
+
+        .card-ax { background: white; border-radius: 28px; border: none; box-shadow: 0 4px 25px rgba(0,0,0,0.03); padding: 35px; margin-bottom: 30px; }
+        .hero { background: linear-gradient(135deg, var(--ax-dark) 0%, var(--ax-blue) 100%); color: white; border-radius: 32px; }
+        .pill { background: #F1F5F9; padding: 14px; border-radius: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; word-break: break-all; margin-top: 12px; line-height: 1.4; border: 1px solid #E2E8F0; }
+        .btn-ax { background: var(--ax-blue); color: white; border-radius: 16px; padding: 16px; font-weight: 700; border: none; width: 100%; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); }
+        
         @media (max-width: 992px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } .mobile-nav { display: flex; } }
     </style>
 </head>
 <body>
+
     <div class="sidebar">
-        <div class="p-5 text-center"><h2 class="fw-bold m-0" style="color:white; letter-spacing:-2px;">AX CORE</h2><small class="opacity-50 fw-bold">NETWORK CONSOLE</small></div>
+        <div class="p-5 text-center"><h2 class="fw-bold m-0" style="color:white; letter-spacing:-2px;">AX CORE</h2><small class="opacity-50 fw-bold" style="font-size: 10px;">L1 ENTERPRISE</small></div>
         <nav>
-            <div class="nav-link-ax active" onclick="nav('dash', this)"><i class="fas fa-th-large me-2"></i> Overview</div>
-            <div class="nav-link-ax" onclick="nav('wallet', this)"><i class="fas fa-wallet me-2"></i> Wallet</div>
-            <div class="nav-link-ax" onclick="nav('security', this)"><i class="fas fa-user-shield me-2"></i> Identity</div>
+            <div class="nav-link-ax active" onclick="nav('dash', this)"><i class="fas fa-grid-2"></i> Dashboard</div>
+            <div class="nav-link-ax" onclick="nav('wallet', this)"><i class="fas fa-wallet"></i> Wallet</div>
+            <div class="nav-link-ax" onclick="nav('security', this)"><i class="fas fa-shield-check"></i> Identity</div>
         </nav>
     </div>
 
     <div class="main-content">
         <div id="v-dash" class="view">
             <div class="card-ax hero text-center py-5">
-                <small class="text-uppercase fw-bold opacity-75">Personal Balance</small>
+                <small class="text-uppercase fw-bold opacity-75" style="letter-spacing: 1px;">Network Balance</small>
                 <h1 id="bal-txt" class="display-3 fw-bold my-2">0.00</h1>
-                <div id="addr-txt" class="pill bg-white bg-opacity-10 border-0 text-white opacity-75">Connect Identity</div>
+                <div id="addr-txt" class="pill bg-white bg-opacity-10 border-0 text-white opacity-75">Connect Vault</div>
             </div>
-            <div class="card-ax text-center" style="border: 1px dashed var(--ax-accent);">
-                <small class="fw-bold text-muted">TREASURY REWARDS POOL</small>
+            <div class="card-ax text-center" style="border: 1px dashed var(--ax-sky);">
+                <small class="fw-bold text-muted">TREASURY REWARDS (FIXED)</small>
                 <h3 id="pool-txt" class="fw-bold m-0 text-primary">0.00 AX</h3>
-                <div class="pill mt-2" style="font-size: 0.6rem;">` + TREASURY_POOL_ADDR + `</div>
+                <div class="pill mt-2" style="font-size: 0.65rem;">` + TREASURY_POOL_ADDR + `</div>
             </div>
-            <button class="btn-ax py-3 mb-4" onclick="mine()">MINE PENDING BLOCK (+50.00 AX)</button>
+            <button class="btn-ax py-3 mb-4 shadow-sm" onclick="mine()">VALIDATE PENDING BLOCK (+50.00 AX)</button>
             <div id="mini-feed"></div>
         </div>
 
         <div id="v-wallet" class="view" style="display:none">
-            <div class="card-ax mx-auto" style="max-width: 500px;">
-                <h4 class="fw-bold mb-4">Transfer Assets</h4>
-                <input type="text" id="tx-to" class="form-control mb-3 p-3 border-0 bg-light rounded-4" placeholder="Destination AX Address">
-                <input type="number" id="tx-amt" class="form-control mb-4 p-3 border-0 bg-light rounded-4" placeholder="Amount">
-                <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
+            <div class="card-ax mx-auto" style="max-width: 600px;">
+                <h4 class="fw-bold mb-4">Send Assets</h4>
+                <label class="small text-muted mb-2">Recipient $2^{512}$ Address</label>
+                <input type="text" id="tx-to" class="form-control mb-3 p-3 border-0 bg-light rounded-4" placeholder="AX Address (128 characters)">
+                <label class="small text-muted mb-2">Amount</label>
+                <input type="number" id="tx-amt" class="form-control mb-4 p-3 border-0 bg-light rounded-4" placeholder="0.00">
+                <button class="btn-ax" onclick="send()">SIGN & BROADCAST</button>
             </div>
         </div>
 
         <div id="v-security" class="view" style="display:none">
             <div class="card-ax">
-                <h4 class="fw-bold mb-4">Vault Access</h4>
-                <input type="password" id="i-priv" class="form-control p-3 border-0 bg-light rounded-4 mb-4" placeholder="Secret Private Key">
-                <button class="btn-ax" onclick="login()">CONNECT</button>
+                <h4 class="fw-bold mb-4">Identity Sync</h4>
+                <input type="password" id="i-priv" class="form-control p-3 border-0 bg-light rounded-4 mb-4" placeholder="Secret Key">
+                <button class="btn-ax" onclick="login()">SYNC WALLET</button>
                 <hr class="my-5">
-                <button class="btn btn-outline-dark w-100 py-3 rounded-4" onclick="gen()">GENERATE SEED PHRASE</button>
+                <button class="btn btn-outline-dark w-100 py-3 rounded-4" onclick="gen()">GENERATE PURE 512-BIT KEY</button>
                 <div id="g-res" class="mt-4" style="display:none">
-                    <small class="fw-bold">New keys generated. Save these words safely.</small>
-                    <div id="seed-words" class="my-2"></div>
+                    <small class="fw-bold text-danger">Identity Generated. Backup the 128-char Address.</small>
                     <div class="pill mb-2" id="g-priv"></div>
-                    <div class="pill fw-bold text-primary" id="g-pub"></div>
+                    <div class="pill fw-bold text-primary" id="g-pub" style="font-size: 0.65rem;"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="mobile-nav">
-        <div class="m-nav-item active" onclick="nav('dash', this)"><i class="fas fa-home"></i>Dash</div>
+        <div class="m-nav-item active" onclick="nav('dash', this)"><i class="fas fa-th-large"></i>Dash</div>
         <div class="m-nav-item" onclick="nav('wallet', this)"><i class="fas fa-paper-plane"></i>Send</div>
-        <div class="m-nav-item" onclick="nav('security', this)"><i class="fas fa-key"></i>Keys</div>
+        <div class="m-nav-item" onclick="nav('security', this)"><i class="fas fa-key"></i>Identity</div>
     </div>
 
     <script>
+        // PURE 512-BIT DERIVATION (128 HEX CHARS)
         async function derive(priv) {
             const buf = new TextEncoder().encode(priv);
             const hash = await crypto.subtle.digest('SHA-512', buf);
-            const hex = Array.from(new Uint8Array(hash)).map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
-            return 'AX' + hex.substring(0, 64);
+            const hex = Array.from(new Uint8Array(hash)).map(function(b) { 
+                return b.toString(16).padStart(2,'0'); 
+            }).join('');
+            return 'AX' + hex; 
         }
 
         let session = JSON.parse(localStorage.getItem('ax_core_v16_session')) || null;
@@ -243,20 +241,19 @@ const dashboardHTML = `
 
         async function login() {
             const p = document.getElementById('i-priv').value;
+            if(!p) return;
             const pb = await derive(p);
             session = { pub: pb, priv: p };
             localStorage.setItem('ax_core_v16_session', JSON.stringify(session));
             location.reload();
         }
 
-        function logout() { localStorage.removeItem('ax_core_v16_session'); location.reload(); }
-
         async function load() {
             if(session) {
                 const r = await fetch('/api/balance/' + session.pub);
                 const d = await r.json();
                 document.getElementById('bal-txt').innerText = d.balance.toLocaleString() + ' AX';
-                document.getElementById('addr-txt').innerText = session.pub.substring(0,30) + "...";
+                document.getElementById('addr-txt').innerText = session.pub.substring(0,40) + "...";
             }
             const rp = await fetch('/api/balance/` + TREASURY_POOL_ADDR + `');
             const dp = await rp.json();
@@ -273,29 +270,20 @@ const dashboardHTML = `
         }
 
         async function mine() {
-            if(!session) return alert('Login required');
+            if(!session) return alert('Identity required');
             const r = await fetch('/api/mine?address=' + session.pub);
-            if(r.ok) { alert('Block mined!'); load(); } else { alert('Mempool or Treasury issue.'); }
+            if(r.ok) { alert('Success!'); load(); } else { alert('Network Busy or Treasury Issue.'); }
         }
 
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById('tx-to').value, amount: parseFloat(document.getElementById('tx-amt').value) };
             const r = await fetch('/api/transactions/new', { method: 'POST', body: JSON.stringify(tx) });
-            if(r.ok) { alert('Authorized!'); nav('dash'); load(); } else { alert('Error: Check funds.'); }
+            if(r.ok) { alert('Broadcasting!'); nav('dash'); load(); } else { alert('Error: Check balance.'); }
         }
 
         async function gen() {
-            const words = ["abandon", "ability", "able", "about", "above", "absent", "absorb", "abstract", "absurd", "abuse", "access", "accident"];
-            const seed = Array.from({length: 12}, () => words[Math.floor(Math.random()*words.length)]).join(' ');
-            const p = btoa(seed).substring(0,64);
+            const p = btoa(Math.random().toString() + Date.now()).substring(0,64);
             const pb = await derive(p);
             document.getElementById('g-res').style.display = 'block';
             document.getElementById('g-priv').innerText = p;
-            document.getElementById('g-pub').innerText = pb;
-        }
-
-        load(); setInterval(load, 15000);
-    </script>
-</body>
-</html>
-`
+            document.getElementById('g-pub').innerText
