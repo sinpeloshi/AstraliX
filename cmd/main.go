@@ -14,23 +14,21 @@ var Blockchain []core.Block
 var Mempool []core.Transaction
 
 func main() {
-	// Mantenemos la ley de los 512 bits
 	const Difficulty = 4 
+	// Asegúrate de poner tu dirección AX generada aquí para ver tus fondos
 	creatorAddr := "AXdc3acc7c0b91eb485d0e3bb78059bb58a3999c14b56cfe6ca0428670afc6410c"
 
 	genTx := core.Transaction{Sender: "SYSTEM", Recipient: creatorAddr, Amount: 1000002021}
 	genTx.TxID = genTx.CalculateHash()
-	
-	// PrevHash de 128 caracteres (512 bits en hex)
 	genesis := core.Block{
 		Index: 0, Timestamp: 1773561600,
 		Transactions: []core.Transaction{genTx},
-		PrevHash: strings.Repeat("0", 128), 
-		Difficulty: Difficulty,
+		PrevHash: strings.Repeat("0", 128), Difficulty: Difficulty,
 	}
 	genesis.Mine()
 	Blockchain = append(Blockchain, genesis)
 
+	// --- API ROUTES ---
 	http.HandleFunc("/api/balance/", func(w http.ResponseWriter, r *http.Request) {
 		addr := strings.TrimPrefix(r.URL.Path, "/api/balance/")
 		balance := 0.0
@@ -82,91 +80,173 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" { port = "8080" }
-	fmt.Printf("🌐 AstraliX 512-bit Node running on port %s\n", port)
+	fmt.Printf("🌐 AstraliX White Node running on port %s\n", port)
 	http.ListenAndServe("0.0.0.0:"+port, nil)
 }
 
 const dashboardHTML = `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AstraliX | 512-bit Elite</title>
+    <title>AstraliX | Digital Banking & Network</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --accent: #00ffa3; --bg: #010102; --card: rgba(25, 25, 30, 0.95); }
-        body { background: var(--bg); color: #f8f9fa; font-family: 'Inter', sans-serif; padding-bottom: 110px; }
-        .main-content { padding: 20px; max-width: 480px; margin: auto; }
-        .glass-card { background: var(--card); border: 1px solid rgba(0, 255, 163, 0.1); border-radius: 35px; padding: 30px; margin-bottom: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.7); }
-        .mobile-nav { background: rgba(0,0,0,0.9); backdrop-filter: blur(25px); border-top: 1px solid #111; position: fixed; bottom: 0; width: 100%; height: 95px; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
-        .nav-item { color: #333; text-decoration: none; text-align: center; font-size: 10px; cursor: pointer; font-weight: 900; letter-spacing: 1px; }
-        .nav-item.active { color: var(--accent); }
-        .nav-item i { font-size: 28px; display: block; margin-bottom: 8px; }
-        .btn-elite { background: var(--accent); color: #000; font-weight: 900; border-radius: 25px; border: none; padding: 22px; width: 100%; transition: 0.4s; }
-        .btn-elite:hover { box-shadow: 0 0 40px var(--accent); transform: translateY(-5px); }
-        .accent { color: var(--accent); }
-        input { background: #000 !important; border: 1px solid #222 !important; color: #fff !important; border-radius: 22px !important; padding: 20px !important; margin-bottom: 20px; }
-        .key-box { font-family: monospace; font-size: 0.7rem; background: #000; padding: 20px; border-radius: 25px; border: 1px solid #333; word-break: break-all; color: #888; }
-        .seed-badge { display: inline-block; background: #080808; padding: 6px 14px; border-radius: 12px; margin: 5px; font-size: 13px; color: var(--accent); border: 1px solid #1a1a1a; }
+        :root { --main-blue: #003366; --celeste: #74ACDF; --bg-light: #F4F7F9; --white: #FFFFFF; }
+        body { background: var(--bg-light); color: #333; font-family: 'Segoe UI', Roboto, sans-serif; margin: 0; }
+        
+        /* Layout */
+        .sidebar { background: var(--main-blue); height: 100vh; position: fixed; width: 260px; color: white; transition: 0.3s; z-index: 1000; }
+        .content { margin-left: 260px; padding: 30px; }
+        
+        /* Sidebar Nav */
+        .nav-link { color: rgba(255,255,255,0.7); padding: 15px 25px; margin: 5px 15px; border-radius: 10px; transition: 0.2s; cursor: pointer; text-decoration: none; display: flex; align-items: center; }
+        .nav-link:hover, .nav-link.active { background: var(--celeste); color: white; }
+        .nav-link i { width: 25px; font-size: 18px; }
+
+        /* Components */
+        .card-custom { background: var(--white); border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 25px; }
+        .balance-card { background: linear-gradient(135deg, var(--main-blue) 0%, var(--celeste) 100%); color: white; }
+        .btn-primary-ax { background: var(--main-blue); color: white; border: none; border-radius: 12px; padding: 12px 25px; font-weight: 600; }
+        .btn-celeste { background: var(--celeste); color: white; border: none; border-radius: 12px; padding: 12px 25px; font-weight: 600; }
+        
+        .status-dot { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; display: inline-block; margin-right: 8px; }
+        .addr-pill { background: #E9ECEF; padding: 8px 15px; border-radius: 10px; font-family: monospace; font-size: 0.85rem; color: #666; word-break: break-all; }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(-100%); }
+            .content { margin-left: 0; padding: 15px; }
+            .sidebar.active { transform: translateX(0); }
+            .mobile-header { display: flex !important; }
+        }
     </style>
 </head>
 <body>
-    <div class="main-content text-center">
-        <div class="my-5">
-            <h1 class="fw-black accent mb-0" style="letter-spacing: -3px; font-size: 3rem;">AX</h1>
-            <small class="text-muted fw-bold">512-BIT PROTOCOL</small>
+
+    <div class="sidebar" id="sidebar">
+        <div class="p-4 mb-4 text-center">
+            <h3 class="fw-bold mb-0">ASTRALIX</h3>
+            <small class="opacity-50">Secure 512-bit Protocol</small>
+        </div>
+        <nav>
+            <a class="nav-link active" onclick="showPage('dash', this)"><i class="fas fa-home"></i> <span>Dashboard</span></a>
+            <a class="nav-link" onclick="showPage('wallet', this)"><i class="fas fa-wallet"></i> <span>My Wallet</span></a>
+            <a class="nav-link" onclick="showPage('explorer', this)"><i class="fas fa-cubes"></i> <span>Explorer</span></a>
+            <a class="nav-link" onclick="showPage('stats', this)"><i class="fas fa-chart-line"></i> <span>Network Stats</span></a>
+            <a class="nav-link" onclick="showPage('contacts', this)"><i class="fas fa-address-book"></i> <span>Contacts</span></a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="mobile-header d-none align-items-center">
+                <button class="btn btn-dark me-3" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <h4 class="mb-0 fw-bold">AstraliX</h4>
+            </div>
+            <div class="d-none d-lg-block">
+                <h4 class="fw-bold text-dark mb-0">Network Overview</h4>
+                <small class="text-muted"><span class="status-dot"></span> Node is Synchronized</small>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="text-end me-3 d-none d-sm-block">
+                    <small class="text-muted d-block">Node Port</small>
+                    <span class="fw-bold">8080 (Cloud)</span>
+                </div>
+                <button class="btn btn-light rounded-circle p-3 shadow-sm" onclick="location.reload()"><i class="fas fa-sync"></i></button>
+            </div>
         </div>
 
-        <div id="view-assets" class="view-section">
-            <div class="glass-card">
-                <small class="text-muted fw-bold opacity-50">AVAILABLE AX</small>
-                <h1 id="bal-large" class="accent fw-black my-2" style="font-size: 3.5rem;">0.00</h1>
-                <div id="addr-display" class="small opacity-25 text-truncate px-4">Offline Mode</div>
-            </div>
-            <div class="row g-3">
-                <div class="col-6"><button class="btn btn-elite" onclick="switchTab('send')">SEND</button></div>
-                <div class="col-6"><button class="btn btn-dark w-100 border-0 py-3 rounded-5" onclick="alert(wallet ? wallet.pub : 'Login first')">RECEIVE</button></div>
-            </div>
-            <div id="recent-feed" class="mt-5 text-start"></div>
-        </div>
-
-        <div id="view-send" class="view-section" style="display:none">
-            <div class="glass-card text-start">
-                <h4 class="fw-bold mb-4">Transfer</h4>
-                <input type="text" id="tx-to" class="form-control" placeholder="Recipient AX Address">
-                <input type="number" id="tx-amt" class="form-control" placeholder="Amount">
-                <button class="btn btn-elite" onclick="processSend()">SIGN & BROADCAST</button>
-            </div>
-        </div>
-
-        <div id="view-manage" class="view-section" style="display:none">
-            <div class="glass-card text-start">
-                <h4 class="fw-bold mb-3">Login</h4>
-                <input type="password" id="imp-priv" class="form-control" placeholder="Paste 512-bit Private Key">
-                <button class="btn btn-elite" onclick="importWallet()">CONNECT</button>
-                <hr class="border-secondary my-4">
-                <button class="btn btn-outline-danger w-100 rounded-5" onclick="logout()">LOGOUT</button>
-            </div>
-            <div class="glass-card text-start border-success border-opacity-10">
-                <h4 class="fw-bold accent">New Seed</h4>
-                <button class="btn btn-dark w-100 rounded-5 py-3" onclick="createNew()">GENERATE 12 WORDS</button>
-                <div id="seed-output" class="mt-4" style="display:none">
-                    <div id="seed-words" class="mb-3"></div>
-                    <small class="text-muted">Secret Key (512-bit):</small>
-                    <div class="key-box mb-3" id="gen-priv"></div>
-                    <small class="accent">Public Address:</small>
-                    <div class="key-box" id="gen-pub"></div>
+        <div id="page-dash" class="page">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <div class="card-custom balance-card">
+                        <div class="row align-items-center">
+                            <div class="col-md-7">
+                                <h6 class="text-uppercase opacity-75">Available AX Balance</h6>
+                                <h1 id="bal-main" class="fw-bold display-4 mb-3">0.00</h1>
+                                <div id="connected-addr" class="addr-pill bg-white bg-opacity-10 text-white border-0 text-truncate">Connect your wallet to start</div>
+                            </div>
+                            <div class="col-md-5 text-end d-none d-md-block">
+                                <i class="fas fa-shield-alt fa-8x opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-4">Recent Blocks</h5>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="text-muted small">
+                                    <tr><th>Block #</th><th>Hash</th><th>TXs</th><th>Time</th></tr>
+                                </thead>
+                                <tbody id="mini-explorer"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="card-custom">
+                        <h5 class="fw-bold mb-3">Quick Actions</h5>
+                        <button class="btn btn-primary-ax w-100 mb-2" onclick="showPage('wallet')">Send Money</button>
+                        <button class="btn btn-outline-dark w-100 mb-4" onclick="mine()">Mine Next Block</button>
+                        <hr>
+                        <h6 class="text-muted small mb-3">Network Summary</h6>
+                        <div class="d-flex justify-content-between mb-2"><span>Supply</span><span class="fw-bold">1.0B AX</span></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Height</span><span id="stat-height" class="fw-bold">0</span></div>
+                        <div class="d-flex justify-content-between mb-2"><span>Difficulty</span><span class="fw-bold text-primary">4 (PoW)</span></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="mobile-nav">
-        <div class="nav-item active" id="nav-assets" onclick="switchTab('assets', this)"><i class="fas fa-wallet"></i>Assets</div>
-        <div class="nav-item" id="nav-manage" onclick="switchTab('manage', this)"><i class="fas fa-shield-halved"></i>Keys</div>
-        <div class="nav-item" id="nav-explorer" onclick="mine()"><i class="fas fa-microchip"></i>Mine</div>
+        <div id="page-wallet" class="page" style="display:none">
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card-custom">
+                        <h4 class="fw-bold mb-4">Transfer AX</h4>
+                        <div class="mb-3">
+                            <label class="form-label small text-muted">Recipient Address</label>
+                            <input type="text" id="tx-to" class="form-control p-3 border-0 bg-light" placeholder="AX...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small text-muted">Amount</label>
+                            <input type="number" id="tx-amt" class="form-control p-3 border-0 bg-light" placeholder="0.00">
+                        </div>
+                        <button class="btn btn-celeste w-100 py-3 fw-bold" onclick="sendTx()">AUTHORIZE TRANSACTION</button>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card-custom">
+                        <h4 class="fw-bold mb-4">Access Account</h4>
+                        <div class="mb-4">
+                            <label class="form-label small text-muted">Private Key (512-bit Secret)</label>
+                            <input type="password" id="imp-priv" class="form-control p-3 border-0 bg-light" placeholder="Enter Secret Key">
+                        </div>
+                        <button class="btn btn-primary-ax w-100 mb-3" onclick="importWallet()">CONNECT SESSION</button>
+                        <button class="btn btn-link w-100 text-danger text-decoration-none small" onclick="logout()">Disconnect Wallet</button>
+                    </div>
+                    <div class="card-custom bg-light border-0 shadow-none">
+                        <h5 class="fw-bold">Need a New Wallet?</h5>
+                        <p class="small text-muted">Generate a secure cryptographic keypair for the network.</p>
+                        <button class="btn btn-outline-dark btn-sm rounded-pill" onclick="createNew()">Generate New Identity</button>
+                        <div id="keys-box" class="mt-3 small" style="display:none">
+                            <div class="addr-pill mb-2 bg-white" id="gen-priv"></div>
+                            <div class="addr-pill bg-white text-primary fw-bold" id="gen-pub"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-explorer" class="page" style="display:none">
+            <div class="card-custom">
+                <h4 class="fw-bold mb-4">Chain Explorer</h4>
+                <div id="full-chain"></div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -180,27 +260,17 @@ const dashboardHTML = `
 
         let wallet = JSON.parse(localStorage.getItem('ax_session')) || null;
 
-        function switchTab(id, el) {
-            document.querySelectorAll('.view-section').forEach(v => v.style.display = 'none');
-            document.getElementById('view-' + id).style.display = 'block';
-            document.querySelectorAll('.nav-item').forEach(l => l.classList.remove('active'));
-            if(el) el.classList.add('active');
-        }
-
-        async function createNew() {
-            const words = ["nebula", "astral", "galaxy", "node", "crypt", "shield", "pulse", "orbit", "delta", "alpha", "zenith", "quantum"];
-            const seed = [...Array(12)].map(() => words[Math.floor(Math.random()*words.length)]).join(' ');
-            const priv = btoa(seed + Date.now()).substring(0, 128);
-            const pub = await deriveAddress(priv);
-            document.getElementById('seed-output').style.display = 'block';
-            document.getElementById('seed-words').innerHTML = seed.split(' ').map(w => '<span class="seed-badge">'+w+'</span>').join('');
-            document.getElementById('gen-priv').innerText = priv;
-            document.getElementById('gen-pub').innerText = pub;
+        function showPage(id, el) {
+            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+            document.getElementById('page-' + id).style.display = 'block';
+            if(el) {
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                el.classList.add('active');
+            }
         }
 
         async function importWallet() {
             const priv = document.getElementById('imp-priv').value;
-            if(!priv) return;
             const pub = await deriveAddress(priv);
             wallet = { pub, priv };
             localStorage.setItem('ax_session', JSON.stringify(wallet));
@@ -211,31 +281,48 @@ const dashboardHTML = `
 
         async function load() {
             if(wallet) {
-                document.getElementById('addr-display').innerText = wallet.pub;
+                document.getElementById('connected-addr').innerText = wallet.pub;
                 const r = await fetch('/api/balance/' + wallet.pub);
                 const d = await r.json();
-                document.getElementById('bal-large').innerText = d.balance.toLocaleString();
+                document.getElementById('bal-main').innerText = d.balance.toLocaleString() + ' AX';
             }
             const resC = await fetch('/api/chain');
             const chain = await resC.json();
-            const feed = document.getElementById('recent-feed');
-            feed.innerHTML = '<h6 class="fw-bold mb-3 opacity-50">NETWORK FEED</h6>';
+            document.getElementById('stat-height').innerText = chain.length;
+
+            const mini = document.getElementById('mini-explorer');
+            const full = document.getElementById('full-chain');
+            mini.innerHTML = ''; full.innerHTML = '';
+
             chain.slice().reverse().forEach(b => {
-                feed.innerHTML += '<div class="glass-card p-3 mb-2" style="border-radius:20px; font-size:11px;">BLOCK #' + b.index + ' | ' + b.hash.substring(0,24) + '...</div>';
+                const row = ` + "`" + `<tr><td>#${b.index}</td><td class="text-muted small">${b.hash.substring(0,24)}...</td><td>${b.transactions?b.transactions.length:0}</td><td>${new Date(b.timestamp*1000).toLocaleTimeString()}</td></tr>` + "`" + `;
+                mini.innerHTML += row;
+                
+                full.innerHTML += ` + "`" + `<div class="card-custom border mb-3"><div class="d-flex justify-content-between"><span class="fw-bold text-primary">BLOCK #${b.index}</span><small class="text-muted">${new Date(b.timestamp*1000).toLocaleString()}</small></div><div class="addr-pill my-2">${b.hash}</div><div class="small">Prev Hash: ${b.prev_hash || 'None'}</div></div>` + "`" + `;
             });
         }
 
         async function mine() {
             const r = await fetch('/api/mine');
-            if(r.ok) { alert("Block Confirmed"); load(); } else { alert("Mempool empty"); }
+            if(r.ok) { alert("Block Successfully Mined!"); load(); } else { alert("Mempool Empty"); }
         }
 
-        async function processSend() {
-            if(!wallet) return switchTab('manage');
+        async function sendTx() {
+            if(!wallet) return showPage('wallet');
             const tx = { sender: wallet.pub, recipient: document.getElementById('tx-to').value, amount: parseFloat(document.getElementById('tx-amt').value) };
             await fetch('/api/transactions/new', { method: 'POST', body: JSON.stringify(tx) });
-            alert("Authorized!"); switchTab('assets'); load();
+            alert("Transaction Broadcasted!"); showPage('dash'); load();
         }
+
+        async function createNew() {
+            const priv = btoa(Math.random().toString()).substring(0, 128);
+            const pub = await deriveAddress(priv);
+            document.getElementById('keys-box').style.display = 'block';
+            document.getElementById('gen-priv').innerText = 'Priv: ' + priv;
+            document.getElementById('gen-pub').innerText = 'Pub: ' + pub;
+        }
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); }
 
         load();
         setInterval(load, 20000);
