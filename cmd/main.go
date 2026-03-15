@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 	"astralix/core"
 	"astralix/wallet"
@@ -14,20 +15,26 @@ func main() {
 	const TotalSupply = 1000002021
 	const Difficulty = 4 
 
-	fmt.Println("--- AstraliX Network Central Node ---")
+	fmt.Println("--- AstraliX Network Central Node (512-bit Edition) ---")
 	
+	// Generamos tu Billetera Maestra P-521
 	creadorWallet := wallet.NewWallet()
 	direccionCreador := creadorWallet.GetAddress()
 	
-	fmt.Printf("Dirección Oficial del Creador: %s\n", direccionCreador)
-	fmt.Printf("Supply Total: %d AX asignados a esta red.\n", TotalSupply)
+	fmt.Printf("Dirección Maestra: %s\n", direccionCreador)
 	fmt.Println("Minando Bloque Génesis...")
+
+	// El Hash previo ahora necesita 128 ceros por el SHA-512
+	prevHashVacio := strings.Repeat("0", 128)
+
+	// Asignamos el supply directamente a tu dirección en el bloque
+	datosGenesis := fmt.Sprintf("Génesis: %d AX asignados a la billetera maestra %s", TotalSupply, direccionCreador)
 
 	genesis := &core.Block{
 		Index:      0,
 		Timestamp:  time.Now().Unix(),
-		Data:       "AstraliX Genesis Block",
-		PrevHash:   "0000000000000000000000000000000000000000000000000000000000000000",
+		Data:       datosGenesis,
+		PrevHash:   prevHashVacio,
 		Difficulty: Difficulty,
 	}
 
@@ -42,13 +49,12 @@ func main() {
 		json.NewEncoder(w).Encode(genesis)
 	})
 
-	// Capturamos el puerto que Railway nos impone, o usamos 8080 por defecto
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	fmt.Printf("🌐 API de AstraliX activa. Nodo escuchando en el puerto %s...\n", port)
+	fmt.Printf("🌐 API activa. Nodo Blindado escuchando en el puerto %s...\n", port)
 	if err := http.ListenAndServe("0.0.0.0:"+port, nil); err != nil {
 		fmt.Printf("Error iniciando el servidor: %s\n", err)
 	}
