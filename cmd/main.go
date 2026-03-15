@@ -1,29 +1,60 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
 	"astralix/core"
+	_ "github.com/lib/pq" // Driver de PostgreSQL
 )
 
 var Blockchain []core.Block
 var Mempool []core.Transaction
+var db *sql.DB
 
-const DB_FILE = "blockchain_data.json"
+// DEFINITIVE 512-BIT REWARDS TREASURY
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
+func initDB() {
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
+		log.Fatal("ERROR FATAL: DATABASE_URL no está configurada")
+	}
+
+	var err error
+	db, err = sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal("Error conectando a la DB:", err)
+	}
+
+	// Crear la bóveda de estado si no existe
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS chain_state (id INT PRIMARY KEY, data TEXT)`)
+	if err != nil {
+		log.Fatal("Error creando tabla:", err)
+	}
+}
+
 func loadChain() {
-	file, err := os.ReadFile(DB_FILE)
-	if err == nil { json.Unmarshal(file, &Blockchain) }
+	var data string
+	err := db.QueryRow("SELECT data FROM chain_state WHERE id = 1").Scan(&data)
+	if err == nil {
+		json.Unmarshal([]byte(data), &Blockchain)
+	}
 }
 
 func saveChain() {
 	data, _ := json.MarshalIndent(Blockchain, "", "  ")
-	os.WriteFile(DB_FILE, data, 0644)
+	// Guardado atómico: inserta o actualiza el estado global de la blockchain
+	_, err := db.Exec(`INSERT INTO chain_state (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`, string(data))
+	if err != nil {
+		log.Println("Error guardando en PostgreSQL:", err)
+	}
 }
 
 func getBalance(addr string) float64 {
@@ -38,11 +69,16 @@ func getBalance(addr string) float64 {
 }
 
 func main() {
+	// 1. Inicializar Conexión a Base de Datos
+	initDB()
+
 	const Difficulty = 4 
 	rootAddr := "AX5eaba583bf646e0e39f41da6f9d8fa6db929c2e858bd32dffe6ac0cee2e3e974dc3ff66cb2d73bdabdc9a49279bea46da35d10d925aaf71416e5e351a3f74b56"
 
+	// 2. Cargar datos desde PostgreSQL
 	loadChain()
 
+	// 3. Crear Bloque Génesis si la DB está vacía
 	if len(Blockchain) == 0 {
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
@@ -132,6 +168,8 @@ const dashboardHTML = `
         
         .header-ax { padding: 30px 20px 10px; text-align: center; }
         .header-ax h5 { font-weight: 800; letter-spacing: 1.5px; margin: 0; color: #0F172A; font-size: 1.2rem; }
+        .status-dot { height: 8px; width: 8px; background-color: #10B981; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 8px #10B981; }
+        .status-text { font-size: 0.7rem; font-weight: 600; color: #10B981; letter-spacing: 1px; }
         
         .view-ax { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
         
@@ -167,6 +205,7 @@ const dashboardHTML = `
 
     <div class="header-ax">
         <h5>AX CORE</h5>
+        <div class="mt-1"><span class="status-dot"></span><span class="status-text">POSTGRES SYNCED</span></div>
     </div>
 
     <div id="v-dash" class="view-ax">
@@ -206,9 +245,7 @@ const dashboardHTML = `
                 <input type="password" id="i-priv" class="form-control" placeholder="Enter Private Key">
             </div>
             <button class="btn-ax" style="width:100%; margin:0;" onclick="login()">CONNECT WALLET</button>
-            
             <hr>
-            
             <button class="btn-ax btn-outline" style="width:100%; margin:0;" onclick="gen()">GENERATE NEW KEYS</button>
             <div id="g-res" class="mt-4 text-left" style="display:none">
                 <span class="form-label">Private Key (Save securely):</span>
