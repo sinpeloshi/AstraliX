@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 	"astralix/core"
 )
@@ -28,6 +30,14 @@ func main() {
 
 	fmt.Printf("¡Bloque Génesis Minado!\nHash: %s\nTiempo: %s\n", genesis.Hash, elapsed)
 	
-	// Mantiene el nodo encendido para Railway
-	select {}
+	// Creamos una ruta web para ver el bloque y mantener el nodo vivo
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(genesis)
+	})
+
+	fmt.Println("🌐 API de AstraliX activa. Nodo escuchando en el puerto 8080...")
+	if err := http.ListenAndServe("0.0.0.0:8080", nil); err != nil {
+		fmt.Printf("Error iniciando el servidor: %s\n", err)
+	}
 }
