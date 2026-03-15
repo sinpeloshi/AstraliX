@@ -19,7 +19,6 @@ var Blockchain []core.Block
 var Mempool []core.Transaction
 var db *sql.DB
 
-// DIRECCIÓN OFICIAL DE LA REWARD WALLET (TREASURY)
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 func initDB() {
@@ -61,7 +60,6 @@ func getBalance(addr string) float64 {
 func main() {
 	initDB(); loadChain()
 	const Difficulty = 4 
-	// TU NUEVA DIRECCIÓN GÉNESIS
 	rootAddr := "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d"
 	
 	if len(Blockchain) == 0 {
@@ -75,24 +73,31 @@ func main() {
 		addr := strings.TrimPrefix(r.URL.Path, "/api/balance/")
 		json.NewEncoder(w).Encode(map[string]interface{}{"balance": getBalance(addr)})
 	})
+	http.HandleFunc("/api/chain", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(Blockchain)
+	})
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
-		if miner == "" || len(Mempool) == 0 { http.Error(w, "Mempool empty", 400); return }
+		if miner == "" { http.Error(w, "Address req", 400); return }
 		reward := 50.0
+		var txs []core.Transaction
+		if len(Mempool) > 0 { txs = append(txs, Mempool...) }
 		if getBalance(TREASURY_POOL_ADDR) >= reward {
 			rewardTx := core.Transaction{Sender: TREASURY_POOL_ADDR, Recipient: miner, Amount: reward}
 			rewardTx.TxID = rewardTx.CalculateHash()
-			Mempool = append(Mempool, rewardTx)
+			txs = append(txs, rewardTx)
 		}
+		if len(txs) == 0 { http.Error(w, "Nothing to mine", 400); return }
 		prev := Blockchain[len(Blockchain)-1]
-		newBlock := core.Block{Index: int64(len(Blockchain)), Timestamp: time.Now().Unix(), Transactions: Mempool, PrevHash: prev.Hash, Difficulty: Difficulty}
+		newBlock := core.Block{Index: int64(len(Blockchain)), Timestamp: time.Now().Unix(), Transactions: txs, PrevHash: prev.Hash, Difficulty: Difficulty}
 		newBlock.Mine(); Blockchain = append(Blockchain, newBlock); Mempool = []core.Transaction{}; saveChain()
 		json.NewEncoder(w).Encode(newBlock)
 	})
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
-		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" { http.Error(w, "Saldo insuficiente", 400); return }
+		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" { http.Error(w, "Low balance", 400); return }
 		tx.TxID = tx.CalculateHash(); Mempool = append(Mempool, tx); w.WriteHeader(201)
 	})
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -116,24 +121,35 @@ const dashboardHTML = `
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
         :root { --bg: #F8FAFC; --card: #FFFFFF; --primary: #0D6EFD; --text: #0F172A; }
         body { background: var(--bg); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 110px; color: var(--text); -webkit-font-smoothing: antialiased; }
+        
         .header-ax { padding: 35px 20px 15px; text-align: center; }
         .header-ax h5 { font-weight: 800; letter-spacing: 1px; margin: 0; color: #0F172A; font-size: 1.5rem; }
         .status-box { display: inline-flex; align-items: center; background: #ECFDF5; padding: 6px 12px; border-radius: 100px; margin-top: 10px; }
         .status-dot { height: 7px; width: 7px; background: #10B981; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 10px #10B981; }
         .status-text { font-size: 0.65rem; font-weight: 800; color: #059669; letter-spacing: 1px; }
-        .view-ax { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
-        .card-ax { background: var(--card); border-radius: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); padding: 30px; margin: 15px 20px; width: calc(100% - 40px); box-sizing: border-box; border: 1px solid rgba(0,0,0,0.03); }
+
+        .view-ax { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; }
+        .card-ax { background: var(--card); border-radius: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); padding: 30px; margin: 15px 0; width: 100%; box-sizing: border-box; border: 1px solid rgba(0,0,0,0.03); text-align: center; }
         .card-dark { background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%); color: white; border: none; }
-        .balance-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; font-weight: 600; }
-        .balance-amount { font-size: 2.4rem; font-weight: 800; margin: 10px 0 25px; letter-spacing: -1.5px; }
-        .pill-address { background: rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; word-break: break-all; color: rgba(255,255,255,0.45); line-height: 1.4; text-align: left; }
-        .seed-container { background: #F1F5F9; border-radius: 20px; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
-        .seed-word { font-size: 0.8rem; background: white; padding: 10px 12px; border-radius: 12px; color: #475569; font-weight: 600; display: flex; align-items: center; border: 1px solid #E2E8F0; }
-        .seed-num { color: #94A3B8; font-size: 0.65rem; margin-right: 8px; width: 18px; }
-        .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 20px; font-weight: 700; border: none; width: calc(100% - 40px); margin: 10px 20px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; }
+        
+        .balance-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; font-weight: 600; display: block; }
+        .balance-amount { font-size: 2.2rem; font-weight: 800; margin: 10px 0 20px; letter-spacing: -1px; }
+        
+        .pill-address { background: rgba(0,0,0,0.05); padding: 12px; border-radius: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; word-break: break-all; color: #64748B; line-height: 1.4; text-align: left; }
+        .card-dark .pill-address { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.45); }
+
+        .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 18px; font-weight: 700; border: none; width: 100%; margin-top: 10px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; }
+        
+        /* Explorer Styles */
+        .block-card { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; width: 100%; border: 1px solid #E2E8F0; text-align: left; }
+        .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .block-idx { background: #F1F5F9; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.7rem; color: var(--primary); }
+        .block-hash { font-family: 'JetBrains Mono', monospace; font-size: 0.5rem; color: #94A3B8; word-break: break-all; margin-top: 5px; background: #F8FAFC; padding: 8px; border-radius: 8px; }
+
         .bottom-bar { background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); position: fixed; bottom: 0; width: 100%; height: 90px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #F1F5F9; z-index: 999; }
-        .nav-link-ax { color: #94A3B8; text-decoration: none; flex: 1; font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .nav-link-ax { color: #94A3B8; text-decoration: none; flex: 1; font-size: 9px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
         .nav-link-ax.active { color: var(--primary); }
+        .nav-link-ax i { font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -143,41 +159,46 @@ const dashboardHTML = `
     </div>
 
     <div id="v-dash" class="view-ax" style="display:flex;">
-        <div class="card-ax card-dark text-center">
+        <div class="card-ax card-dark">
             <span class="balance-label">Total Balance</span>
             <div id="bal-txt" class="balance-amount">0.00 AX</div>
-            <div id="addr-txt" class="pill-address text-center">Wallet Not Connected</div>
+            <div id="addr-txt" class="pill-address" style="text-align:center;">Wallet Not Connected</div>
         </div>
-        <div class="card-ax text-center" style="background:#FFFFFF;">
-            <span class="balance-label">Treasury Pool (Rewards)</span>
+        <div class="card-ax">
+            <span class="balance-label">Treasury Pool</span>
             <div id="pool-txt" class="balance-amount" style="color:var(--primary); font-size:1.8rem;">0.00 AX</div>
-            <div class="pill-address" style="background:#F8FAFC; color:#94A3B8; border: 1px solid #F1F5F9;">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
+            <div class="pill-address" style="font-size:0.5rem;">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
         </div>
         <button class="btn-ax" onclick="mine()">VALIDATE NETWORK (+50.00 AX)</button>
     </div>
 
     <div id="v-wallet" class="view-ax">
         <div class="card-ax">
-            <span class="balance-label" style="display:block; margin-bottom:15px;">Send Assets</span>
-            <input type="text" id="tx-to" class="form-control mb-3" style="width:100%; padding:18px; border-radius:18px; border:2px solid #E2E8F0; background:#F8FAFC;" placeholder="Destination Address (AX...)">
-            <input type="number" id="tx-amt" class="form-control mb-4" style="width:100%; padding:18px; border-radius:18px; border:2px solid #E2E8F0; background:#F8FAFC;" placeholder="Amount AX">
-            <button class="btn-ax" style="width:100%; margin:0;" onclick="send()">CONFIRM TRANSFER</button>
+            <span class="balance-label" style="margin-bottom:15px;">Send Assets</span>
+            <input type="text" id="tx-to" style="width:100%; padding:18px; border-radius:18px; border:2px solid #E2E8F0; background:#F8FAFC; margin-bottom:12px; box-sizing:border-box;" placeholder="Destination Address">
+            <input type="number" id="tx-amt" style="width:100%; padding:18px; border-radius:18px; border:2px solid #E2E8F0; background:#F8FAFC; margin-bottom:20px; box-sizing:border-box;" placeholder="Amount AX">
+            <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
         </div>
+    </div>
+
+    <div id="v-explorer" class="view-ax">
+        <span class="balance-label" style="margin: 10px 0 20px;">Blockchain Explorer</span>
+        <div id="block-list" style="width:100%;"></div>
     </div>
 
     <div id="v-sec" class="view-ax">
         <div class="card-ax">
-            <span class="balance-label" style="display:block; margin-bottom:10px;">Access your Vault</span>
-            <textarea id="i-seed" style="width:100%; background:#F8FAFC; border:2px solid #E2E8F0; border-radius:18px; padding:18px; font-size:0.95rem; font-family:'Outfit',sans-serif; resize:none; outline:none;" rows="3" placeholder="Input your recovery phrase (24 words)..."></textarea>
-            <button class="btn-ax" style="width:100%; margin:20px 0 0;" onclick="login()">RESTORE WALLET</button>
-            <div style="margin: 30px 0; display: flex; align-items: center; opacity: 0.3;"><hr style="flex:1;"><span style="margin:0 15px; font-weight:800; font-size:0.7rem;">OR</span><hr style="flex:1;"></div>
-            <button class="btn-ax" style="width:100%; margin:0; background:#F8FAFC; border:2px solid #E2E8F0; color:#475569; box-shadow:none;" onclick="gen()">CREATE NEW 512-BIT IDENTITY</button>
-            <div id="g-res" style="display:none; margin-top:30px;">
-                <span style="font-size:0.75rem; font-weight:800; color:#EF4444; text-transform:uppercase;"><i class="fas fa-exclamation-triangle"></i> Security Phrase</span>
-                <div class="seed-container" id="g-seed"></div>
+            <span class="balance-label" style="margin-bottom:10px;">Vault Access</span>
+            <textarea id="i-seed" style="width:100%; background:#F8FAFC; border:2px solid #E2E8F0; border-radius:18px; padding:18px; font-size:0.9rem; resize:none; box-sizing:border-box;" rows="3" placeholder="Input your recovery phrase..."></textarea>
+            <button class="btn-ax" onclick="login()">RESTORE WALLET</button>
+            <div style="margin: 25px 0; display: flex; align-items: center; opacity: 0.3; width:100%;"><hr style="flex:1;"><span style="margin:0 15px; font-weight:800; font-size:0.6rem;">OR</span><hr style="flex:1;"></div>
+            <button class="btn-ax" style="background:#F8FAFC; border:2px solid #E2E8F0; color:#475569; box-shadow:none;" onclick="gen()">NEW 512-BIT IDENTITY</button>
+            <div id="g-res" style="display:none; margin-top:25px; text-align:left;">
+                <span style="font-size:0.7rem; font-weight:800; color:#EF4444; text-transform:uppercase;">Security Phrase</span>
+                <div id="g-seed" style="background:#F1F5F9; border-radius:20px; padding:15px; display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;"></div>
                 <div class="mt-4">
-                    <span class="balance-label">Public Address</span>
-                    <div class="pill-address" style="background:#F1F5F9; color:var(--primary); margin-top:10px; font-weight:700;" id="g-pub"></div>
+                    <span class="balance-label" style="margin-top:15px;">Public Address</span>
+                    <div class="pill-address" style="background:#F1F5F9; color:var(--primary); margin-top:8px; font-weight:700;" id="g-pub"></div>
                 </div>
             </div>
         </div>
@@ -186,6 +207,7 @@ const dashboardHTML = `
     <div class="bottom-bar">
         <a class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>Overview</a>
         <a class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Transfer</a>
+        <a class="nav-link-ax" id="n-explorer" onclick="nav('explorer')"><i class="fas fa-cubes"></i>Explorer</a>
         <a class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</a>
     </div>
 
@@ -198,12 +220,33 @@ const dashboardHTML = `
             return { priv: btoa(hex).substring(0,88), pub: "AX" + hex };
         }
         let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
-        function nav(id) {
+        
+        async function nav(id) {
             document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
             document.getElementById("v-" + id).style.display = "flex";
             document.querySelectorAll(".nav-link-ax").forEach(n => n.classList.remove("active"));
             document.getElementById("n-" + id).classList.add("active");
+            if(id === 'explorer') renderExplorer();
+            window.scrollTo(0,0);
         }
+
+        async function renderExplorer() {
+            const r = await fetch("/api/chain");
+            const chain = await r.json();
+            const list = document.getElementById("block-list");
+            list.innerHTML = chain.reverse().map(b => `
+                <div class="block-card">
+                    <div class="block-header">
+                        <span class="block-idx">BLOCK #${b.Index}</span>
+                        <span style="font-size:0.6rem; color:#94A3B8;">${new Date(b.Timestamp * 1000).toLocaleTimeString()}</span>
+                    </div>
+                    <div style="font-size:0.65rem; font-weight:600; color:#64748B;">Hash de 512 bits:</div>
+                    <div class="block-hash">${b.Hash}</div>
+                    <div style="font-size:0.6rem; color:#94A3B8; margin-top:8px;">TXs: ${b.Transactions ? b.Transactions.length : 0}</div>
+                </div>
+            `).join("");
+        }
+
         async function login() {
             const s = document.getElementById("i-seed").value.trim().toLowerCase();
             if(!s) return;
@@ -212,14 +255,16 @@ const dashboardHTML = `
             localStorage.setItem("ax_v18_session", JSON.stringify(session));
             location.reload();
         }
+
         async function gen() {
             let seed = [];
             for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
             const keys = await derive(seed.join(" "));
             document.getElementById("g-res").style.display = "block";
-            document.getElementById("g-seed").innerHTML = seed.map((w, i) => '<div class="seed-word"><span class="seed-num">'+(i+1)+'</span>'+w+'</div>').join("");
+            document.getElementById("g-seed").innerHTML = seed.map((w, i) => '<div style="font-size:0.75rem; background:white; padding:8px; border-radius:10px; color:#475569; font-weight:600;"><span style="color:#94A3B8; font-size:0.6rem; margin-right:5px;">'+(i+1)+'</span>'+w+'</div>').join("");
             document.getElementById("g-pub").innerText = keys.pub;
         }
+
         async function load() {
             if(session) {
                 const r = await fetch("/api/balance/" + session.pub);
@@ -231,18 +276,20 @@ const dashboardHTML = `
             const dp = await rp.json();
             document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
         }
+
         async function mine() {
             if(!session) return alert("Sync required");
             const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("¡Network Validated!"); load(); }
+            if(r.ok) { alert("¡Block Mined!"); load(); } else { alert("Mempool empty."); }
         }
+
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
             const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
-            if(r.ok) { alert("¡Transaction Sent!"); nav('dash'); load(); }
+            if(r.ok) { alert("Sent!"); nav('dash'); load(); }
         }
+
         load(); setInterval(load, 15000);
     </script>
 </body>
 </html>
-`
