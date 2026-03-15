@@ -15,7 +15,7 @@ var Mempool []core.Transaction
 
 func main() {
 	const Difficulty = 4 
-	// RECUERDA: Pon aquí tu dirección AX generada con tu clave de 512 bits
+	// MASTER ADDRESS (Asegúrate de que esta sea la que genera tu Private Key de 512 bits)
 	creatorAddr := "AXdc3acc7c0b91eb485d0e3bb78059bb58a3999c14b56cfe6ca0428670afc6410c"
 
 	genTx := core.Transaction{Sender: "SYSTEM", Recipient: creatorAddr, Amount: 1000002021}
@@ -28,17 +28,17 @@ func main() {
 	genesis.Mine()
 	Blockchain = append(Blockchain, genesis)
 
-	// --- API ROUTES ---
+	// --- API ---
 	http.HandleFunc("/api/balance/", func(w http.ResponseWriter, r *http.Request) {
 		addr := strings.TrimPrefix(r.URL.Path, "/api/balance/")
-		balance := 0.0
+		var bal float64
 		for _, b := range Blockchain {
 			for _, tx := range b.Transactions {
-				if tx.Recipient == addr { balance += tx.Amount }
-				if tx.Sender == addr { balance -= tx.Amount }
+				if tx.Recipient == addr { bal += tx.Amount }
+				if tx.Sender == addr { bal -= tx.Amount }
 			}
 		}
-		json.NewEncoder(w).Encode(map[string]interface{}{"balance": balance})
+		json.NewEncoder(w).Encode(map[string]interface{}{"balance": bal})
 	})
 
 	http.HandleFunc("/api/chain", func(w http.ResponseWriter, r *http.Request) {
@@ -47,11 +47,7 @@ func main() {
 	})
 
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
-		if len(Mempool) == 0 {
-			w.WriteHeader(400)
-			json.NewEncoder(w).Encode(map[string]string{"error": "mempool_empty"})
-			return 
-		}
+		if len(Mempool) == 0 { http.Error(w, "Empty", 400); return }
 		last := Blockchain[len(Blockchain)-1]
 		newB := core.Block{
 			Index: int64(len(Blockchain)), Timestamp: time.Now().Unix(),
@@ -65,9 +61,7 @@ func main() {
 
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
-		if err := json.NewDecoder(r.Body).Decode(&tx); err != nil {
-			http.Error(w, "Invalid", 400); return
-		}
+		json.NewDecoder(r.Body).Decode(&tx)
 		tx.TxID = tx.CalculateHash()
 		Mempool = append(Mempool, tx)
 		w.WriteHeader(201)
@@ -80,7 +74,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" { port = "8080" }
-	fmt.Printf("🌐 AstraliX 512-bit Node running on port %s\n", port)
+	fmt.Printf("🌐 AstraliX Argentum Live on port %s\n", port)
 	http.ListenAndServe("0.0.0.0:"+port, nil)
 }
 
@@ -89,186 +83,228 @@ const dashboardHTML = `
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>AstraliX | Network L1 OS</title>
+    <title>AstraliX | Digital Asset Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --ax-blue: #003366; --ax-celeste: #74ACDF; --ax-cyan: #00ffa3; --bg: #f8f9fc; }
-        body { background: var(--bg); color: #333; font-family: 'Inter', system-ui, sans-serif; }
+        :root { --ax-blue: #003366; --ax-celeste: #74ACDF; --ax-light: #F8FAFC; --ax-white: #FFFFFF; }
+        body { background: var(--ax-light); color: #334155; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
-        .sidebar { background: var(--ax-blue); height: 100vh; position: fixed; width: 260px; color: white; transition: 0.3s; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
-        .content { margin-left: 260px; padding: 40px; }
+        /* Layout */
+        .sidebar { background: var(--ax-blue); height: 100vh; position: fixed; width: 280px; color: white; transition: 0.3s; z-index: 1000; padding: 30px 0; }
+        .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; }
         
-        .nav-link { color: rgba(255,255,255,0.6); padding: 14px 22px; margin: 8px 15px; border-radius: 12px; transition: 0.3s; cursor: pointer; text-decoration: none; display: flex; align-items: center; font-weight: 500; }
-        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--ax-celeste); }
-        .nav-link i { width: 30px; font-size: 18px; }
+        /* Navigation */
+        .nav-link { color: rgba(255,255,255,0.6); padding: 15px 30px; margin: 8px 20px; border-radius: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; transition: 0.3s; text-decoration: none; }
+        .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.1); color: var(--ax-celeste); }
+        .nav-link i { width: 30px; font-size: 1.2rem; }
 
-        .card-elite { background: white; border: none; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,51,102,0.06); padding: 30px; margin-bottom: 25px; transition: 0.3s; }
-        .card-elite:hover { transform: translateY(-5px); box-shadow: 0 15px 45px rgba(0,51,102,0.1); }
+        /* Cards & UI */
+        .card-pro { background: var(--ax-white); border: none; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,51,102,0.05); padding: 30px; margin-bottom: 30px; }
+        .hero-balance { background: linear-gradient(135deg, var(--ax-blue) 0%, #001f3f 100%); color: white; position: relative; overflow: hidden; }
+        .hero-balance::after { content: ""; position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px; background: var(--ax-celeste); filter: blur(80px); opacity: 0.3; }
         
-        .balance-hero { background: linear-gradient(135deg, var(--ax-blue) 0%, #001a33 100%); color: white; position: relative; overflow: hidden; }
-        .balance-hero::after { content: ""; position: absolute; top: -50%; right: -20%; width: 300px; height: 300px; background: var(--ax-celeste); filter: blur(100px); opacity: 0.2; }
+        .btn-ax { background: var(--ax-blue); color: white; border-radius: 16px; padding: 14px 30px; font-weight: 700; border: none; transition: 0.3s; }
+        .btn-ax:hover { background: var(--ax-celeste); transform: translateY(-3px); box-shadow: 0 10px 20px rgba(116, 172, 223, 0.4); }
         
-        .btn-ax { background: var(--ax-blue); color: white; border-radius: 14px; padding: 14px 28px; font-weight: 700; border: none; transition: 0.3s; }
-        .btn-ax:hover { background: var(--ax-celeste); transform: scale(1.02); }
-        
-        .addr-box { background: #f1f3f5; padding: 12px 18px; border-radius: 12px; font-family: monospace; font-size: 0.85rem; color: #555; word-break: break-all; border: 1px solid #e9ecef; }
-        .badge-512 { background: rgba(0, 255, 163, 0.1); color: #00a86b; font-weight: 800; padding: 5px 12px; border-radius: 8px; font-size: 11px; }
+        .addr-pill { background: #f1f5f9; padding: 12px 20px; border-radius: 12px; font-family: monospace; font-size: 0.85rem; color: #64748b; border: 1px solid #e2e8f0; display: block; word-break: break-all; }
+        .status-badge { background: #dcfce7; color: #166534; padding: 6px 14px; border-radius: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
-        @media (max-width: 992px) { .sidebar { transform: translateX(-100%); } .content { margin-left: 0; padding: 20px; } .sidebar.active { transform: translateX(0); } }
+        @media (max-width: 992px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } }
     </style>
 </head>
 <body>
 
-    <div class="sidebar" id="sidebar">
-        <div class="p-4 mb-4 text-center">
-            <h2 class="fw-black mb-0" style="letter-spacing: -2px;">ASTRALIX</h2>
-            <div class="badge-512">512-BIT SECURE</div>
+    <div class="sidebar">
+        <div class="px-4 mb-5">
+            <h2 class="fw-bold mb-0" style="letter-spacing: -2px; color: var(--ax-celeste);">ASTRALIX</h2>
+            <small class="opacity-50 text-uppercase fw-bold" style="font-size: 10px;">512-bit Security Layer</small>
         </div>
         <nav>
-            <a class="nav-link active" onclick="show('dash', this)"><i class="fas fa-th-large"></i> Dashboard</a>
-            <a class="nav-link" onclick="show('wallet', this)"><i class="fas fa-wallet"></i> My Assets</a>
-            <a class="nav-link" onclick="show('explorer', this)"><i class="fas fa-database"></i> Network Explorer</a>
-            <a class="nav-link" onclick="show('security', this)"><i class="fas fa-shield-halved"></i> Key Management</a>
+            <a class="nav-link active" onclick="nav('dash', this)"><i class="fas fa-chart-pie"></i> Resumen</a>
+            <a class="nav-link" onclick="nav('wallet', this)"><i class="fas fa-wallet"></i> Mi Billetera</a>
+            <a class="nav-link" onclick="nav('explorer', this)"><i class="fas fa-list-ul"></i> Explorador</a>
+            <a class="nav-link" onclick="nav('security', this)"><i class="fas fa-fingerprint"></i> Seguridad</a>
         </nav>
     </div>
 
-    <div class="content">
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h3 class="fw-bold mb-1" id="page-title">Bienvenido al Nodo Central</h3>
+                <span class="status-badge"><i class="fas fa-circle me-1" style="font-size: 8px;"></i> Online</span>
+            </div>
+            <div class="d-flex align-items-center">
+                <div class="text-end me-3">
+                    <small class="text-muted d-block">Protocolo</small>
+                    <span class="fw-bold text-primary">SHA-512 V. Argentum</span>
+                </div>
+                <button class="btn btn-white shadow-sm rounded-circle p-3" onclick="location.reload()"><i class="fas fa-sync-alt text-primary"></i></button>
+            </div>
+        </div>
+
         <div id="view-dash" class="view">
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <div class="card-elite balance-hero">
+                    <div class="card-pro hero-balance">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <small class="text-uppercase opacity-50 fw-bold">Portfolio Balance</small>
-                                <h1 id="bal-main" class="display-3 fw-bold my-2">0.00 AX</h1>
-                                <div id="pub-addr" class="small opacity-50 text-truncate">Connect your 512-bit keys to sync</div>
+                                <h6 class="opacity-75 text-uppercase fw-bold" style="font-size: 11px; letter-spacing: 1px;">Saldo Total Disponible</h6>
+                                <h1 id="bal-main" class="display-3 fw-bold my-3">0.00</h1>
+                                <div id="pub-display" class="addr-pill bg-white bg-opacity-10 border-0 text-white opacity-75">No hay billetera sincronizada</div>
                             </div>
                             <div class="col-md-4 text-end d-none d-md-block">
-                                <i class="fas fa-satellite-dish fa-6x opacity-10"></i>
+                                <i class="fas fa-shield-halved fa-8x opacity-10"></i>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="card-elite">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold m-0">Live Network Feed</h5>
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="mine()">Mine Next Block</button>
-                        </div>
-                        <div id="mini-chain"></div>
+                    <div class="card-pro">
+                        <h5 class="fw-bold mb-4"><i class="fas fa-history me-2 text-primary"></i> Actividad de la Red</h5>
+                        <div id="mini-chain" class="table-responsive"></div>
                     </div>
                 </div>
                 
                 <div class="col-lg-4">
-                    <div class="card-elite">
-                        <h5 class="fw-bold mb-4">Quick Actions</h5>
-                        <button class="btn btn-ax w-100 mb-3" onclick="show('wallet')">Transfer Tokens</button>
-                        <button class="btn btn-light w-100 border py-3 rounded-4" onclick="show('security')">Check Keys</button>
-                        <hr class="my-4">
-                        <div class="d-flex justify-content-between mb-2"><small>Network Status</small><span class="badge bg-success rounded-pill">Active</span></div>
-                        <div class="d-flex justify-content-between mb-2"><small>Protocol</small><b style="font-size: 12px;">SHA-512 (Elite)</b></div>
+                    <div class="card-pro">
+                        <h5 class="fw-bold mb-4">Acciones Rápidas</h5>
+                        <button class="btn btn-ax w-100 mb-3 py-3" onclick="nav('wallet')">Enviar AX</button>
+                        <button class="btn btn-light w-100 border py-3 rounded-4 mb-4" onclick="mine()">Minar Bloque</button>
+                        <hr>
+                        <div class="mt-4">
+                            <small class="text-muted d-block mb-2">Estado del Supply</small>
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div class="progress-bar" style="width: 100%; background: var(--ax-celeste);"></div>
+                            </div>
+                            <div class="d-flex justify-content-between small"><span class="fw-bold">1.0B AX</span><span>Circulante</span></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="view-wallet" class="view" style="display:none">
-            <div class="card-elite max-w-500 mx-auto">
-                <h4 class="fw-bold mb-4">New Transaction</h4>
-                <div class="mb-3">
-                    <label class="small fw-bold text-muted mb-2">Recipient Address</label>
-                    <input type="text" id="tx-to" class="form-control p-3 border-0 bg-light" placeholder="AX...">
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-7">
+                    <div class="card-pro">
+                        <h4 class="fw-bold mb-4 text-primary">Enviar Fondos</h4>
+                        <div class="mb-3">
+                            <label class="small fw-bold text-muted mb-2">Dirección del Destinatario (AX...)</label>
+                            <input type="text" id="tx-to" class="form-control p-3 border-0 bg-light rounded-4" placeholder="AX...">
+                        </div>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted mb-2">Monto a Transferir</label>
+                            <input type="number" id="tx-amt" class="form-control p-3 border-0 bg-light rounded-4" placeholder="0.00">
+                        </div>
+                        <button class="btn btn-ax w-100 py-3 rounded-4" onclick="sendTx()">CONFIRMAR Y FIRMAR</button>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label class="small fw-bold text-muted mb-2">Amount (AX)</label>
-                    <input type="number" id="tx-amt" class="form-control p-3 border-0 bg-light" placeholder="0.00">
-                </div>
-                <button class="btn btn-ax w-100 py-3" onclick="sendTx()">BROADCAST TO NETWORK</button>
             </div>
         </div>
 
         <div id="view-security" class="view" style="display:none">
             <div class="row g-4">
                 <div class="col-md-6">
-                    <div class="card-elite h-100">
-                        <h4 class="fw-bold mb-4">Import Identity</h4>
-                        <input type="password" id="imp-priv" class="form-control p-3 border-0 bg-light mb-3" placeholder="Enter Private Key">
-                        <button class="btn btn-ax w-100" onclick="importWallet()">SYNC WITH NODE</button>
-                        <button class="btn btn-link w-100 text-danger mt-3 text-decoration-none" onclick="logout()">Logout</button>
+                    <div class="card-pro h-100">
+                        <h4 class="fw-bold mb-4"><i class="fas fa-key me-2 text-primary"></i> Importar Llave</h4>
+                        <p class="small text-muted mb-4">Ingresa tu Clave Privada de 512 bits. Tu dirección se calculará automáticamente mediante SHA-512.</p>
+                        <input type="password" id="imp-priv" class="form-control p-3 border-0 bg-light rounded-4 mb-4" placeholder="Pega tu clave secreta aquí">
+                        <button class="btn btn-ax w-100 py-3" onclick="login()">SINCRONIZAR CUENTA</button>
+                        <button class="btn btn-link text-danger w-100 mt-4 text-decoration-none small" onclick="logout()">Desconectar Billetera</button>
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="card-elite h-100">
-                        <h4 class="fw-bold mb-4">Seed Phrase</h4>
-                        <button class="btn btn-outline-dark w-100 py-3" onclick="gen()">Generate 12 Words</button>
-                        <div id="seed-res" class="mt-3" style="display:none">
-                            <div class="addr-box small" id="gen-priv"></div>
-                            <div class="addr-box small mt-2 fw-bold text-primary" id="gen-pub"></div>
+                    <div class="card-pro h-100">
+                        <h4 class="fw-bold mb-4">Generar Nueva Identidad</h4>
+                        <p class="small text-muted mb-4">Crea una billetera nueva totalmente segura y anónima.</p>
+                        <button class="btn btn-outline-dark w-100 py-3 rounded-4" onclick="gen()">GENERAR 512-BIT KEY</button>
+                        <div id="gen-res" class="mt-4" style="display:none">
+                            <div class="addr-pill mb-2" id="gen-priv"></div>
+                            <div class="addr-pill fw-bold text-primary" id="gen-pub"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div id="view-explorer" class="view" style="display:none">
+            <div class="card-pro">
+                <h4 class="fw-bold mb-4">Historial Completo de la Cadena</h4>
+                <div id="full-chain"></div>
+            </div>
+        </div>
     </div>
 
     <script>
+        // Función SHA-512 Real
         async function derive(priv) {
-            const msg = new TextEncoder().encode(priv);
-            const hash = await crypto.subtle.digest('SHA-512', msg);
-            return 'AX' + Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,'0')).join('').substring(0,64);
+            const buf = new TextEncoder().encode(priv);
+            const hash = await crypto.subtle.digest('SHA-512', buf);
+            const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return 'AX' + hex.substring(0, 64);
         }
 
-        let wallet = JSON.parse(localStorage.getItem('ax_session')) || null;
+        let wallet = JSON.parse(localStorage.getItem('ax_argentum')) || null;
 
-        function show(id, el) {
+        function nav(id, el) {
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
             document.getElementById('view-' + id).style.display = 'block';
-            if(el) { document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active')); el.classList.add('active'); }
+            document.getElementById('page-title').innerText = id.toUpperCase();
+            if(el) {
+                document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+                el.classList.add('active');
+            }
         }
 
-        async function importWallet() {
-            const priv = document.getElementById('imp-priv').value;
-            const pub = await derive(priv);
-            wallet = { pub, priv };
-            localStorage.setItem('ax_session', JSON.stringify(wallet));
+        async function login() {
+            const p = document.getElementById('imp-priv').value;
+            const pb = await derive(p);
+            wallet = { pub: pb, priv: p };
+            localStorage.setItem('ax_argentum', JSON.stringify(wallet));
             location.reload();
         }
 
-        function logout() { localStorage.removeItem('ax_session'); location.reload(); }
+        function logout() { localStorage.removeItem('ax_argentum'); location.reload(); }
 
         async function load() {
             if(wallet) {
-                document.getElementById('pub-addr').innerText = wallet.pub;
+                document.getElementById('pub-display').innerText = wallet.pub;
                 const r = await fetch('/api/balance/' + wallet.pub);
                 const d = await r.json();
                 document.getElementById('bal-main').innerText = d.balance.toLocaleString() + ' AX';
             }
-            const rc = await fetch('/api/chain');
-            const c = await rc.json();
-            const feed = document.getElementById('mini-chain');
-            feed.innerHTML = '';
-            c.reverse().forEach(b => {
-                feed.innerHTML += ` + "`" + `<div class="p-3 border-bottom d-flex justify-content-between align-items-center"><div class="small"><b>Block #${b.index}</b><br><span class="text-muted">${b.hash.substring(0,32)}...</span></div><small class="text-muted">${new Date(b.timestamp*1000).toLocaleTimeString()}</small></div>` + "`" + `;
+            const res = await fetch('/api/chain');
+            const chain = await res.json();
+            const mini = document.getElementById('mini-chain');
+            const full = document.getElementById('full-chain');
+            mini.innerHTML = ''; full.innerHTML = '';
+            
+            chain.reverse().forEach(b => {
+                const html = ` + "`" + `<div class="p-3 border-bottom d-flex justify-content-between"><div><b>Bloque #${b.index}</b><br><small class="text-muted">${b.hash.substring(0,32)}...</small></div><div class="text-end small"><b>${b.transactions?b.transactions.length:0} TXs</b><br>${new Date(b.timestamp*1000).toLocaleTimeString()}</div></div>` + "`" + `;
+                mini.innerHTML += html;
+                full.innerHTML += `<div class="card-pro border mb-3"><h6>Bloque #${b.index}</h6><div class="addr-pill mb-2">${b.hash}</div><small class="text-muted">Anterior: ${b.prev_hash}</small></div>`;
             });
         }
 
-        async function mine() { await fetch('/api/mine'); alert("Mined!"); load(); }
+        async function mine() { await fetch('/api/mine'); alert("Bloque Confirmado!"); load(); }
         async function sendTx() {
+            if(!wallet) return nav('security');
             const tx = { sender: wallet.pub, recipient: document.getElementById('tx-to').value, amount: parseFloat(document.getElementById('tx-amt').value) };
             await fetch('/api/transactions/new', { method: 'POST', body: JSON.stringify(tx) });
-            alert("Sent!"); show('dash'); load();
+            alert("Enviada! Miná el bloque para confirmar."); nav('dash'); load();
         }
 
         async function gen() {
             const p = btoa(Math.random()).substring(0,64);
             const pb = await derive(p);
-            document.getElementById('seed-res').style.display = 'block';
-            document.getElementById('gen-priv').innerText = 'Priv: ' + p;
-            document.getElementById('gen-pub').innerText = 'Pub: ' + pb;
+            document.getElementById('gen-res').style.display = 'block';
+            document.getElementById('gen-priv').innerText = 'Privada: ' + p;
+            document.getElementById('gen-pub').innerText = 'Pública: ' + pb;
         }
 
-        load(); setInterval(load, 20000);
+        load(); setInterval(load, 15000);
     </script>
 </body>
 </html>
+`
