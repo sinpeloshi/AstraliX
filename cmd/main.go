@@ -150,6 +150,7 @@ const dashboardHTML = `
 
         .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 20px; font-weight: 700; border: none; width: 100%; margin-top: 10px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; }
         
+        /* Explorer Card Styles */
         .block-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 15px; width: 100%; border: 1px solid #E2E8F0; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.02); box-sizing: border-box; }
         .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .block-idx { background: #E0E7FF; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; color: var(--primary); }
@@ -247,15 +248,22 @@ const dashboardHTML = `
             const revChain = chain.reverse();
             for(let i=0; i<revChain.length; i++) {
                 let b = revChain[i];
-                let txCount = b.Transactions ? b.Transactions.length : 0;
-                let timeStr = new Date(b.Timestamp * 1000).toLocaleTimeString();
+                // CORRECCIÓN: Compatibilidad entre minúsculas (Go JSON nativo) y mayúsculas
+                let idx = b.index !== undefined ? b.index : b.Index;
+                let ts = b.timestamp || b.Timestamp;
+                let hash = b.hash || b.Hash || "Calculando...";
+                let txs = b.transactions || b.Transactions || [];
+                
+                let txCount = txs.length;
+                let timeStr = ts ? new Date(ts * 1000).toLocaleTimeString() : "Desconocido";
+                
                 html += '<div class="block-card">' +
                         '<div class="block-header">' +
-                        '<span class="block-idx">BLOCK #' + b.Index + '</span>' +
+                        '<span class="block-idx">BLOCK #' + idx + '</span>' +
                         '<span style="font-size:0.65rem; color:#94A3B8;">' + timeStr + '</span>' +
                         '</div>' +
                         '<div style="font-size:0.65rem; font-weight:700; color:#475569; margin-bottom:5px;">State Hash:</div>' +
-                        '<div class="block-hash">' + b.Hash + '</div>' +
+                        '<div class="block-hash">' + hash + '</div>' +
                         '<div style="font-size:0.6rem; color:#94A3B8; margin-top:10px; display:flex; justify-content:space-between;">' +
                         '<span>TX COUNT: ' + txCount + '</span>' +
                         '<span>SHA-512 SECURED</span>' +
