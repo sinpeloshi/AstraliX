@@ -19,7 +19,7 @@ func main() {
 	genesis := &core.Block{
 		Index:      0,
 		Timestamp:  time.Now().Unix(),
-		Data:       "AstraliX Genesis Block - Chaco, Argentina 2026",
+		Data:       "AstraliX Genesis Block", // <-- Texto limpio aquí
 		PrevHash:   "0000000000000000000000000000000000000000000000000000000000000000",
 		Difficulty: Difficulty,
 	}
@@ -30,8 +30,6 @@ func main() {
 
 	fmt.Printf("¡Bloque Génesis Minado!\nHash: %s\nTiempo: %s\n", genesis.Hash, elapsed)
 	
-	// ---> ESTO REEMPLAZA AL select {} <---
-	// Creamos una ruta web para ver el bloque y mantener el nodo vivo
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(genesis)
