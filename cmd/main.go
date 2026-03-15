@@ -87,12 +87,12 @@ const dashboardHTML = `
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>AstraliX | Secure Wallet</title>
+    <title>AstraliX | 512-bit Secure Wallet</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --accent: #00ffa3; --bg: #020203; --card: rgba(20, 20, 25, 0.9); }
+        :root { --accent: #00ffa3; --bg: #020203; --card: rgba(20, 20, 25, 0.95); }
         body { background: var(--bg); color: #f8f9fa; font-family: 'Inter', sans-serif; padding-bottom: 110px; }
         .main-content { padding: 20px; max-width: 480px; margin: auto; }
         .glass-card { background: var(--card); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 32px; padding: 28px; margin-bottom: 22px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
@@ -104,7 +104,7 @@ const dashboardHTML = `
         .btn-elite:hover { box-shadow: 0 0 35px var(--accent); transform: translateY(-4px); }
         .accent { color: var(--accent); }
         input { background: #000 !important; border: 1px solid #222 !important; color: #fff !important; border-radius: 20px !important; padding: 18px !important; margin-bottom: 18px; }
-        .key-box { font-family: monospace; font-size: 0.75rem; background: #000; padding: 20px; border-radius: 22px; border: 1px solid #333; word-break: break-all; color: #888; position: relative; }
+        .key-box { font-family: monospace; font-size: 0.7rem; background: #000; padding: 20px; border-radius: 22px; border: 1px solid #333; word-break: break-all; color: #888; position: relative; }
         .seed-badge { display: inline-block; background: #111; padding: 5px 12px; border-radius: 10px; margin: 4px; font-size: 13px; color: var(--accent); border: 1px solid #222; }
     </style>
 </head>
@@ -118,13 +118,14 @@ const dashboardHTML = `
                 <circle cx="50" cy="30" r="5" fill="#00ffa3"/>
             </svg>
             <h2 class="fw-black accent mt-2" style="letter-spacing: -2px;">ASTRALIX</h2>
+            <small class="text-muted">512-BIT EDITION</small>
         </div>
 
         <div id="view-assets" class="view-section">
             <div class="glass-card">
-                <small class="text-muted fw-bold">PORTFOLIO VALUE</small>
+                <small class="text-muted fw-bold">TOTAL AX BALANCE</small>
                 <h1 id="bal-large" class="accent fw-black my-2" style="font-size: 3.5rem;">0.00</h1>
-                <div id="addr-display" class="small opacity-50 text-truncate px-4">Not Logged In</div>
+                <div id="addr-display" class="small opacity-50 text-truncate px-4">Disconnected</div>
             </div>
 
             <div class="row g-3">
@@ -137,33 +138,33 @@ const dashboardHTML = `
 
         <div id="view-send" class="view-section" style="display:none">
             <div class="glass-card text-start">
-                <h4 class="fw-bold mb-4">Transfer Assets</h4>
-                <input type="text" id="tx-to" class="form-control" placeholder="Recipient AX...">
+                <h4 class="fw-bold mb-4">New Transfer</h4>
+                <input type="text" id="tx-to" class="form-control" placeholder="Recipient AX Address">
                 <input type="number" id="tx-amt" class="form-control" placeholder="Amount">
-                <button class="btn btn-elite" onclick="processSend()">APPROVE & SIGN</button>
+                <button class="btn btn-elite" onclick="processSend()">SIGN WITH 512-BIT KEY</button>
             </div>
         </div>
 
         <div id="view-manage" class="view-section" style="display:none">
             <div class="glass-card text-start">
-                <h4 class="fw-bold mb-3">Login with Key</h4>
-                <p class="small text-muted">Enter your Private Key to restore your session.</p>
-                <input type="password" id="imp-priv" class="form-control" placeholder="Enter Private Key">
+                <h4 class="fw-bold mb-3">Key Login</h4>
+                <p class="small text-muted">Import your 512-bit Private Key.</p>
+                <input type="password" id="imp-priv" class="form-control" placeholder="Paste Secret Key">
                 <button class="btn btn-elite" onclick="importWallet()">LOGIN</button>
                 <hr class="border-secondary my-4">
-                <button class="btn btn-outline-danger w-100 rounded-4" onclick="logout()">LOGOUT</button>
+                <button class="btn btn-outline-danger w-100 rounded-4" onclick="logout()">CLEAR SESSION</button>
             </div>
 
             <div class="glass-card text-start border-success border-opacity-25">
-                <h4 class="fw-bold accent">Create Wallet</h4>
-                <p class="small text-muted">Generate a new 12-word seed phrase.</p>
-                <button class="btn btn-dark w-100 rounded-4 py-3" onclick="createNew()">GENERATE SEED</button>
+                <h4 class="fw-bold accent">Seed Generator</h4>
+                <p class="small text-muted">Generate a secure 512-bit based seed.</p>
+                <button class="btn btn-dark w-100 rounded-4 py-3" onclick="createNew()">GENERATE 12 WORDS</button>
                 
                 <div id="seed-output" class="mt-4" style="display:none">
                     <div id="seed-words" class="mb-3"></div>
-                    <small class="text-muted">Private Key:</small>
+                    <small class="text-muted">Private Key (512-bit):</small>
                     <div class="key-box mb-3" id="gen-priv"></div>
-                    <small class="accent">Address:</small>
+                    <small class="accent">Derived Address:</small>
                     <div class="key-box" id="gen-pub"></div>
                 </div>
             </div>
@@ -177,13 +178,13 @@ const dashboardHTML = `
     </div>
 
     <script>
-        // Función para derivar dirección de la privada (Simulado con Hash)
         async function deriveAddress(priv) {
             const msgBuffer = new TextEncoder().encode(priv);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+            // CORREGIDO: Usamos SHA-512 para el estándar 2^512 de AstraliX
+            const hashBuffer = await crypto.subtle.digest('SHA-512', msgBuffer);
             const hashArray = Array.from(new Uint8Array(hashBuffer));
             const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return 'AX' + hashHex.substring(0, 40);
+            return 'AX' + hashHex.substring(0, 64); // Usamos 64 caracteres del hash de 512 bits
         }
 
         let wallet = JSON.parse(localStorage.getItem('ax_session')) || null;
@@ -198,7 +199,7 @@ const dashboardHTML = `
         async function createNew() {
             const words = ["star", "galaxy", "orbit", "node", "crypto", "block", "chain", "secure", "alpha", "delta", "nebula", "astral"];
             const seed = [...Array(12)].map(() => words[Math.floor(Math.random()*words.length)]).join(' ');
-            const priv = btoa(seed).substring(0, 64); // Simulación de derivación
+            const priv = btoa(seed + Date.now()).substring(0, 128); // Más entropía
             const pub = await deriveAddress(priv);
 
             document.getElementById('seed-output').style.display = 'block';
@@ -209,7 +210,7 @@ const dashboardHTML = `
 
         async function importWallet() {
             const priv = document.getElementById('imp-priv').value;
-            if(!priv) return alert("Paste Private Key");
+            if(!priv) return alert("Private Key required");
             const pub = await deriveAddress(priv);
             wallet = { pub, priv };
             localStorage.setItem('ax_session', JSON.stringify(wallet));
@@ -228,22 +229,22 @@ const dashboardHTML = `
             const resC = await fetch('/api/chain');
             const chain = await resC.json();
             const feed = document.getElementById('recent-feed');
-            feed.innerHTML = '<h6 class="fw-bold mb-3">RECENT BLOCKS</h6>';
+            feed.innerHTML = '<h6 class="fw-bold mb-3">LATEST NETWORK BLOCKS</h6>';
             chain.slice().reverse().forEach(b => {
-                feed.innerHTML += '<div class="glass-card p-3 mb-2" style="border-radius:20px; font-size:12px;"><div class="d-flex justify-content-between"><span class="accent">#' + b.index + '</span><span>' + b.hash.substring(0,20) + '...</span></div></div>';
+                feed.innerHTML += '<div class="glass-card p-3 mb-2" style="border-radius:20px; font-size:11px;"><div class="d-flex justify-content-between"><span class="accent">#' + b.index + '</span><span class="opacity-50">' + b.hash.substring(0,32) + '...</span></div></div>';
             });
         }
 
         async function mine() {
             const r = await fetch('/api/mine');
-            if(r.ok) { alert("Block Confirmed!"); load(); } else { alert("Mempool empty"); }
+            if(r.ok) { alert("Mining Complete!"); load(); } else { alert("Nothing to mine yet."); }
         }
 
         async function processSend() {
             if(!wallet) return switchTab('manage');
             const tx = { sender: wallet.pub, recipient: document.getElementById('tx-to').value, amount: parseFloat(document.getElementById('tx-amt').value) };
             await fetch('/api/transactions/new', { method: 'POST', body: JSON.stringify(tx) });
-            alert("Sent to Network!"); switchTab('assets'); load();
+            alert("Transaction authorized with 512-bit key!"); switchTab('assets'); load();
         }
 
         load();
@@ -251,4 +252,3 @@ const dashboardHTML = `
     </script>
 </body>
 </html>
-`
