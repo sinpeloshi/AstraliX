@@ -1,25 +1,34 @@
-package core
+package wallet
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"crypto/sha512"
 	"encoding/hex"
-	"fmt"
 )
 
-type Block struct {
-	Index      int64
-	Timestamp  int64
-	Data       string
-	PrevHash   string
-	Hash       string
-	Nonce      int
-	Difficulty int
+type Wallet struct {
+	PrivateKey *ecdsa.PrivateKey
+	PublicKey  []byte
 }
 
-func (b *Block) CalculateHash() string {
-	record := fmt.Sprintf("%d%d%s%s%d", b.Index, b.Timestamp, b.Data, b.PrevHash, b.Nonce)
-	// ¡Upgrade a SHA-512!
-	h := sha512.New()
-	h.Write([]byte(record))
-	return hex.EncodeToString(h.Sum(nil))
+func NewWallet() *Wallet {
+	// ¡Upgrade a la curva P-521 (Nivel Máximo del NIST)!
+	private, err := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	if err != nil {
+		panic(err)
+	}
+	
+	pubKey := append(private.PublicKey.X.Bytes(), private.PublicKey.Y.Bytes()...)
+	return &Wallet{private, pubKey}
+}
+
+func (w *Wallet) GetAddress() string {
+	// Hasheamos la pública con SHA-512
+	pubKeyHash := sha512.Sum512(w.PublicKey)
+	
+	// Generamos la nueva dirección AstraliX ultra-segura (64 caracteres)
+	address := "AX" + hex.EncodeToString(pubKeyHash[:])[:64]
+	return address
 }
