@@ -7,14 +7,13 @@ import (
 )
 
 type Transaction struct {
-	Sender    string  // Address of the sender
-	Recipient string  // Address of the receiver
-	Amount    float64 // Amount of AX to send
-	Signature string  // Digital signature (proof of ownership)
-	TxID      string  // Unique hash of this transaction
+	Sender    string
+	Recipient string
+	Amount    float64
+	Signature string
+	TxID      string
 }
 
-// CalculateHash creates a unique ID for the transaction
 func (tx *Transaction) CalculateHash() string {
 	record := fmt.Sprintf("%s%s%f", tx.Sender, tx.Recipient, tx.Amount)
 	h := sha512.New()
