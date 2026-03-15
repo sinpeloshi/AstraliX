@@ -150,8 +150,7 @@ const dashboardHTML = `
 
         .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 20px; font-weight: 700; border: none; width: 100%; margin-top: 10px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; }
         
-        /* Explorer Card Styles */
-        .block-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 15px; width: 100%; border: 1px solid #E2E8F0; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .block-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 15px; width: 100%; border: 1px solid #E2E8F0; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.02); box-sizing: border-box; }
         .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .block-idx { background: #E0E7FF; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; color: var(--primary); }
         .block-hash { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: #64748B; word-break: break-all; margin-top: 8px; background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1px solid #F1F5F9; }
@@ -244,20 +243,25 @@ const dashboardHTML = `
             const r = await fetch("/api/chain");
             const chain = await r.json();
             const list = document.getElementById("block-list");
-            list.innerHTML = chain.reverse().map(b => `
-                <div class="block-card">
-                    <div class="block-header">
-                        <span class="block-idx">BLOCK #${b.Index}</span>
-                        <span style="font-size:0.65rem; color:#94A3B8;">${new Date(b.Timestamp * 1000).toLocaleTimeString()}</span>
-                    </div>
-                    <div style="font-size:0.65rem; font-weight:700; color:#475569; margin-bottom:5px;">State Hash:</div>
-                    <div class="block-hash">${b.Hash}</div>
-                    <div style="font-size:0.6rem; color:#94A3B8; margin-top:10px; display:flex; justify-content:space-between;">
-                        <span>TX COUNT: ${b.Transactions ? b.Transactions.length : 0}</span>
-                        <span>SHA-512 SECURED</span>
-                    </div>
-                </div>
-            `).join("");
+            let html = "";
+            const revChain = chain.reverse();
+            for(let i=0; i<revChain.length; i++) {
+                let b = revChain[i];
+                let txCount = b.Transactions ? b.Transactions.length : 0;
+                let timeStr = new Date(b.Timestamp * 1000).toLocaleTimeString();
+                html += '<div class="block-card">' +
+                        '<div class="block-header">' +
+                        '<span class="block-idx">BLOCK #' + b.Index + '</span>' +
+                        '<span style="font-size:0.65rem; color:#94A3B8;">' + timeStr + '</span>' +
+                        '</div>' +
+                        '<div style="font-size:0.65rem; font-weight:700; color:#475569; margin-bottom:5px;">State Hash:</div>' +
+                        '<div class="block-hash">' + b.Hash + '</div>' +
+                        '<div style="font-size:0.6rem; color:#94A3B8; margin-top:10px; display:flex; justify-content:space-between;">' +
+                        '<span>TX COUNT: ' + txCount + '</span>' +
+                        '<span>SHA-512 SECURED</span>' +
+                        '</div></div>';
+            }
+            list.innerHTML = html;
         }
 
         async function login() {
@@ -274,7 +278,11 @@ const dashboardHTML = `
             for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
             const keys = await derive(seed.join(" "));
             document.getElementById("g-res").style.display = "block";
-            document.getElementById("g-seed").innerHTML = seed.map((w, i) => '<div style="font-size:0.75rem; background:white; padding:10px; border-radius:12px; color:#475569; font-weight:600; border:1px solid #F1F5F9;"><span style="color:#CBD5E1; font-size:0.6rem; margin-right:8px;">'+(i+1)+'</span>'+w+'</div>').join("");
+            let seedHtml = "";
+            for(let i=0; i<seed.length; i++) {
+                seedHtml += '<div style="font-size:0.75rem; background:white; padding:10px; border-radius:12px; color:#475569; font-weight:600; border:1px solid #F1F5F9;"><span style="color:#CBD5E1; font-size:0.6rem; margin-right:8px;">'+(i+1)+'</span>'+seed[i]+'</div>';
+            }
+            document.getElementById("g-seed").innerHTML = seedHtml;
             document.getElementById("g-pub").innerText = keys.pub;
         }
 
