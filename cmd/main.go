@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 	"astralix/core"
+	"astralix/wallet" // <-- Importamos tu nuevo módulo de billeteras
 )
 
 func main() {
@@ -13,13 +14,19 @@ func main() {
 	const Difficulty = 4 
 
 	fmt.Println("--- AstraliX Network Central Node ---")
-	fmt.Printf("Supply Total: %d AX\n", TotalSupply)
+	
+	// ¡Generamos la billetera del creador!
+	creadorWallet := wallet.NewWallet()
+	direccionCreador := creadorWallet.GetAddress()
+	
+	fmt.Printf("Dirección Oficial del Creador: %s\n", direccionCreador)
+	fmt.Printf("Supply Total: %d AX asignados a esta red.\n", TotalSupply)
 	fmt.Println("Minando Bloque Génesis...")
 
 	genesis := &core.Block{
 		Index:      0,
 		Timestamp:  time.Now().Unix(),
-		Data:       "AstraliX Genesis Block", // <-- Texto limpio aquí
+		Data:       "AstraliX Genesis Block",
 		PrevHash:   "0000000000000000000000000000000000000000000000000000000000000000",
 		Difficulty: Difficulty,
 	}
