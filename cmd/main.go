@@ -60,7 +60,7 @@ func getBalance(addr string) float64 {
 func main() {
 	initDB(); loadChain()
 	const Difficulty = 4 
-	rootAddr := "AX5eaba583bf646e0e39f41da6f9d8fa6db929c2e858bd32dffe6ac0cee2e3e974dc3ff66cb2d73bdabdc9a49279bea46da35d10d925aaf71416e5e351a3f74b56"
+	rootAddr := "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d"
 	if len(Blockchain) == 0 {
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
