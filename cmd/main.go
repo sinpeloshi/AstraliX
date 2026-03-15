@@ -22,7 +22,7 @@ func main() {
 	creadorWallet := wallet.NewWallet()
 	direccionCreador := creadorWallet.GetAddress()
 	
-	// EXTRAEMOS TU CLAVE PRIVADA PARA QUE LA GUARDES
+	// EXTRAEMOS TU CLAVE PRIVADA PARA QUE LA GUARDE
 	privKeyBytes := creadorWallet.PrivateKey.D.Bytes()
 	privKeyHex := hex.EncodeToString(privKeyBytes)
 	
