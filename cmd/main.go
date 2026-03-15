@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -9,39 +8,32 @@ import (
 	"strings"
 	"time"
 	"astralix/core"
-	"astralix/wallet"
 )
 
 func main() {
 	const TotalSupply = 1000002021
 	const Difficulty = 4 
 
-	fmt.Println("--- AstraliX Network Central Node (512-bit Edition) ---")
+	fmt.Println("--- AstraliX Network Central Node ---")
 	
-	// Generamos tu Billetera Maestra
-	creadorWallet := wallet.NewWallet()
-	direccionCreador := creadorWallet.GetAddress()
+	// 1. Hardcode your Official Public Address forever (Genesis Wallet)
+	creatorAddress := "AX1c1769524d7a291e259ee96dd11e76c76b1fdb64de732d035bbcff5bbef71471"
 	
-	// EXTRAEMOS TU CLAVE PRIVADA PARA QUE LA GUARDE
-	privKeyBytes := creadorWallet.PrivateKey.D.Bytes()
-	privKeyHex := hex.EncodeToString(privKeyBytes)
-	
-	fmt.Printf("\n⚠️ ATENCIÓN: GUARDA ESTA CLAVE PRIVADA EN UN LUGAR SEGURO ⚠️\n")
-	fmt.Printf("🔑 Clave Privada (Secreta): %s\n", privKeyHex)
-	fmt.Printf("🏦 Dirección Pública: %s\n", direccionCreador)
-	fmt.Printf("💰 Supply Total: %d AX asignados a esta dirección.\n", TotalSupply)
-	fmt.Println("-------------------------------------------------------------------\n")
-	
-	fmt.Println("Minando Bloque Génesis...")
+	fmt.Printf("🏦 Master Address (Genesis): %s\n", creatorAddress)
+	fmt.Println("Mining Genesis Block...")
 
-	prevHashVacio := strings.Repeat("0", 128)
-	datosGenesis := fmt.Sprintf("Génesis: %d AX asignados a la billetera maestra %s", TotalSupply, direccionCreador)
+	// 128 zeros for SHA-512 Previous Hash
+	emptyPrevHash := strings.Repeat("0", 128)
+	
+	// Genesis block data allocation
+	genesisData := fmt.Sprintf("Genesis: %d AX allocated to master wallet %s", TotalSupply, creatorAddress)
 
 	genesis := &core.Block{
 		Index:      0,
-		Timestamp:  time.Now().Unix(),
-		Data:       datosGenesis,
-		PrevHash:   prevHashVacio,
+		// 2. Fix the creation date (Unix Time) to make the Hash immutable
+		Timestamp:  1742025600, 
+		Data:       genesisData,
+		PrevHash:   emptyPrevHash,
 		Difficulty: Difficulty,
 	}
 
@@ -49,21 +41,22 @@ func main() {
 	genesis.Mine()
 	elapsed := time.Since(start)
 
-	fmt.Printf("¡Bloque Génesis Minado!\nHash: %s\nTiempo: %s\n", genesis.Hash, elapsed)
+	fmt.Printf("Genesis Block Mined!\nHash: %s\nTime: %s\n", genesis.Hash, elapsed)
 	
+	// Web server to expose the blockchain state
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(genesis)
 	})
 
-	// Ruteo dinámico de puertos para que Railway no apague el contenedor
+	// Dynamic port routing for Railway
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	fmt.Printf("🌐 API activa. Nodo escuchando en el puerto %s...\n", port)
+	fmt.Printf("🌐 API active. Node listening on port %s...\n", port)
 	if err := http.ListenAndServe("0.0.0.0:"+port, nil); err != nil {
-		fmt.Printf("Error iniciando el servidor: %s\n", err)
+		fmt.Printf("Error starting server: %s\n", err)
 	}
 }
