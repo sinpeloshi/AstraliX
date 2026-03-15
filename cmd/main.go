@@ -1,4 +1,4 @@
-package main
+package main // Corregido: minúscula
 
 import (
 	"encoding/json"
@@ -213,14 +213,29 @@ const dashboardHTML = `
             
             // Explorer Update
             let exH = '';
-            c.reverse().forEach(b => {
-                exH += '<div class="card mb-3 p-3 bg-black"><div class="d-flex justify-content-between"><b>Block #' + b.index + '</b><span class="small text-muted">' + new Date(b.timestamp*1000).toLocaleTimeString() + '</span></div><div class="addr-box my-2">' + b.hash + '</div><small>Transactions: ' + b.transactions.length + '</small></div>';
+            c.slice().reverse().forEach(b => {
+                exH += ` + "`" + `
+                    <div class="card mb-3 p-3 bg-black">
+                        <div class="d-flex justify-content-between">
+                            <b>Block #${b.index}</b>
+                            <span class="small text-muted">${new Date(b.timestamp*1000).toLocaleTimeString()}</span>
+                        </div>
+                        <div class="addr-box my-2">${b.hash}</div>
+                        <small>Transactions: ${b.transactions ? b.transactions.length : 0}</small>
+                    </div>
+                ` + "`" + `;
             });
             document.getElementById('full-chain').innerHTML = exH;
 
+            // Mempool Stats
+            const rMem = await fetch('/api/mempool');
+            const m = await rMem.json();
+            document.getElementById('mempool-status').innerText = m.length + ' Pending Transactions in Mempool';
+
             // Recent TXs for Dashboard
-            const latest = c[0].transactions;
-            let txH = latest.length > 0 ? latest.map(tx => '<div class="d-flex justify-content-between border-bottom border-secondary py-2"><span>' + tx.recipient.substring(0,20) + '...</span><span class="accent-text">+' + tx.amount + ' AX</span></div>').join('') : 'No recent transactions';
+            const latestBlock = c[c.length - 1];
+            const latest = latestBlock.transactions || [];
+            let txH = latest.length > 0 ? latest.map(tx => '<div class="d-flex justify-content-between border-bottom border-secondary py-2"><span>' + tx.recipient.substring(0,15) + '...</span><span class="accent-text">+' + tx.amount + ' AX</span></div>').join('') : 'No recent transactions';
             document.getElementById('recent-txs').innerHTML = txH;
         }
 
@@ -231,9 +246,16 @@ const dashboardHTML = `
         }
 
         async function sendTx() {
-            const tx = { sender: "USER", recipient: document.getElementById('tx-to').value, amount: parseFloat(document.getElementById('tx-amount').value) };
+            const amount = parseFloat(document.getElementById('tx-amount').value);
+            const recipient = document.getElementById('tx-to').value;
+            if(!recipient || isNaN(amount)) { alert('Check fields'); return; }
+
+            const tx = { sender: "USER", recipient: recipient, amount: amount };
             const r = await fetch('/api/transactions/new', { method: 'POST', body: JSON.stringify(tx) });
-            if(r.ok) alert('TX Enviada al Mempool. ¡Recuerda minar el bloque para confirmarla!');
+            if(r.ok) {
+                alert('TX Difundida! Esperando minado.');
+                loadAll();
+            }
         }
 
         function genW() {
