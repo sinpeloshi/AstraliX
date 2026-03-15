@@ -16,21 +16,15 @@ func main() {
 
 	fmt.Println("--- AstraliX Network Central Node (512-bit Edition) ---")
 	
-	// 1. Hardcoded Official Public Address forever (Genesis Wallet)
 	creatorAddress := "AXdc3acc7c0b91eb485d0e3bb78059bb58a3999c14b56cfe6ca0428670afc6410c"
-	
 	fmt.Printf("🏦 Master Address (Genesis): %s\n", creatorAddress)
 	fmt.Println("Mining Genesis Block...")
 
-	// 128 zeros for SHA-512 Previous Hash
 	emptyPrevHash := strings.Repeat("0", 128)
-	
-	// Genesis block data allocation
 	genesisData := fmt.Sprintf("Genesis: %d AX allocated to master wallet %s", TotalSupply, creatorAddress)
 
 	genesis := &core.Block{
 		Index:      0,
-		// 2. Fix the creation date (Unix Time) to make the Hash immutable
 		Timestamp:  1773561600, 
 		Data:       genesisData,
 		PrevHash:   emptyPrevHash,
@@ -43,20 +37,23 @@ func main() {
 
 	fmt.Printf("Genesis Block Mined!\nHash: %s\nTime: %s\n", genesis.Hash, elapsed)
 	
-	// Web server to expose the blockchain state
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(genesis)
 	})
 
-	// Dynamic port routing for Railway
+	// Capturamos el puerto de Railway
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "8080" // Fallback local
 	}
 
-	fmt.Printf("🌐 API active. Node listening on port %s...\n", port)
-	if err := http.ListenAndServe("0.0.0.0:"+port, nil); err != nil {
-		fmt.Printf("Error starting server: %s\n", err)
+	fmt.Printf("🌐 Preparing to bind API on port %s...\n", port)
+	
+	// Levantamos el servidor de forma que bloquee el hilo principal
+	fmt.Println("⚡ API Active & Listening. Node is live 24/7.")
+	err := http.ListenAndServe("0.0.0.0:"+port, nil)
+	if err != nil {
+		fmt.Printf("CRITICAL ERROR starting server: %v\n", err)
 	}
 }
