@@ -15,7 +15,7 @@ var Mempool []core.Transaction
 
 const DB_FILE = "blockchain_data.json"
 
-// PURE 512-BIT TREASURY (128 HEX CHARS)
+// TRUE 512-BIT ADDRESS (128 HEX CHARACTERS)
 const TREASURY_POOL_ADDR = "AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef5400000000000000000000000000000000000000000000000000000000000000000"
 
 func loadChain() {
@@ -60,7 +60,7 @@ func main() {
 			Difficulty: Difficulty,
 		}
 		genesisBlock.Mine()
-		Blockchain = append(genesisBlock, genesisBlock) // Fixed double append check
+		Blockchain = append(Blockchain, genesisBlock)
 		saveChain()
 	}
 
@@ -77,7 +77,7 @@ func main() {
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
 		if miner == "" || len(Mempool) == 0 { 
-			http.Error(w, "Nothing to validate", 400); return 
+			http.Error(w, "Mempool empty", 400); return 
 		}
 
 		reward := 50.0
@@ -132,30 +132,30 @@ const dashboardHTML = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AX Core | L1 Console</title>
+    <title>AX Core | Global Node Console</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --ax-dark: #0F172A; --ax-blue: #2563EB; --bg: #F8FAFC; }
+        :root { --ax-dark: #0F172A; --ax-main: #2563EB; --bg: #F8FAFC; }
         body { background: var(--bg); font-family: "Inter", sans-serif; padding-bottom: 90px; margin: 0; }
         .sidebar { background: var(--ax-dark); height: 100vh; position: fixed; width: 280px; color: white; z-index: 1000; }
         .main-content { margin-left: 280px; padding: 40px; min-height: 100vh; }
         .nav-link-ax { color: #94A3B8; padding: 16px 28px; margin: 8px 15px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; text-decoration: none; }
-        .nav-link-ax.active { background: var(--ax-blue); color: white; }
+        .nav-link-ax.active { background: var(--ax-main); color: white; }
         .card-ax { background: white; border-radius: 28px; box-shadow: 0 4px 25px rgba(0,0,0,0.02); padding: 30px; margin-bottom: 25px; border: none; }
-        .hero { background: linear-gradient(135deg, var(--ax-dark) 0%, var(--ax-blue) 100%); color: white; border-radius: 32px; padding: 50px 30px; }
-        .pill { background: #F1F5F9; padding: 14px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.6rem; word-break: break-all; margin-top: 12px; border: 1px solid #E2E8F0; }
-        .btn-ax { background: var(--ax-blue); color: white; border-radius: 16px; padding: 16px; font-weight: 700; border: none; width: 100%; }
+        .hero { background: linear-gradient(135deg, var(--ax-dark) 0%, var(--ax-main) 100%); color: white; border-radius: 32px; padding: 50px 30px; }
+        .pill { background: #F1F5F9; padding: 14px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.62rem; word-break: break-all; margin-top: 12px; border: 1px solid #E2E8F0; }
+        .btn-ax { background: var(--ax-main); color: white; border-radius: 14px; padding: 16px; font-weight: 700; border: none; width: 100%; }
         @media (max-width: 992px) { .sidebar { display: none; } .main-content { margin-left: 0; padding: 20px; } .mobile-nav { display: flex; } }
         .mobile-nav { background: white; position: fixed; bottom: 0; width: 100%; height: 80px; display: none; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 2000; }
         .m-nav-item { color: #94A3B8; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; flex: 1; }
-        .m-nav-item.active { color: var(--ax-blue); }
+        .m-nav-item.active { color: var(--ax-main); }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <div class="p-5 text-center"><h2 class="fw-bold m-0" style="color:white; letter-spacing:-2px;">AX CORE</h2><small class="opacity-50 fw-bold">GLOBAL L1</small></div>
+        <div class="p-5 text-center"><h2 class="fw-bold m-0" style="color:white; letter-spacing:-2px;">AX CORE</h2><small class="opacity-50 fw-bold">NETWORK CONSOLE</small></div>
         <nav>
             <div class="nav-link-ax active" onclick="nav('dash', this)"><i class="fas fa-th-large me-2"></i> Dashboard</div>
             <div class="nav-link-ax" onclick="nav('wallet', this)"><i class="fas fa-wallet me-2"></i> Wallet</div>
@@ -167,10 +167,10 @@ const dashboardHTML = `
             <div class="card-ax hero text-center">
                 <small class="text-uppercase fw-bold opacity-75">Network Balance</small>
                 <h1 id="bal-txt" class="display-3 fw-bold my-2">0.00</h1>
-                <div id="addr-txt" class="pill bg-white bg-opacity-10 border-0 text-white opacity-75">Connect Wallet</div>
+                <div id="addr-txt" class="pill bg-white bg-opacity-10 border-0 text-white opacity-75">Connect Vault</div>
             </div>
             <div class="card-ax text-center" style="border: 1px dashed #60A5FA;">
-                <small class="fw-bold text-muted">FIXED REWARDS POOL ($2^{512}$)</small>
+                <small class="fw-bold text-muted">TREASURY POOL (L1 REWARDS)</small>
                 <h3 id="pool-txt" class="fw-bold m-0 text-primary">0.00 AX</h3>
                 <div class="pill mt-2">AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef540...</div>
             </div>
@@ -178,8 +178,8 @@ const dashboardHTML = `
         </div>
         <div id="v-wallet" class="view" style="display:none">
             <div class="card-ax mx-auto" style="max-width: 600px;">
-                <h4 class="fw-bold mb-4">Send AX Assets</h4>
-                <input type="text" id="tx-to" class="form-control mb-3 p-3 border-0 bg-light rounded-4" placeholder="Recipient Address (128 chars)">
+                <h4 class="fw-bold mb-4">Transfer Assets</h4>
+                <input type="text" id="tx-to" class="form-control mb-3 p-3 border-0 bg-light rounded-4" placeholder="Destination AX Address (128 chars)">
                 <input type="number" id="tx-amt" class="form-control mb-4 p-3 border-0 bg-light rounded-4" placeholder="0.00">
                 <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
             </div>
@@ -187,8 +187,8 @@ const dashboardHTML = `
         <div id="v-security" class="view" style="display:none">
             <div class="card-ax">
                 <h4 class="fw-bold mb-4">Identity Sync</h4>
-                <input type="password" id="i-priv" class="form-control p-3 border-0 bg-light rounded-4 mb-4" placeholder="Private Key">
-                <button class="btn-ax" onclick="login()">CONNECT</button>
+                <input type="password" id="i-priv" class="form-control p-3 border-0 bg-light rounded-4 mb-4" placeholder="Secret Key">
+                <button class="btn-ax" onclick="login()">CONNECT WALLET</button>
                 <hr class="my-5">
                 <button class="btn btn-outline-dark w-100 py-3 rounded-4" onclick="gen()">GENERATE PURE 512-BIT KEY</button>
                 <div id="g-res" class="mt-4" style="display:none">
@@ -234,4 +234,29 @@ const dashboardHTML = `
                 document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
                 document.getElementById("addr-txt").innerText = session.pub.substring(0,35) + "...";
             }
-            const rp = await fetch("/api/balance/AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef54000000000000000000000000000000000000000000000000000
+            const rp = await fetch("/api/balance/AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef5400000000000000000000000000000000000000000000000000000000000000000");
+            const dp = await rp.json();
+            document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
+        }
+        async function mine() {
+            if(!session) return alert("Sync first");
+            const r = await fetch("/api/mine?address=" + session.pub);
+            if(r.ok) { alert("Mined!"); load(); } else { alert("Insufficient mempool/treasury."); }
+        }
+        async function send() {
+            const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
+            const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
+            if(r.ok) { alert("Sent!"); nav("dash"); load(); } else { alert("Error."); }
+        }
+        async function gen() {
+            const p = btoa(Math.random().toString() + Date.now()).substring(0,64);
+            const pb = await derive(p);
+            document.getElementById("g-res").style.display = "block";
+            document.getElementById("g-priv").innerText = p;
+            document.getElementById("g-pub").innerText = pb;
+        }
+        load(); setInterval(load, 15000);
+    </script>
+</body>
+</html>
+`
