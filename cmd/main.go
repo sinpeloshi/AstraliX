@@ -19,6 +19,7 @@ var Blockchain []core.Block
 var Mempool []core.Transaction
 var db *sql.DB
 
+// DIRECCIÓN OFICIAL DE LA REWARD WALLET (TREASURY)
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 func initDB() {
@@ -60,7 +61,9 @@ func getBalance(addr string) float64 {
 func main() {
 	initDB(); loadChain()
 	const Difficulty = 4 
+	// TU NUEVA DIRECCIÓN GÉNESIS
 	rootAddr := "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d"
+	
 	if len(Blockchain) == 0 {
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
@@ -111,35 +114,23 @@ const dashboardHTML = `
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
-        
         :root { --bg: #F8FAFC; --card: #FFFFFF; --primary: #0D6EFD; --text: #0F172A; }
         body { background: var(--bg); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 110px; color: var(--text); -webkit-font-smoothing: antialiased; }
-        
         .header-ax { padding: 35px 20px 15px; text-align: center; }
         .header-ax h5 { font-weight: 800; letter-spacing: 1px; margin: 0; color: #0F172A; font-size: 1.5rem; }
         .status-box { display: inline-flex; align-items: center; background: #ECFDF5; padding: 6px 12px; border-radius: 100px; margin-top: 10px; }
         .status-dot { height: 7px; width: 7px; background: #10B981; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 10px #10B981; }
         .status-text { font-size: 0.65rem; font-weight: 800; color: #059669; letter-spacing: 1px; }
-
         .view-ax { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; }
-        
         .card-ax { background: var(--card); border-radius: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); padding: 30px; margin: 15px 20px; width: calc(100% - 40px); box-sizing: border-box; border: 1px solid rgba(0,0,0,0.03); }
         .card-dark { background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%); color: white; border: none; }
-        
         .balance-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; font-weight: 600; }
         .balance-amount { font-size: 2.4rem; font-weight: 800; margin: 10px 0 25px; letter-spacing: -1.5px; }
-        .pill-address { background: rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; word-break: break-all; color: rgba(255,255,255,0.45); }
-        
+        .pill-address { background: rgba(255,255,255,0.1); padding: 14px; border-radius: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; word-break: break-all; color: rgba(255,255,255,0.45); line-height: 1.4; text-align: left; }
         .seed-container { background: #F1F5F9; border-radius: 20px; padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
         .seed-word { font-size: 0.8rem; background: white; padding: 10px 12px; border-radius: 12px; color: #475569; font-weight: 600; display: flex; align-items: center; border: 1px solid #E2E8F0; }
         .seed-num { color: #94A3B8; font-size: 0.65rem; margin-right: 8px; width: 18px; }
-
-        .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 20px; font-weight: 700; border: none; width: calc(100% - 40px); margin: 10px 20px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; transition: 0.3s; }
-        .btn-outline { background: #F8FAFC; border: 2px solid #E2E8F0; color: #475569; box-shadow: none; margin-top: 5px; }
-        
-        textarea.form-control { width: 100%; background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: 18px; padding: 18px; font-size: 0.95rem; font-family: 'Outfit', sans-serif; resize: none; color: #1E293B; outline: none; transition: border-color 0.3s; }
-        textarea.form-control:focus { border-color: var(--primary); background: #FFFFFF; }
-
+        .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 20px; font-weight: 700; border: none; width: calc(100% - 40px); margin: 10px 20px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; }
         .bottom-bar { background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); position: fixed; bottom: 0; width: 100%; height: 90px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #F1F5F9; z-index: 999; }
         .nav-link-ax { color: #94A3B8; text-decoration: none; flex: 1; font-size: 11px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
         .nav-link-ax.active { color: var(--primary); }
@@ -158,9 +149,9 @@ const dashboardHTML = `
             <div id="addr-txt" class="pill-address text-center">Wallet Not Connected</div>
         </div>
         <div class="card-ax text-center" style="background:#FFFFFF;">
-            <span class="balance-label">Treasury Pool</span>
+            <span class="balance-label">Treasury Pool (Rewards)</span>
             <div id="pool-txt" class="balance-amount" style="color:var(--primary); font-size:1.8rem;">0.00 AX</div>
-            <div class="pill-address" style="background:#F8FAFC; color:#94A3B8; border: 1px solid #F1F5F9;">AXf7ca3d5889ed99de642913af6...</div>
+            <div class="pill-address" style="background:#F8FAFC; color:#94A3B8; border: 1px solid #F1F5F9;">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
         </div>
         <button class="btn-ax" onclick="mine()">VALIDATE NETWORK (+50.00 AX)</button>
     </div>
@@ -177,16 +168,12 @@ const dashboardHTML = `
     <div id="v-sec" class="view-ax">
         <div class="card-ax">
             <span class="balance-label" style="display:block; margin-bottom:10px;">Access your Vault</span>
-            <textarea id="i-seed" class="form-control mb-3" rows="3" placeholder="Input your recovery phrase (24 words)..."></textarea>
-            <button class="btn-ax" style="width:100%; margin:0;" onclick="login()">RESTORE WALLET</button>
-            
+            <textarea id="i-seed" style="width:100%; background:#F8FAFC; border:2px solid #E2E8F0; border-radius:18px; padding:18px; font-size:0.95rem; font-family:'Outfit',sans-serif; resize:none; outline:none;" rows="3" placeholder="Input your recovery phrase (24 words)..."></textarea>
+            <button class="btn-ax" style="width:100%; margin:20px 0 0;" onclick="login()">RESTORE WALLET</button>
             <div style="margin: 30px 0; display: flex; align-items: center; opacity: 0.3;"><hr style="flex:1;"><span style="margin:0 15px; font-weight:800; font-size:0.7rem;">OR</span><hr style="flex:1;"></div>
-            
-            <button class="btn-ax btn-outline" style="width:100%; margin:0;" onclick="gen()">CREATE NEW 512-BIT IDENTITY</button>
-            
+            <button class="btn-ax" style="width:100%; margin:0; background:#F8FAFC; border:2px solid #E2E8F0; color:#475569; box-shadow:none;" onclick="gen()">CREATE NEW 512-BIT IDENTITY</button>
             <div id="g-res" style="display:none; margin-top:30px;">
-                <span style="font-size:0.75rem; font-weight:800; color:#EF4444; text-transform:uppercase; letter-spacing:1px;"><i class="fas fa-exclamation-triangle"></i> Security Phrase</span>
-                <p style="font-size:0.8rem; color:#64748B; margin:5px 0 20px;">Save these 24 words in order. Never share them.</p>
+                <span style="font-size:0.75rem; font-weight:800; color:#EF4444; text-transform:uppercase;"><i class="fas fa-exclamation-triangle"></i> Security Phrase</span>
                 <div class="seed-container" id="g-seed"></div>
                 <div class="mt-4">
                     <span class="balance-label">Public Address</span>
@@ -228,8 +215,7 @@ const dashboardHTML = `
         async function gen() {
             let seed = [];
             for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
-            const seedStr = seed.join(" ");
-            const keys = await derive(seedStr);
+            const keys = await derive(seed.join(" "));
             document.getElementById("g-res").style.display = "block";
             document.getElementById("g-seed").innerHTML = seed.map((w, i) => '<div class="seed-word"><span class="seed-num">'+(i+1)+'</span>'+w+'</div>').join("");
             document.getElementById("g-pub").innerText = keys.pub;
