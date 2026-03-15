@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"astralix/core" // Eliminamos "time" porque ya no se usa aquí
+	"time"
+	"astralix/core"
 )
 
-// Global Blockchain state
 var Blockchain []core.Block
 var Mempool []core.Transaction
 
@@ -19,51 +19,67 @@ func main() {
 
 	fmt.Println("--- AstraliX Network Central Node ---")
 	
-	// 1. Setup Genesis Block
+	// Genesis Setup
 	creatorAddr := "AXdc3acc7c0b91eb485d0e3bb78059bb58a3999c14b56cfe6ca0428670afc6410c"
-	
-	genesisTx := core.Transaction{
-		Sender:    "SYSTEM",
-		Recipient: creatorAddr,
-		Amount:    TotalSupply,
-	}
+	genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: creatorAddr, Amount: TotalSupply}
 	genesisTx.TxID = genesisTx.CalculateHash()
 
 	genesis := core.Block{
-		Index:        0,
-		Timestamp:    1773561600, // Fecha fija
+		Index: 0, Timestamp: 1773561600,
 		Transactions: []core.Transaction{genesisTx},
-		PrevHash:     strings.Repeat("0", 128),
-		Difficulty:   Difficulty,
+		PrevHash: strings.Repeat("0", 128),
+		Difficulty: Difficulty,
 	}
-	
-	fmt.Println("Mining Genesis Block...")
 	genesis.Mine()
 	Blockchain = append(Blockchain, genesis)
 
-	fmt.Printf("Genesis Block Online: %s\n", genesis.Hash)
+	// --- ROUTES ---
 
-	// API ROUTES
-	// Show the whole chain
+	// 1. Ver la cadena
 	http.HandleFunc("/chain", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Blockchain)
 	})
 
-	// Show pending transactions
-	http.HandleFunc("/mempool", func(w http.ResponseWriter, r *http.Request) {
+	// 2. Enviar Transacción (POST)
+	http.HandleFunc("/transactions/new", func(w http.ResponseWriter, r *http.Request) {
+		var tx core.Transaction
+		if err := json.NewDecoder(r.Body).Decode(&tx); err != nil {
+			http.Error(w, "Invalid TX", 400); return
+		}
+		tx.TxID = tx.CalculateHash()
+		Mempool = append(Mempool, tx)
+		fmt.Printf("TX Added to Mempool: %s\n", tx.TxID)
+		w.WriteHeader(201)
+		fmt.Fprintf(w, "Transaction pending in mempool")
+	})
+
+	// 3. MINAR (Convertir mempool en Bloque 1, 2, 3...)
+	http.HandleFunc("/mine", func(w http.ResponseWriter, r *http.Request) {
+		if len(Mempool) == 0 {
+			http.Error(w, "No transactions to mine", 400); return
+		}
+
+		lastBlock := Blockchain[len(Blockchain)-1]
+		newBlock := core.Block{
+			Index:        int64(len(Blockchain)),
+			Timestamp:    time.Now().Unix(),
+			Transactions: Mempool,
+			PrevHash:     lastBlock.Hash,
+			Difficulty:   Difficulty,
+		}
+
+		fmt.Println("Mining new block...")
+		newBlock.Mine()
+		Blockchain = append(Blockchain, newBlock)
+		Mempool = []core.Transaction{} // Limpiamos la sala de espera
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(Mempool)
+		json.NewEncoder(w).Encode(newBlock)
 	})
 
 	port := os.Getenv("PORT")
 	if port == "" { port = "8080" }
-
-	fmt.Printf("🌐 Node running on port %s. Launching AstraliX L1...\n", port)
-	
-	// Levantamos el servidor
-	err := http.ListenAndServe("0.0.0.0:"+port, nil)
-	if err != nil {
-		fmt.Printf("Critical Error: %v", err)
-	}
+	fmt.Printf("🌐 AstraliX L1 Live on port %s\n", port)
+	http.ListenAndServe("0.0.0.0:"+port, nil)
 }
