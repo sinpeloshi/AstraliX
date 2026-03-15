@@ -14,7 +14,9 @@ var Blockchain []core.Block
 var Mempool []core.Transaction
 
 const DB_FILE = "blockchain_data.json"
-const TREASURY_POOL_ADDR = "AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef5400000000000000000000000000000000000000000000000000000000000000000"
+
+// DEFINITIVE 512-BIT REWARDS WALLET
+const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 func loadChain() {
 	file, err := os.ReadFile(DB_FILE)
@@ -39,11 +41,13 @@ func getBalance(addr string) float64 {
 
 func main() {
 	const Difficulty = 4 
-	rootAddr := "AX5eaba583bf646e0e39f41da6f9d8fa6db929c2e858bd32dffe6ac0cee2e3e97400000000000000000000000000000000000000000000000000000000000000000"
+	// DEFINITIVE 512-BIT GENESIS WALLET
+	rootAddr := "AX5eaba583bf646e0e39f41da6f9d8fa6db929c2e858bd32dffe6ac0cee2e3e974dc3ff66cb2d73bdabdc9a49279bea46da35d10d925aaf71416e5e351a3f74b56"
 
 	loadChain()
 
 	if len(Blockchain) == 0 {
+		// INITIAL SUPPLY ISSUANCE TO YOUR ROOT WALLET
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
 		
@@ -103,7 +107,7 @@ func main() {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
 		if tx.Sender != "SYSTEM" && tx.Sender != TREASURY_POOL_ADDR && getBalance(tx.Sender) < tx.Amount {
-			http.Error(w, "Low balance", 400); return
+			http.Error(w, "Insufficient balance", 400); return
 		}
 		tx.TxID = tx.CalculateHash()
 		Mempool = append(Mempool, tx)
@@ -125,101 +129,91 @@ const dashboardHTML = `
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AX Core | Global Enterprise</title>
+    <title>AX Core | Global Network</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --ax-dark: #0F172A; --ax-blue: #2563EB; --ax-bg: #F8FAFC; }
-        body { background: var(--ax-bg); font-family: "Inter", sans-serif; margin: 0; padding-bottom: 100px; overflow-x: hidden; }
+        :root { --ax-dark: #020617; --ax-blue: #2563EB; --ax-bg: #F8FAFC; }
+        body { background: var(--ax-bg); font-family: "Inter", sans-serif; margin: 0; padding-bottom: 110px; }
         
-        .nav-header { background: var(--ax-dark); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .header-ax { background: var(--ax-dark); color: white; padding: 25px; text-align: center; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; }
         
-        .card-ax { background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); padding: 25px; margin: 20px; border: none; }
-        .hero { background: linear-gradient(135deg, var(--ax-dark) 0%, var(--ax-blue) 100%); color: white; border-radius: 30px; }
+        .card-ax { background: white; border-radius: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); padding: 25px; margin: 15px; border: none; }
+        .hero { background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); color: white; border-radius: 30px; }
         
-        .pill-512 { background: #F1F5F9; padding: 15px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; word-break: break-all; margin-top: 15px; line-height: 1.5; color: #475569; border: 1px solid #E2E8F0; }
-        .hero .pill-512 { background: rgba(255,255,255,0.1); color: white; border: none; }
+        .pill-512 { background: rgba(0,0,0,0.05); padding: 15px; border-radius: 16px; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; word-break: break-all; margin-top: 15px; line-height: 1.6; color: #475569; border: 1px solid #E2E8F0; }
+        .hero .pill-512 { background: rgba(255,255,255,0.08); color: #CBD5E1; border: none; }
         
-        .btn-mine { background: var(--ax-blue); color: white; border-radius: 18px; padding: 18px; font-weight: 800; border: none; width: 100%; font-size: 1.1rem; box-shadow: 0 8px 25px rgba(37, 99, 235, 0.3); }
+        .btn-mine { background: var(--ax-blue); color: white; border-radius: 20px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 1rem; box-shadow: 0 8px 30px rgba(37, 99, 235, 0.2); }
         
-        .bottom-nav { background: white; position: fixed; bottom: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 9999; box-shadow: 0 -5px 25px rgba(0,0,0,0.05); }
-        .nav-item { color: #94A3B8; text-align: center; text-decoration: none; flex: 1; font-size: 11px; font-weight: 700; transition: 0.3s; }
-        .nav-item.active { color: var(--ax-blue); }
-        .nav-item i { font-size: 24px; display: block; margin-bottom: 5px; }
+        .nav-bar { background: white; position: fixed; bottom: 0; width: 100%; height: 90px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #E2E8F0; z-index: 99999; padding-bottom: 10px; }
+        .nav-link-ax { color: #94A3B8; text-align: center; text-decoration: none; flex: 1; font-size: 11px; font-weight: 700; cursor: pointer; }
+        .nav-link-ax.active { color: var(--ax-blue); }
+        .nav-link-ax i { font-size: 26px; display: block; margin-bottom: 5px; }
 
-        .sidebar { display: none; } /* Eliminamos la sidebar en móvil para evitar bugs */
         @media (min-width: 992px) {
-            .bottom-nav { display: none; }
-            .sidebar { display: block; background: var(--ax-dark); height: 100vh; position: fixed; width: 260px; color: white; z-index: 1000; }
-            .main-content { margin-left: 260px; }
-            .nav-link-side { color: #94A3B8; padding: 15px 25px; display: block; text-decoration: none; font-weight: 600; border-radius: 12px; margin: 10px; }
-            .nav-link-side.active { background: var(--ax-blue); color: white; }
+            .nav-bar { width: 300px; height: 100vh; flex-direction: column; left: 0; top: 0; justify-content: start; padding-top: 50px; }
+            .main-content { margin-left: 300px; padding: 20px; }
+            .nav-link-ax { width: 100%; padding: 20px 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="p-5 text-center"><h3 class="fw-bold m-0">AX CORE</h3></div>
-        <a class="nav-link-side active" onclick="nav('dash')"><i class="fas fa-th-large me-2"></i> Dashboard</a>
-        <a class="nav-link-side" onclick="nav('wallet')"><i class="fas fa-wallet me-2"></i> Wallet</a>
-        <a class="nav-link-side" onclick="nav('sec')"><i class="fas fa-key me-2"></i> Security</a>
+    <div class="nav-bar">
+        <div class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-th-large"></i>Overview</div>
+        <div class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Transfer</div>
+        <div class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</div>
     </div>
 
     <div class="main-content">
-        <div class="nav-header d-lg-none">
-            <h4 class="fw-bold m-0">AX CORE</h4>
+        <div class="header-ax">
+            <h4 class="fw-bold m-0" style="letter-spacing: -1px;">AX CORE v17.5</h4>
         </div>
 
         <div id="v-dash" class="view-ax">
             <div class="card-ax hero text-center">
-                <small class="text-uppercase fw-bold opacity-75">Network Balance</small>
+                <small class="text-uppercase fw-bold opacity-50" style="letter-spacing: 2px;">Network Balance</small>
                 <h1 id="bal-txt" class="display-4 fw-bold my-2">0.00 AX</h1>
-                <div id="addr-txt" class="pill-512">Connect in Security Tab</div>
+                <div id="addr-txt" class="pill-512">Login to synchronize your $2^{512}$ wallet</div>
             </div>
 
-            <div class="card-ax text-center" style="border: 2px dashed #CBD5E1;">
-                <small class="fw-bold text-muted">TREASURY REWARDS (2^512)</small>
+            <div class="card-ax text-center" style="border: 2px dashed #E2E8F0;">
+                <small class="fw-bold text-muted">FIXED REWARDS POOL</small>
                 <h3 id="pool-txt" class="fw-bold m-0 text-primary">0.00 AX</h3>
-                <div class="pill-512">AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef5400000000000000000000000000000000000000000000000000000000000000000</div>
+                <div class="pill-512">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
             </div>
 
             <div class="px-3">
-                <button class="btn-mine" onclick="mine()">MINE BLOCK (+50.00 AX)</button>
+                <button class="btn-mine" onclick="mine()">VALIDATE NETWORK (+50.00 AX)</button>
             </div>
         </div>
 
         <div id="v-wallet" class="view-ax" style="display:none">
             <div class="card-ax">
-                <h4 class="fw-bold mb-4">Transfer Assets</h4>
-                <input type="text" id="tx-to" class="form-control p-3 mb-3 border-0 bg-light rounded-4" placeholder="Recipient 128-char address">
+                <h4 class="fw-bold mb-4">Send Assets</h4>
+                <input type="text" id="tx-to" class="form-control p-3 mb-3 border-0 bg-light rounded-4" style="font-size: 0.8rem;" placeholder="Destination Address (128 characters)">
                 <input type="number" id="tx-amt" class="form-control p-3 mb-4 border-0 bg-light rounded-4" placeholder="0.00">
-                <button class="btn-mine" onclick="send()">CONFIRM TRANSFER</button>
+                <button class="btn-mine" onclick="send()">AUTHORIZE & SEND</button>
             </div>
         </div>
 
         <div id="v-sec" class="view-ax" style="display:none">
             <div class="card-ax">
-                <h4 class="fw-bold mb-4">Vault Identity</h4>
+                <h4 class="fw-bold mb-4">Identity Sync</h4>
                 <input type="password" id="i-priv" class="form-control p-3 mb-3 border-0 bg-light rounded-4" placeholder="Private Key">
-                <button class="btn-mine mb-3" onclick="login()">CONNECT WALLET</button>
+                <button class="btn-mine mb-4" onclick="login()">CONNECT WALLET</button>
                 <hr>
-                <button class="btn btn-outline-dark w-100 py-3 rounded-4" onclick="gen()">GENERATE 512-BIT KEY</button>
+                <button class="btn btn-outline-dark w-100 py-3 rounded-4 mt-3" onclick="gen()">GENERATE NEW $2^{512}$ KEYS</button>
                 <div id="g-res" class="mt-4" style="display:none">
-                    <small class="fw-bold">Your Secure Key (512 bits):</small>
+                    <small class="fw-bold">Private Key (Save this):</small>
                     <div class="pill-512" id="g-priv"></div>
-                    <small class="fw-bold text-primary">Public Address:</small>
+                    <small class="fw-bold text-primary">Public AX Address:</small>
                     <div class="pill-512 text-primary fw-bold" id="g-pub"></div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <div class="bottom-nav">
-        <a class="nav-item active" id="n-dash" onclick="nav('dash')"><i class="fas fa-th-large"></i>Dash</a>
-        <a class="nav-item" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Send</a>
-        <a class="nav-item" id="n-sec" onclick="nav('sec')"><i class="fas fa-key"></i>Keys</a>
     </div>
 
     <script>
@@ -235,7 +229,7 @@ const dashboardHTML = `
         function nav(id) {
             document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
             document.getElementById("v-" + id).style.display = "block";
-            document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+            document.querySelectorAll(".nav-link-ax").forEach(n => n.classList.remove("active"));
             document.getElementById("n-" + id).classList.add("active");
             window.scrollTo(0,0);
         }
@@ -253,9 +247,9 @@ const dashboardHTML = `
                 const r = await fetch("/api/balance/" + session.pub);
                 const d = await r.json();
                 document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
-                document.getElementById("addr-txt").innerText = session.pub; // FULL 128 CHARS
+                document.getElementById("addr-txt").innerText = session.pub;
             }
-            const rp = await fetch("/api/balance/AX5def33f67eda5560561837935709169eb17955ffe13c1f112b3a329321bef5400000000000000000000000000000000000000000000000000000000000000000");
+            const rp = await fetch("/api/balance/AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158");
             const dp = await rp.json();
             document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
         }
@@ -263,25 +257,16 @@ const dashboardHTML = `
         async function mine() {
             if(!session) return alert("Sync first");
             const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("Mined!"); load(); } else { alert("Nothing to mine/Treasury issue."); }
+            if(r.ok) { alert("Mined!"); load(); } else { alert("Insufficient mempool or Treasury empty."); }
         }
 
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
             const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
-            if(r.ok) { alert("Sent!"); nav("dash"); load(); } else { alert("Error."); }
+            if(r.ok) { alert("Sent!"); nav("dash"); load(); } else { alert("Check funds."); }
         }
 
         async function gen() {
             const p = btoa(Math.random().toString() + Date.now()).substring(0,64);
             const pb = await derive(p);
-            document.getElementById("g-res").style.display = "block";
-            document.getElementById("g-priv").innerText = p;
-            document.getElementById("g-pub").innerText = pb;
-        }
-
-        load(); setInterval(load, 15000);
-    </script>
-</body>
-</html>
-`
+            document.getElementById("g-res").style.display =
