@@ -305,3 +305,55 @@ const dashboardHTML = `
             if(id === 'explorer') renderExplorer();
             window.scrollTo(0,0);
         }
+        async function renderExplorer() {
+            const r = await fetch("/api/chain");
+            const chain = await r.json();
+            const list = document.getElementById("block-list");
+            let html = ""; const revChain = chain.reverse();
+            for(let i=0; i<revChain.length; i++) {
+                let b = revChain[i]; let idx = b.Index !== undefined ? b.Index : b.index;
+                let hash = b.Hash || b.hash;
+                let txs = b.Transactions || b.transactions || [];
+                html += '<div class="block-card"><div style="display:flex; justify-content:space-between; align-items:center;"><span class="block-idx">BLOCK #' + idx + '</span><span style="font-size:0.6rem; color:var(--text-m);">CONFIRMED</span></div><div class="block-hash">' + hash + '</div><div style="font-size:0.6rem; color:var(--text-m); margin-top:10px;">TX COUNT: ' + txs.length + ' • SHA-512 SECURED</div></div>';
+            }
+            list.innerHTML = html;
+        }
+        async function login() {
+            const s = document.getElementById("i-seed").value.trim().toLowerCase();
+            if(!s) return; const keys = await derive(s);
+            session = { pub: keys.pub, priv: keys.priv, seed: s };
+            localStorage.setItem("ax_v18_session", JSON.stringify(session)); location.reload();
+        }
+        async function gen() {
+            let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
+            const keys = await derive(seed.join(" "));
+            document.getElementById("g-res").style.display = "block";
+            let seedHtml = ""; for(let i=0; i<seed.length; i++) {
+                seedHtml += '<div class="seed-word"><span style="color:var(--primary); font-weight:800; opacity:0.5; margin-right:8px;">'+(i+1)+'</span>'+seed[i]+'</div>';
+            }
+            document.getElementById("g-seed").innerHTML = seedHtml; document.getElementById("g-pub").innerText = keys.pub;
+        }
+        async function load() {
+            if(session) {
+                const r = await fetch("/api/balance/" + session.pub); const d = await r.json();
+                document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
+                document.getElementById("addr-txt").innerText = session.pub;
+            }
+            const rp = await fetch("/api/balance/AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158");
+            const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
+        }
+        async function mine() {
+            if(!session) return alert("Vault Identity Required");
+            const r = await fetch("/api/mine?address=" + session.pub);
+            if(r.ok) { alert("¡Network Validated!"); load(); } else { alert("Mempool empty. Send a transaction first!"); }
+        }
+        async function send() {
+            const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
+            const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
+            if(r.ok) { alert("Transaction Propagated!"); nav('dash'); load(); } else { alert("Validation failed."); }
+        }
+        load(); setInterval(load, 15000);
+    </script>
+</body>
+</html>
+`
