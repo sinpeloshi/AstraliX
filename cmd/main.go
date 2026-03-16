@@ -174,7 +174,7 @@ const landingHTML = `
         
         .nav { padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
         .logo { display: flex; align-items: center; text-decoration: none; }
-        .logo img { height: 45px; width: auto; mix-blend-mode: screen; } /* Truco para borrar el fondo negro del JPG */
+        .logo img { height: 45px; width: auto; mix-blend-mode: screen; }
         
         .nav-links { display: flex; align-items: center; }
         .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
@@ -222,8 +222,20 @@ const landingHTML = `
         .rm-step::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--prim); border-radius: 50%; }
         .rm-date { font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase; }
         
+        /* NEW PRICING TIERS CSS */
         .pre-sale { background: var(--bg-card); padding: 100px 6%; text-align: center; border-top: 1px solid var(--brd); }
-        .price-tag { font-size: clamp(3.5rem, 10vw, 5.5rem); font-weight: 800; letter-spacing: -3px; margin: 15px 0; }
+        .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto 40px; }
+        .tier-card { background: #000; border: 1px solid var(--brd); border-radius: 20px; padding: 40px 30px; transition: 0.3s; position: relative; overflow: hidden; text-align: center; }
+        .tier-card:hover { border-color: var(--prim); transform: translateY(-5px); }
+        .tier-card.premium { border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(16,185,129,0.05) 0%, #000 100%); }
+        .tier-card.premium::before { content: 'PRO'; position: absolute; top: 15px; right: -30px; background: var(--acc); color: #000; font-size: 0.6rem; font-weight: 800; padding: 5px 30px; transform: rotate(45deg); letter-spacing: 1px; }
+        .t-price { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; margin: 15px 0; color: #FFF; }
+        .t-name { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--prim); font-weight: 800; }
+        .premium .t-name { color: var(--acc); }
+        .t-list { text-align: left; margin-top: 25px; display: flex; flex-direction: column; gap: 15px; font-size: 0.9rem; color: var(--txt-m); }
+        .t-list div { display: flex; align-items: center; gap: 12px; }
+        .t-list i { color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.7rem; min-width: 12px; text-align: center; }
+        
         .w-box { background: #000; border: 1px solid var(--brd); padding: 30px; border-radius: 20px; max-width: 500px; margin: 30px auto; text-align: left; }
         .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-block; transition: 0.3s; }
         
@@ -331,19 +343,36 @@ const landingHTML = `
 
     <section id="buy" class="pre-sale">
         <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Founder Node Allocation</div>
-        <div class="price-tag">21 USDT</div>
-        <div style="max-width: 450px; margin: 0 auto 30px; text-align: left;">
-            <div style="display: flex; flex-direction: column; gap: 15px; font-size: 1rem; color: var(--txt-m);">
-                <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>10,000 AX (Testnet)</strong> Genesis Allocation</span></div>
-                <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>Validator Rights:</strong> Earn AX verifying transactions</span></div>
-                <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>Mainnet 1:1 Migration</strong> in April 2026</span></div>
+        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800; margin:0; color:#FFF;">Select Your Tier</h2></div>
+        
+        <div class="tier-grid">
+            <div class="tier-card">
+                <div class="t-name">Standard Node</div>
+                <div class="t-price">21<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> USDT</span></div>
+                <div class="t-list">
+                    <div><i class="fas fa-check"></i> <span><strong>10,000 AX Coins</strong> (Testnet)</span></div>
+                    <div><i class="fas fa-check"></i> <span><strong>Validator Rights:</strong> Earn AX</span></div>
+                    <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
+                </div>
+            </div>
+            <div class="tier-card premium">
+                <div class="t-name">Master Node</div>
+                <div class="t-price">210<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> USDT</span></div>
+                <div class="t-list">
+                    <div><i class="fas fa-check"></i> <span><strong>100,000 AX Coins</strong> (Testnet)</span></div>
+                    <div><i class="fas fa-check"></i> <span><strong>Priority Validator Rights</strong></span></div>
+                    <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
+                </div>
             </div>
         </div>
-        <div class="w-box">
-            <div style="color: #F3BA2F; font-size: 0.8rem; font-weight: 800; margin-bottom: 10px;">BINANCE SMART CHAIN (BEP-20)</div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; word-break: break-all; color:var(--txt);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
+
+        <div class="w-box" style="margin-top:0;">
+            <div style="color: #F3BA2F; font-size: 0.8rem; font-weight: 800; margin-bottom: 10px; text-align: center;">BINANCE SMART CHAIN (BEP-20) DEPOSIT ADDRESS</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; word-break: break-all; color:var(--txt); text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid #222;">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
         </div>
-        <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">VERIFY TRANSACTION <i class="fas fa-arrow-right"></i></a>
+        <div style="margin-top: 30px;">
+            <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">VERIFY TRANSACTION <i class="fas fa-arrow-right"></i></a>
+        </div>
     </section>
 
     <footer>
