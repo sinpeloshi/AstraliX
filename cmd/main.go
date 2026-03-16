@@ -147,12 +147,10 @@ const landingHTML = `
         .nav { padding: 25px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.8); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
         .logo { font-weight: 800; font-size: 1.8rem; letter-spacing: -1.5px; color: var(--txt); text-decoration: none; }
         .logo span { color: var(--prim); }
-        .nav-links { display: flex; gap: 30px; align-items: center; }
-        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
         .nav-links a:hover { color: var(--txt); }
-        .btn-core { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; }
-        .btn-core:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
-        .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
+        .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; }
+        .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
         .hero { text-align: center; padding: 100px 6% 80px; max-width: 1200px; margin: 0 auto; position: relative; }
         .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
         .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
@@ -212,7 +210,7 @@ const landingHTML = `
             <div class="nav-links">
                 <a href="/whitepaper">Protocol</a>
                 <a href="#roadmap">Mainnet</a>
-                <a href="/dashboard" class="btn-core">ENTER DASHBOARD</a>
+                <a href="/dashboard" class="btn-core-nav">ENTER DASHBOARD</a>
             </div>
             <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
                 <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-x-twitter"></i></a>
@@ -259,6 +257,24 @@ const landingHTML = `
     <section id="buy" class="pre-sale">
         <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Founder Node Allocation</div>
         <div class="price-tag">21 USDT</div>
+        
+        <div style="max-width: 450px; margin: 0 auto 30px; text-align: left;">
+            <div style="display: flex; flex-direction: column; gap: 15px; font-size: 1rem; color: var(--txt-m);">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i>
+                    <span><strong>10,000 AX (Testnet)</strong> Genesis Allocation</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i>
+                    <span><strong>Validator Rights:</strong> Earn AX verifying transactions</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i>
+                    <span><strong>Mainnet 1:1 Migration</strong> in April 2026</span>
+                </div>
+            </div>
+        </div>
+
         <div class="w-box">
             <div style="color: #F3BA2F; font-size: 0.8rem; font-weight: 800; margin-bottom: 10px;">BINANCE SMART CHAIN (BEP-20)</div>
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; word-break: break-all; color:var(--txt);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
@@ -399,7 +415,6 @@ const dashboardHTML = `
         .card-ax { background: var(--card); border-radius: 24px; padding: 30px 25px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
         .bal-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); font-weight: 700; margin-bottom: 12px; display: block; }
         .bal-val { font-size: clamp(2rem, 8vw, 2.5rem); font-weight: 800; margin-bottom: 25px; letter-spacing: -1px; word-break: break-word; }
-        /* BLINDAJE DE DIRECCIONES RESPONSIVE */
         .pill { background: #000; padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 2.2vw, 0.75rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; text-align: left; }
         .btn-ax { background: var(--prim); color: white; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .bottom-bar { background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
