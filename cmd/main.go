@@ -22,7 +22,7 @@ var db *sql.DB
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 // ==========================================
-// ⚙️ MOTOR BLOCKCHAIN (INTACTO)
+// ⚙️ MOTOR BLOCKCHAIN
 // ==========================================
 
 func initDB() {
@@ -123,7 +123,7 @@ func main() {
 }
 
 // ==========================================
-// 🎨 FRONTEND INTEGRADO (PIXEL PERFECT)
+// 🎨 LANDING PAGE (SILICON VALLEY STYLE)
 // ==========================================
 
 const landingHTML = `
@@ -132,29 +132,47 @@ const landingHTML = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AstraliX | Quantum-Resistant 512-bit Layer 1</title>
+    <title>AstraliX | Quantum-Resistant 512-bit Layer 1 Protocol</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
         :root { --bg: #050505; --bg-c: #0A0A0A; --prim: #3B82F6; --prim-g: rgba(59, 130, 246, 0.25); --acc: #10B981; --txt: #FFFFFF; --txt-m: #94A3B8; --brd: #1F2937; }
         * { box-sizing: border-box; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; color: var(--txt); background: var(--bg); line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; color: var(--txt); background: var(--bg); line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
         .bg-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: linear-gradient(var(--brd) 1px, transparent 1px), linear-gradient(90deg, var(--brd) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.2; z-index: -1; }
-        .orb { position: absolute; width: 80vw; height: 80vw; max-width: 800px; background: radial-gradient(circle, var(--prim-g) 0%, transparent 60%); top: -20vh; left: 50%; transform: translateX(-50%); z-index: -1; filter: blur(60px); }
-        .nav { padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; width: 100%; }
-        .logo { font-weight: 800; font-size: clamp(2.2rem, 5vw, 3rem); letter-spacing: -2px; color: var(--txt); text-decoration: none; }
-        .logo span { color: var(--prim); text-shadow: 0 0 20px var(--prim-g); }
-        .nav-link { text-decoration: none; color: var(--txt); font-weight: 600; font-size: 0.85rem; background: rgba(255,255,255,0.03); padding: 10px 22px; border-radius: 100px; border: 1px solid var(--brd); backdrop-filter: blur(10px); transition: 0.3s; }
-        .hero { text-align: center; padding: 100px 5% 60px; max-width: 1000px; margin: 0 auto; }
-        .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--prim); padding: 8px 20px; border-radius: 100px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 25px; }
-        .hero h1 { font-size: clamp(3rem, 8vw, 6.5rem); font-weight: 800; margin: 0; letter-spacing: -4px; line-height: 1.15; background: linear-gradient(135deg, #FFF 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
-        .hero p { font-size: clamp(1rem, 3vw, 1.3rem); color: var(--txt-m); margin: 25px auto 45px; max-width: 750px; }
-        .btn-prim { background: var(--txt); color: var(--bg); padding: 18px 45px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; transition: 0.3s; border: none; }
+        .nav { padding: 25px 5%; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; width: 100%; position: sticky; top: 0; background: rgba(5,5,5,0.8); backdrop-filter: blur(15px); z-index: 100; border-bottom: 1px solid var(--brd); }
+        .logo { font-weight: 800; font-size: 2.2rem; letter-spacing: -2px; color: var(--txt); text-decoration: none; }
+        .logo span { color: var(--prim); }
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.3s; }
+        .nav-links a:hover { color: var(--prim); }
+        .btn-core { background: var(--prim); color: white !important; padding: 10px 20px; border-radius: 100px; font-size: 0.8rem; font-weight: 800; border: none; text-decoration: none; transition: 0.3s; }
+        .btn-core:hover { box-shadow: 0 0 15px var(--prim-g); transform: translateY(-2px); }
         
-        /* AJUSTE SECCIÓN CUÁNTICA */
+        .hero { text-align: center; padding: 120px 5% 80px; max-width: 1100px; margin: 0 auto; }
+        .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--prim); padding: 8px 24px; border-radius: 100px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 25px; }
+        .hero h1 { font-size: clamp(3rem, 8vw, 6.5rem); font-weight: 800; margin: 0; letter-spacing: -3px; line-height: 1.15; background: linear-gradient(135deg, #FFF 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
+        .hero p { font-size: clamp(1.1rem, 3vw, 1.3rem); color: var(--txt-m); margin: 25px auto 45px; max-width: 750px; }
+        .btn-prim { padding: 20px 45px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.05rem; transition: 0.3s; border: none; display: inline-block; }
+        .btn-solid { background: var(--txt); color: var(--bg); }
+        .btn-solid:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(255,255,255,0.2); background: #f1f5f9; }
+        .btn-outline { background: transparent; border: 1px solid var(--brd); color: white; }
+        .btn-outline:hover { border-color: white; background: rgba(255,255,255,0.05); }
+        
+        .sec-title { text-align: center; margin-bottom: 50px; }
+        .sec-title h2 { font-size: 2.5rem; font-weight: 800; margin: 0; }
+        
+        .roadmap { padding: 80px 5%; max-width: 1200px; margin: 0 auto; }
+        .rm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .rm-item { border-left: 2px solid var(--prim); padding-left: 25px; position: relative; margin-bottom: 30px; }
+        .rm-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--prim); border-radius: 50%; box-shadow: 0 0 10px var(--prim); }
+        .rm-date { color: var(--prim); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; }
+        .rm-item h4 { margin: 0 0 10px 0; font-size: 1.2rem; }
+        .rm-item p { color: var(--txt-m); font-size: 0.95rem; margin: 0; }
+
         .sec-q { max-width: 1200px; margin: 60px 5%; background: var(--bg-c); border: 1px solid var(--brd); border-radius: 30px; display: flex; align-items: stretch; overflow: hidden; text-align: left; }
         .q-text { flex: 1.2; padding: 50px 7%; }
-        .q-text h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: #EF4444; margin-bottom: 20px; letter-spacing: -1px; }
+        .q-text h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: #EF4444; margin: 0 0 20px 0; letter-spacing: -1px; }
         .q-text p { color: var(--txt-m); font-size: 1.05rem; line-height: 1.8; margin-bottom: 20px; }
         .q-code { flex: 1; background: #000; padding: 40px 5%; border-left: 1px solid var(--brd); font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
         .c-block { background: rgba(255,255,255,0.02); border: 1px solid var(--brd); padding: 25px; border-radius: 16px; width: 100%; }
@@ -164,7 +182,7 @@ const landingHTML = `
         .card { background: rgba(255,255,255,0.02); padding: 40px 30px; border-radius: 24px; border: 1px solid var(--brd); text-align: left; transition: 0.3s; backdrop-filter: blur(10px); }
         .card:hover { border-color: var(--prim); background: rgba(59, 130, 246, 0.05); transform: translateY(-5px); }
         .card i { font-size: 2.2rem; color: var(--prim); margin-bottom: 20px; }
-        .card h3 { font-weight: 800; font-size: 1.3rem; margin-bottom: 15px; }
+        .card h3 { font-weight: 800; font-size: 1.3rem; margin: 0 0 15px 0; }
         .card p { color: var(--txt-m); font-size: 0.95rem; margin: 0; }
         
         .pre-sale { background: linear-gradient(180deg, var(--bg-c) 0%, #000 100%); border: 1px solid var(--brd); padding: 80px 5%; text-align: center; border-radius: 40px; max-width: 850px; margin: 0 auto 100px; width: 90%; position: relative; }
@@ -172,23 +190,71 @@ const landingHTML = `
         .price { font-size: clamp(4rem, 12vw, 6rem); font-weight: 800; margin: 10px 0 20px; letter-spacing: -4px; }
         .addr-box { background: rgba(0,0,0,0.6); border: 1px dashed var(--brd); padding: 30px 20px; border-radius: 24px; margin: 30px auto; max-width: 600px; }
         .w-addr { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 2.5vw, 0.95rem); color: var(--txt); word-break: break-all; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-top: 15px; }
-        .btn-wa { background: var(--acc); color: #000; padding: 18px 45px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; }
-        footer { text-align: center; padding: 50px 5%; color: var(--txt-m); font-size: 0.85rem; border-top: 1px solid var(--brd); background: #000; }
-        @media (max-width: 850px) { .sec-q { flex-direction: column; } .q-code { border-left: none; border-top: 1px solid var(--brd); padding: 40px 7%; } }
+        .btn-verify { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .btn-verify:hover { transform: scale(1.03); background: #12d392; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
+        
+        footer { padding: 80px 5% 40px; border-top: 1px solid var(--brd); background: #020202; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; text-align: left; }
+        .f-col h4 { color: #FFF; margin: 0 0 20px 0; font-size: 1rem; }
+        .f-col a { display: block; color: var(--txt-m); text-decoration: none; font-size: 0.9rem; margin-bottom: 10px; transition: 0.2s; }
+        .f-col a:hover { color: var(--prim); }
+        .social-icons { display: flex; gap: 20px; margin-top: 20px; }
+        .social-icons a { font-size: 1.5rem; color: var(--txt-m); transition: 0.3s; display: inline-block; }
+        .social-icons a:hover { color: var(--prim); transform: translateY(-3px); }
+        .copy { text-align: center; margin-top: 60px; color: var(--txt-m); font-size: 0.8rem; opacity: 0.5; }
+
+        @media (max-width: 850px) { 
+            .nav-links { display: none; } 
+            .hero { padding-top: 60px; } 
+            .sec-q { flex-direction: column; } 
+            .q-code { border-left: none; border-top: 1px solid var(--brd); padding: 40px 7%; } 
+            .hero-btns { flex-direction: column; width: 100%; gap: 15px; }
+            .hero-btns .btn-prim { width: 100%; }
+        }
     </style>
 </head>
 <body>
-    <div class="bg-grid"></div><div class="orb"></div>
+    <div class="bg-grid"></div>
     <nav class="nav">
         <a href="/" class="logo"><span>A</span>strali<span>X</span></a>
-        <a href="/dashboard" class="nav-link"><i class="fas fa-terminal"></i> CORE</a>
+        <div class="nav-links">
+            <a href="#vision">Vision</a>
+            <a href="#roadmap">Roadmap</a>
+            <a href="/dashboard" class="btn-core">LAUNCH APP</a>
+        </div>
     </nav>
-    <header class="hero">
-        <div class="badge">Alpha Testnet Genesis</div>
-        <h1>The 512-bit Era Begins Here.</h1>
-        <p>A Layer 1 blockchain infrastructure engineered to withstand the imminent quantum computing threat. Double the entropy, infinite security.</p>
-        <a href="#buy" class="btn-prim">Acquire Node Access</a>
+
+    <header class="hero" id="vision">
+        <div class="badge">Decentralized Future</div>
+        <h1>Securing the Era of<br>Quantum Intelligence.</h1>
+        <p>A mission-critical Layer 1 protocol doubling cryptographic security standards to 512-bit. Built for the next 100 years of digital asset sovereignty.</p>
+        <div class="hero-btns" style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap;">
+            <a href="#buy" class="btn-prim btn-solid">Get Founder Node</a>
+            <a href="#" class="btn-prim btn-outline">Read Whitepaper</a>
+        </div>
     </header>
+
+    <section class="roadmap" id="roadmap">
+        <div class="sec-title"><h2>Strategic Roadmap</h2></div>
+        <div class="rm-grid">
+            <div class="rm-item">
+                <div class="rm-date">Q1 2026</div>
+                <h4>Genesis Alpha</h4>
+                <p>Launch of the 512-bit core engine and founder node allocation program.</p>
+            </div>
+            <div class="rm-item">
+                <div class="rm-date">Q3 2026</div>
+                <h4>Ecosystem Expansion</h4>
+                <p>Public testnet deployment and developer grants for quantum-safe DApps.</p>
+            </div>
+            <div class="rm-item">
+                <div class="rm-date">Q1 2027</div>
+                <h4>Mainnet Launch</h4>
+                <p>Transition to full decentralized consensus and token migration 1:1.</p>
+            </div>
+        </div>
+    </section>
+
     <section class="sec-q">
         <div class="q-text">
             <h2><i class="fas fa-microchip"></i> The Quantum Threat</h2>
@@ -208,24 +274,57 @@ const landingHTML = `
             </div>
         </div>
     </section>
+
     <main class="grid">
         <div class="card"><i class="fas fa-shield-halved"></i><h3>Zero-Trust Vault</h3><p>Your 24-word recovery phrase generates a 512-bit seed locally. Absolute self-custody.</p></div>
         <div class="card"><i class="fas fa-bolt"></i><h3>Blazing Go Engine</h3><p>Built in Golang for massive throughput and zero memory collisions.</p></div>
         <div class="card"><i class="fas fa-layer-group"></i><h3>Genesis Airdrop</h3><p>Founder Nodes receive 10,000 AX, fully migratable to Mainnet.</p></div>
     </main>
+
     <section id="buy" class="pre-sale">
+        <div style="color:var(--prim); font-weight:800; letter-spacing:2px; margin-bottom:10px;">FOUNDER NODE ACCESS</div>
         <div class="price">21 USDT</div>
         <div class="addr-box">
             <div style="background:rgba(243,186,47,0.1); color:#F3BA2F; display:inline-block; padding:5px 15px; border-radius:8px; font-size:0.8rem; font-weight:800; margin-bottom:15px;">BNB Smart Chain (BEP-20)</div>
             <div style="font-size:0.85rem; opacity:0.6;">Official Treasury Address:</div>
             <div class="w-addr">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
         </div>
-        <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-wa"><i class="fas fa-shield-check"></i> VERIFY TRANSACTION</a>
+        <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-verify">VERIFY DEPOSIT <i class="fas fa-arrow-right"></i></a>
     </section>
-    <footer>&copy; 2026 AstraliX Core Engine • Autonomous Network Infrastructure.</footer>
+
+    <footer>
+        <div class="footer-grid">
+            <div class="f-col">
+                <a href="/" class="logo" style="font-size:1.5rem;"><span>A</span>strali<span>X</span></a>
+                <p style="font-size:0.8rem; color:var(--txt-m); margin-top:15px; line-height: 1.8;">Next-generation Layer 1 infrastructure for the post-quantum world.</p>
+                <div class="social-icons">
+                    <a href="https://x.com/XAstraliX" target="_blank"><i class="fab fa-x-twitter"></i></a>
+                    <a href="#"><i class="fab fa-youtube"></i></a>
+                    <a href="#"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+            <div class="f-col">
+                <h4>Protocol</h4>
+                <a href="#roadmap">Roadmap</a>
+                <a href="#">Whitepaper</a>
+                <a href="#">Developer Docs</a>
+            </div>
+            <div class="f-col">
+                <h4>Governance</h4>
+                <a href="/dashboard">Core Dashboard</a>
+                <a href="#">Network Status</a>
+                <a href="https://tally.so/r/jaxlL1" target="_blank">Verify Node</a>
+            </div>
+        </div>
+        <div class="copy">© 2026 AstraliX Core Engine. Built for Sovereign Security.</div>
+    </footer>
 </body>
 </html>
 `
+
+// ==========================================
+// 📱 DASHBOARD OPTIMIZADO
+// ==========================================
 
 const dashboardHTML = `
 <!DOCTYPE html>
@@ -255,6 +354,7 @@ const dashboardHTML = `
         .input-ax { width: 100%; padding: 18px; border-radius: 18px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; outline: none; transition: 0.3s; }
         .input-ax:focus { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
         .btn-ax { background: var(--primary); color: white; border-radius: 18px; padding: 18px; font-weight: 800; border: none; width: 100%; font-size: 1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-ax:active { transform: scale(0.98); }
         .block-card { background: rgba(255,255,255,0.02); border-radius: 24px; padding: 20px; width: 100%; border: 1px solid var(--border); margin-bottom: 15px; }
         .block-idx { background: var(--primary); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.65rem; }
         .block-hash { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text-m); word-break: break-all; background: #000; padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
@@ -264,30 +364,49 @@ const dashboardHTML = `
         .nav-link-ax i { font-size: 1.3rem; }
         .seed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .seed-word { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; font-size: 0.8rem; border: 1px solid var(--border); color: var(--text-m); display: flex; gap: 8px; }
+        .seed-num { color: var(--primary); font-weight: 800; opacity: 0.5; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-ax"><h5>Astrali<span>X</span> Core</h5><div class="status-box"><span class="status-dot"></span><span class="status-text">NETWORK ACTIVE</span></div></div>
+        
         <div id="v-dash" class="view-ax" style="display:flex;">
             <div class="card-ax card-dark"><span class="balance-label">Total Supply Balance</span><div id="bal-txt" class="balance-amount">0.00 AX</div><div id="addr-txt" class="pill-address" style="text-align:center;">Vault Locked</div></div>
-            <div class="card-ax"><span class="balance-label">Treasury Reward Pool</span><div id="pool-txt" class="balance-amount" style="color:var(--acc); font-size:1.8rem;">0.00 AX</div><div class="pill-address">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div></div>
+            <div class="card-ax"><span class="balance-label">Treasury Reward Pool</span><div id="pool-txt" class="balance-amount" style="color:#10B981; font-size:1.8rem;">0.00 AX</div><div class="pill-address">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div></div>
             <button class="btn-ax" onclick="mine()"><i class="fas fa-hammer"></i> VALIDATE NETWORK (+50 AX)</button>
         </div>
+        
         <div id="v-wallet" class="view-ax">
             <div class="card-ax"><span class="balance-label">Asset Transfer Protocol</span><div style="display:flex; flex-direction:column; gap:12px;"><input type="text" id="tx-to" class="input-ax" placeholder="Recipient AX Address"><input type="number" id="tx-amt" class="input-ax" placeholder="Amount (AX Tokens)"><button class="btn-ax" onclick="send()"><i class="fas fa-paper-plane"></i> CONFIRM TRANSFER</button></div></div>
         </div>
+        
         <div id="v-explorer" class="view-ax"><span class="balance-label">On-Chain Block Explorer</span><div id="block-list" style="width:100%;"></div></div>
+        
         <div id="v-sec" class="view-ax">
-            <div class="card-ax"><span class="balance-label">Identity Access Point</span><textarea id="i-seed" class="input-ax" style="min-height:100px; resize:none;" placeholder="Enter your 24-word recovery phrase..."></textarea><button class="btn-ax" style="margin-top:12px;" onclick="login()">RESTORE WALLET</button><div style="margin:25px 0; display:flex; align-items:center; gap:15px; opacity:0.2;"><hr style="flex:1; border:0; border-top:1px solid white;"><span style="font-size:0.6rem; font-weight:800;">OR</span><hr style="flex:1; border:0; border-top:1px solid white;"></div><button class="btn-ax" style="background:transparent; border:1px solid var(--border); color:var(--text-m);" onclick="gen()">NEW 512-BIT IDENTITY</button><div id="g-res" style="display:none; margin-top:30px; text-align:left;"><span class="balance-label" style="color:#EF4444;">Generated Recovery Seed</span><div id="g-seed" class="seed-grid"></div><span class="balance-label" style="margin-top:25px;">Public Identity</span><div class="pill-address" id="g-pub"></div></div></div>
+            <div class="card-ax">
+                <span class="balance-label">Identity Access Point</span>
+                <textarea id="i-seed" class="input-ax" style="min-height:100px; resize:none;" placeholder="Enter your 24-word recovery phrase..."></textarea>
+                <button class="btn-ax" style="margin-top:12px;" onclick="login()">RESTORE WALLET</button>
+                <div style="margin:25px 0; display:flex; align-items:center; gap:15px; opacity:0.2;"><hr style="flex:1; border:0; border-top:1px solid white;"><span style="font-size:0.6rem; font-weight:800;">OR</span><hr style="flex:1; border:0; border-top:1px solid white;"></div>
+                <button class="btn-ax" style="background:transparent; border:1px solid var(--border); color:var(--text-m);" onclick="gen()">NEW 512-BIT IDENTITY</button>
+                <div id="g-res" style="display:none; margin-top:30px; text-align:left;">
+                    <span class="balance-label" style="color:#EF4444;">Generated Recovery Seed</span>
+                    <div id="g-seed" class="seed-grid"></div>
+                    <span class="balance-label" style="margin-top:25px;">Public Identity</span>
+                    <div class="pill-address" id="g-pub"></div>
+                </div>
+            </div>
         </div>
     </div>
+    
     <div class="bottom-bar">
         <a class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>DASH</a>
         <a class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-exchange-alt"></i>SEND</a>
         <a class="nav-link-ax" id="n-explorer" onclick="nav('explorer')"><i class="fas fa-cubes"></i>CHAIN</a>
         <a class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>VAULT</a>
     </div>
+    
     <script>
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
         async function derive(seed) {
@@ -329,7 +448,7 @@ const dashboardHTML = `
             const keys = await derive(seed.join(" "));
             document.getElementById("g-res").style.display = "block";
             let seedHtml = ""; for(let i=0; i<seed.length; i++) {
-                seedHtml += '<div class="seed-word"><span style="color:var(--primary); font-weight:800; opacity:0.5; margin-right:8px;">'+(i+1)+'</span>'+seed[i]+'</div>';
+                seedHtml += '<div class="seed-word"><span class="seed-num">'+(i+1)+'</span>'+seed[i]+'</div>';
             }
             document.getElementById("g-seed").innerHTML = seedHtml; document.getElementById("g-pub").innerText = keys.pub;
         }
