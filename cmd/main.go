@@ -122,6 +122,10 @@ func main() {
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
 
+// ==========================================
+// 🎨 FRONTEND INTEGRADO (PIXEL PERFECT)
+// ==========================================
+
 const landingHTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -138,48 +142,39 @@ const landingHTML = `
         .bg-grid { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: linear-gradient(var(--brd) 1px, transparent 1px), linear-gradient(90deg, var(--brd) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.2; z-index: -1; }
         .orb { position: absolute; width: 80vw; height: 80vw; max-width: 800px; background: radial-gradient(circle, var(--prim-g) 0%, transparent 60%); top: -20vh; left: 50%; transform: translateX(-50%); z-index: -1; filter: blur(60px); }
         .nav { padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; width: 100%; }
-        .logo { font-weight: 800; font-size: clamp(1.8rem, 5vw, 3rem); letter-spacing: -2px; color: var(--txt); text-decoration: none; }
+        .logo { font-weight: 800; font-size: clamp(2.2rem, 5vw, 3rem); letter-spacing: -2px; color: var(--txt); text-decoration: none; }
         .logo span { color: var(--prim); text-shadow: 0 0 20px var(--prim-g); }
         .nav-link { text-decoration: none; color: var(--txt); font-weight: 600; font-size: 0.85rem; background: rgba(255,255,255,0.03); padding: 10px 22px; border-radius: 100px; border: 1px solid var(--brd); backdrop-filter: blur(10px); transition: 0.3s; }
-        .hero { text-align: center; padding: 80px 5% 60px; max-width: 1000px; margin: 0 auto; }
+        .hero { text-align: center; padding: 100px 5% 60px; max-width: 1000px; margin: 0 auto; }
         .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--prim); padding: 8px 20px; border-radius: 100px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 25px; }
-        
-        /* CORRECCIÓN DE LA LETRA 'g' Y ESPACIADO */
-        .hero h1 { 
-            font-size: clamp(3rem, 8vw, 6.5rem); 
-            font-weight: 800; 
-            margin: 0; 
-            letter-spacing: -2px; 
-            line-height: 1.15; 
-            padding-bottom: 10px;
-            background: linear-gradient(135deg, #FFF 0%, #94A3B8 100%); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
-        
+        .hero h1 { font-size: clamp(3rem, 8vw, 6.5rem); font-weight: 800; margin: 0; letter-spacing: -4px; line-height: 1.15; background: linear-gradient(135deg, #FFF 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
         .hero p { font-size: clamp(1rem, 3vw, 1.3rem); color: var(--txt-m); margin: 25px auto 45px; max-width: 750px; }
         .btn-prim { background: var(--txt); color: var(--bg); padding: 18px 45px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; transition: 0.3s; border: none; }
+        
+        /* AJUSTE SECCIÓN CUÁNTICA */
         .sec-q { max-width: 1200px; margin: 60px 5%; background: var(--bg-c); border: 1px solid var(--brd); border-radius: 30px; display: flex; align-items: stretch; overflow: hidden; text-align: left; }
         .q-text { flex: 1.2; padding: 50px 7%; }
         .q-text h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; color: #EF4444; margin-bottom: 20px; letter-spacing: -1px; }
         .q-text p { color: var(--txt-m); font-size: 1.05rem; line-height: 1.8; margin-bottom: 20px; }
-        .q-code { flex: 1; background: #000; padding: 50px 7%; border-left: 1px solid var(--brd); font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; justify-content: center; }
-        .c-block { background: rgba(255,255,255,0.02); border: 1px solid var(--brd); padding: 22px; border-radius: 16px; margin-bottom: 20px; }
-        .c-title { font-weight: 700; margin-bottom: 10px; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; }
+        .q-code { flex: 1; background: #000; padding: 40px 5%; border-left: 1px solid var(--brd); font-family: 'JetBrains Mono', monospace; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
+        .c-block { background: rgba(255,255,255,0.02); border: 1px solid var(--brd); padding: 25px; border-radius: 16px; width: 100%; }
+        .c-title { font-weight: 700; margin-bottom: 12px; font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; }
+        
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 5% 100px; }
-        .card { background: rgba(255,255,255,0.02); padding: 40px 30px; border-radius: 24px; border: 1px solid var(--brd); text-align: left; transition: 0.3s; }
+        .card { background: rgba(255,255,255,0.02); padding: 40px 30px; border-radius: 24px; border: 1px solid var(--brd); text-align: left; transition: 0.3s; backdrop-filter: blur(10px); }
         .card:hover { border-color: var(--prim); background: rgba(59, 130, 246, 0.05); transform: translateY(-5px); }
         .card i { font-size: 2.2rem; color: var(--prim); margin-bottom: 20px; }
         .card h3 { font-weight: 800; font-size: 1.3rem; margin-bottom: 15px; }
         .card p { color: var(--txt-m); font-size: 0.95rem; margin: 0; }
-        .pre-sale { background: linear-gradient(180deg, var(--bg-c) 0%, #000 100%); border: 1px solid var(--border); padding: 80px 5%; text-align: center; border-radius: 40px; max-width: 850px; margin: 0 auto 100px; width: 90%; position: relative; }
+        
+        .pre-sale { background: linear-gradient(180deg, var(--bg-c) 0%, #000 100%); border: 1px solid var(--brd); padding: 80px 5%; text-align: center; border-radius: 40px; max-width: 850px; margin: 0 auto 100px; width: 90%; position: relative; }
         .pre-sale::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--prim), transparent); }
         .price { font-size: clamp(4rem, 12vw, 6rem); font-weight: 800; margin: 10px 0 20px; letter-spacing: -4px; }
         .addr-box { background: rgba(0,0,0,0.6); border: 1px dashed var(--brd); padding: 30px 20px; border-radius: 24px; margin: 30px auto; max-width: 600px; }
         .w-addr { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 2.5vw, 0.95rem); color: var(--txt); word-break: break-all; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-top: 15px; }
         .btn-wa { background: var(--acc); color: #000; padding: 18px 45px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; }
         footer { text-align: center; padding: 50px 5%; color: var(--txt-m); font-size: 0.85rem; border-top: 1px solid var(--brd); background: #000; }
-        @media (max-width: 850px) { .sec-q { flex-direction: column; } .q-code { border-left: none; border-top: 1px solid var(--brd); } }
+        @media (max-width: 850px) { .sec-q { flex-direction: column; } .q-code { border-left: none; border-top: 1px solid var(--brd); padding: 40px 7%; } }
     </style>
 </head>
 <body>
@@ -201,15 +196,15 @@ const landingHTML = `
             <p><strong>AstraliX establishes a 512-bit standard today.</strong> The time required to break this network via quantum brute-force remains greater than the age of the universe.</p>
         </div>
         <div class="q-code">
-            <div class="c-block" style="border-color: rgba(239,68,68,0.2);">
+            <div class="c-block" style="border-color: rgba(239,68,68,0.3);">
                 <div class="c-title" style="color:#EF4444;">Legacy (256-bit)</div>
                 <div>Hash Length: 64 hex</div>
-                <div style="font-size:0.7rem; margin-top:5px; opacity:0.6;">[Vulnerable to Shor's Algorithm]</div>
+                <div style="font-size:0.7rem; margin-top:5px; opacity:0.6;">[Vulnerable to Decryption]</div>
             </div>
-            <div class="code-block" style="border-color: rgba(16,185,129,0.2);">
-                <div class="code-title" style="color:#10B981;">AstraliX (512-bit)</div>
+            <div class="c-block" style="border-color: rgba(16,185,129,0.3);">
+                <div class="c-title" style="color:#10B981;">AstraliX (512-bit)</div>
                 <div>Hash Length: 128 hex</div>
-                <div style="font-size:0.7rem; margin-top:5px; opacity:0.6;">[Quantum-Proof Architecture]</div>
+                <div style="font-size:0.7rem; margin-top:5px; opacity:0.6;">[Quantum-Proof Standard]</div>
             </div>
         </div>
     </section>
@@ -232,7 +227,6 @@ const landingHTML = `
 </html>
 `
 
-// (Código del dashboardHTML omitido para brevedad, pero debe mantenerse igual al anterior)
 const dashboardHTML = `
 <!DOCTYPE html>
 <html lang="es">
@@ -261,7 +255,6 @@ const dashboardHTML = `
         .input-ax { width: 100%; padding: 18px; border-radius: 18px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; outline: none; transition: 0.3s; }
         .input-ax:focus { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
         .btn-ax { background: var(--primary); color: white; border-radius: 18px; padding: 18px; font-weight: 800; border: none; width: 100%; font-size: 1rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-ax:active { transform: scale(0.98); }
         .block-card { background: rgba(255,255,255,0.02); border-radius: 24px; padding: 20px; width: 100%; border: 1px solid var(--border); margin-bottom: 15px; }
         .block-idx { background: var(--primary); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.65rem; }
         .block-hash { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; color: var(--text-m); word-break: break-all; background: #000; padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid var(--border); }
@@ -271,7 +264,6 @@ const dashboardHTML = `
         .nav-link-ax i { font-size: 1.3rem; }
         .seed-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
         .seed-word { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; font-size: 0.8rem; border: 1px solid var(--border); color: var(--text-m); display: flex; gap: 8px; }
-        .seed-num { color: var(--primary); font-weight: 800; opacity: 0.5; }
     </style>
 </head>
 <body>
@@ -313,55 +305,3 @@ const dashboardHTML = `
             if(id === 'explorer') renderExplorer();
             window.scrollTo(0,0);
         }
-        async function renderExplorer() {
-            const r = await fetch("/api/chain");
-            const chain = await r.json();
-            const list = document.getElementById("block-list");
-            let html = ""; const revChain = chain.reverse();
-            for(let i=0; i<revChain.length; i++) {
-                let b = revChain[i]; let idx = b.Index !== undefined ? b.Index : b.index;
-                let hash = b.Hash || b.hash;
-                let txs = b.Transactions || b.transactions || [];
-                html += '<div class="block-card"><div style="display:flex; justify-content:space-between; align-items:center;"><span class="block-idx">BLOCK #' + idx + '</span><span style="font-size:0.6rem; color:var(--text-m);">CONFIRMED</span></div><div class="block-hash">' + hash + '</div><div style="font-size:0.6rem; color:var(--text-m); margin-top:10px;">TX COUNT: ' + txs.length + ' • SHA-512 SECURED</div></div>';
-            }
-            list.innerHTML = html;
-        }
-        async function login() {
-            const s = document.getElementById("i-seed").value.trim().toLowerCase();
-            if(!s) return; const keys = await derive(s);
-            session = { pub: keys.pub, priv: keys.priv, seed: s };
-            localStorage.setItem("ax_v18_session", JSON.stringify(session)); location.reload();
-        }
-        async function gen() {
-            let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
-            const keys = await derive(seed.join(" "));
-            document.getElementById("g-res").style.display = "block";
-            let seedHtml = ""; for(let i=0; i<seed.length; i++) {
-                seedHtml += '<div class="seed-word"><span class="seed-num">'+(i+1)+'</span>'+seed[i]+'</div>';
-            }
-            document.getElementById("g-seed").innerHTML = seedHtml; document.getElementById("g-pub").innerText = keys.pub;
-        }
-        async function load() {
-            if(session) {
-                const r = await fetch("/api/balance/" + session.pub); const d = await r.json();
-                document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
-                document.getElementById("addr-txt").innerText = session.pub;
-            }
-            const rp = await fetch("/api/balance/AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158");
-            const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
-        }
-        async function mine() {
-            if(!session) return alert("Vault Identity Required");
-            const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("¡Network Validated!"); load(); } else { alert("Mempool empty. Send a transaction first!"); }
-        }
-        async function send() {
-            const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
-            const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
-            if(r.ok) { alert("Transaction Propagated!"); nav('dash'); load(); } else { alert("Validation failed."); }
-        }
-        load(); setInterval(load, 15000);
-    </script>
-</body>
-</html>
-`
