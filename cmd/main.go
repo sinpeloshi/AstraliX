@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -9,7 +10,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"context"
 
 	"astralix/core"
 	_ "github.com/lib/pq"
@@ -21,38 +21,58 @@ var db *sql.DB
 
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
+// ==========================================
+// ⚙️ MOTOR BLOCKCHAIN (INTACTO)
+// ==========================================
+
 func initDB() {
 	connStr := os.Getenv("DATABASE_URL")
-	if connStr == "" { log.Fatal("❌ ERROR: DATABASE_URL vacía.") }
+	if connStr == "" {
+		log.Fatal("❌ ERROR: DATABASE_URL vacía.")
+	}
 	var err error
 	db, err = sql.Open("postgres", connStr)
-	if err != nil { log.Fatal("❌ ERROR de Driver:", err) }
+	if err != nil {
+		log.Fatal("❌ ERROR de Driver:", err)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = db.PingContext(ctx)
-	if err != nil { log.Fatal("❌ ERROR de conexión a la DB:", err) }
+	if err != nil {
+		log.Fatal("❌ ERROR de conexión a la DB:", err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS chain_state (id INT PRIMARY KEY, data TEXT)`)
-	if err != nil { log.Fatal("❌ ERROR creando tablas:", err) }
+	if err != nil {
+		log.Fatal("❌ ERROR creando tablas:", err)
+	}
 }
 
 func loadChain() {
 	var data string
 	err := db.QueryRow("SELECT data FROM chain_state WHERE id = 1").Scan(&data)
-	if err == nil { json.Unmarshal([]byte(data), &Blockchain) }
+	if err == nil {
+		json.Unmarshal([]byte(data), &Blockchain)
+	}
 }
 
 func saveChain() {
 	data, _ := json.Marshal(Blockchain)
 	_, err := db.Exec(`INSERT INTO chain_state (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`, string(data))
-	if err != nil { log.Println("❌ Error guardando:", err) }
+	if err != nil {
+		log.Println("❌ Error guardando:", err)
+	}
 }
 
 func getBalance(addr string) float64 {
 	var balance float64
 	for _, block := range Blockchain {
 		for _, tx := range block.Transactions {
-			if tx.Recipient == addr { balance += tx.Amount }
-			if tx.Sender == addr { balance -= tx.Amount }
+			if tx.Recipient == addr {
+				balance += tx.Amount
+			}
+			if tx.Sender == addr {
+				balance -= tx.Amount
+			}
 		}
 	}
 	return balance
@@ -61,9 +81,9 @@ func getBalance(addr string) float64 {
 func main() {
 	initDB()
 	loadChain()
-	const Difficulty = 4 
+	const Difficulty = 4
 	rootAddr := "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d"
-	
+
 	if len(Blockchain) == 0 {
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
@@ -73,34 +93,42 @@ func main() {
 		saveChain()
 	}
 
+	// ==========================================
+	// 🔌 RUTAS DE LA API (INTACTAS)
+	// ==========================================
+
 	http.HandleFunc("/api/balance/", func(w http.ResponseWriter, r *http.Request) {
 		addr := strings.TrimPrefix(r.URL.Path, "/api/balance/")
 		json.NewEncoder(w).Encode(map[string]interface{}{"balance": getBalance(addr)})
 	})
+	
 	http.HandleFunc("/api/chain", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Blockchain)
 	})
-	
+
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
-		if miner == "" { http.Error(w, "Address req", 400); return }
-		
-		if len(Mempool) == 0 { 
+		if miner == "" {
+			http.Error(w, "Address req", 400)
+			return
+		}
+
+		if len(Mempool) == 0 {
 			http.Error(w, "Mempool empty", 400)
-			return 
+			return
 		}
 
 		reward := 50.0
 		var txs []core.Transaction
-		txs = append(txs, Mempool...) 
-		
+		txs = append(txs, Mempool...)
+
 		if getBalance(TREASURY_POOL_ADDR) >= reward {
 			rewardTx := core.Transaction{Sender: TREASURY_POOL_ADDR, Recipient: miner, Amount: reward}
 			rewardTx.TxID = rewardTx.CalculateHash()
 			txs = append(txs, rewardTx)
 		}
-		
+
 		prev := Blockchain[len(Blockchain)-1]
 		newBlock := core.Block{Index: int64(len(Blockchain)), Timestamp: time.Now().Unix(), Transactions: txs, PrevHash: prev.Hash, Difficulty: Difficulty}
 		newBlock.Mine()
@@ -113,23 +141,121 @@ func main() {
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
-		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" { http.Error(w, "Low balance", 400); return }
+		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" {
+			http.Error(w, "Low balance", 400)
+			return
+		}
 		tx.TxID = tx.CalculateHash()
 		Mempool = append(Mempool, tx)
 		w.WriteHeader(201)
 	})
-	
-	// --- EL ÚNICO CAMBIO ES ESTA LÍNEA ---
+
+	// ==========================================
+	// 🌐 RUTAS WEB (FRONTEND)
+	// ==========================================
+
+	// RUTA 1: La Vidriera (Landing Page de Preventa)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		// Si escriben cualquier cosa rara en la URL, los devolvemos a la raíz
+		if r.URL.Path != "/" {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, landingHTML)
+	})
+
+	// RUTA 2: El Motor/Bóveda (Dashboard)
 	http.HandleFunc("/dashboard", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, dashboardHTML)
 	})
-	// -------------------------------------
 
+	// INICIAR SERVIDOR
 	port := os.Getenv("PORT")
-	if port == "" { port = "8080" }
+	if port == "" {
+		port = "8080"
+	}
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
+
+// ==========================================
+// 🎨 CÓDIGO HTML/CSS CONSTANTES
+// ==========================================
+
+const landingHTML = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AstraliX | Nodos Fundadores 512-bit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
+        :root { --primary: #0D6EFD; --dark: #0F172A; --accent: #25D366; --text-light: #64748B; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; margin: 0; color: var(--dark); background: #F8FAFC; line-height: 1.6; scroll-behavior: smooth; }
+        .nav { padding: 25px; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
+        .logo { font-weight: 900; font-size: 2rem; letter-spacing: -1.5px; color: var(--dark); text-decoration: none; }
+        .nav-link { text-decoration: none; color: var(--primary); font-weight: 700; font-size: 0.9rem; background: #E0E7FF; padding: 12px 24px; border-radius: 14px; transition: 0.3s; }
+        .nav-link:hover { background: var(--primary); color: white; }
+        .hero { text-align: center; padding: 120px 20px 80px; background: white; border-bottom: 1px solid #E2E8F0; }
+        .badge { background: #E0E7FF; color: var(--primary); padding: 8px 18px; border-radius: 100px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; }
+        .hero h1 { font-size: 4.5rem; font-weight: 900; margin: 25px 0; letter-spacing: -4px; line-height: 0.85; color: var(--dark); }
+        .hero p { font-size: 1.3rem; color: var(--text-light); max-width: 700px; margin: 0 auto 45px; }
+        .btn-primary { background: var(--primary); color: white; padding: 22px 50px; border-radius: 24px; text-decoration: none; font-weight: 700; font-size: 1.2rem; box-shadow: 0 15px 35px rgba(13, 110, 253, 0.3); display: inline-block; transition: 0.3s; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(13, 110, 253, 0.4); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; max-width: 1200px; margin: 80px auto; padding: 0 20px; }
+        .card { background: white; padding: 50px 40px; border-radius: 40px; border: 1px solid #F1F5F9; text-align: center; transition: 0.4s; }
+        .card:hover { transform: translateY(-15px); box-shadow: 0 30px 60px rgba(0,0,0,0.04); }
+        .card i { font-size: 3rem; color: var(--primary); margin-bottom: 30px; }
+        .card h3 { font-weight: 800; font-size: 1.7rem; margin-bottom: 15px; }
+        .card p { color: var(--text-light); font-size: 1.05rem; }
+        .pre-sale { background: var(--dark); color: white; padding: 100px 30px; text-align: center; border-radius: 60px; max-width: 1000px; margin: 60px auto; }
+        .price-label { text-transform: uppercase; font-weight: 800; opacity: 0.5; letter-spacing: 3px; font-size: 0.9rem; }
+        .price { font-size: 6rem; font-weight: 900; margin: 10px 0; letter-spacing: -4px; }
+        .address-container { background: rgba(255,255,255,0.03); padding: 35px; border-radius: 25px; border: 2px dashed rgba(255,255,255,0.15); margin: 40px 0; }
+        .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: 1rem; word-break: break-all; color: #E2E8F0; line-height: 1.4; }
+        .btn-wa { background: var(--accent); color: white; padding: 22px 50px; border-radius: 24px; text-decoration: none; font-weight: 700; font-size: 1.1rem; display: inline-block; transition: 0.3s; box-shadow: 0 15px 35px rgba(37, 211, 102, 0.2); }
+        .btn-wa:hover { transform: scale(1.05); background: #20bd5a; }
+        footer { text-align: center; padding: 60px 20px; color: #94A3B8; font-size: 0.9rem; font-weight: 600; border-top: 1px solid #E2E8F0; margin-top: 100px; }
+        @media (max-width: 768px) { .hero h1 { font-size: 3rem; } .price { font-size: 4rem; } .pre-sale { border-radius: 30px; margin: 20px; } }
+    </style>
+</head>
+<body>
+    <nav class="nav">
+        <a href="/" class="logo">AstraliX</a>
+        <a href="/dashboard" class="nav-link">DASHBOARD CORE <i class="fas fa-arrow-right" style="margin-left:8px;"></i></a>
+    </nav>
+    <header class="hero">
+        <span class="badge">Nodos Fundadores • 100 Cupos Alpha</span>
+        <h1>Seguridad de 512 bits<br>hecha en el Chaco.</h1>
+        <p>AstraliX es la infraestructura blockchain de nueva generación. Un motor de Capa 1 diseñado para ser inviolable, veloz y fundacional.</p>
+        <a href="#comprar" class="btn-primary">Asegurar mi Nodo Fundador</a>
+    </header>
+    <main class="grid">
+        <div class="card"><i class="fas fa-fingerprint"></i><h3>Identidad Mnemónica</h3><p>Utilizamos protocolos de 512 bits para la generación de llaves, estableciendo un nuevo estándar de protección.</p></div>
+        <div class="card"><i class="fas fa-gem"></i><h3>Beneficios VIP</h3><p>Cada nodo fundador recibe un airdrop de 10.000 AX y acceso prioritario a la minería de red.</p></div>
+        <div class="card"><i class="fas fa-sync"></i><h3>Respaldo 1:1</h3><p>Todo el progreso y los activos generados en la fase Alpha serán migrados íntegramente a la Mainnet oficial.</p></div>
+    </main>
+    <section id="comprar" class="pre-sale">
+        <span class="price-label">Inscripción Nodo Fundador</span>
+        <div class="price">21 USDT</div>
+        <p style="max-width:550px; margin: 10px auto 40px; opacity:0.8; font-size: 1.1rem;">Para activar tu identidad en la red, envía el pago (Red Binance Smart Chain BEP-20) a la siguiente dirección oficial:</p>
+        <div class="address-container">
+            <div class="wallet-addr">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
+        </div>
+        <p style="font-size:0.95rem; opacity:0.6; margin-bottom: 30px;">Una vez realizado el envío, presiona el botón de abajo para enviarnos el comprobante por WhatsApp y activar tu cuenta.</p>
+        
+        <a href="https://wa.me/TuNumeroAqui" class="btn-wa">
+            <i class="fab fa-whatsapp" style="margin-right:10px;"></i> ENVIAR COMPROBANTE
+        </a>
+    </section>
+    <footer>&copy; 2026 AstraliX Core Engine • La Tigra, Chaco, Argentina.</footer>
+</body>
+</html>
+`
 
 const dashboardHTML = `
 <!DOCTYPE html>
@@ -144,30 +270,23 @@ const dashboardHTML = `
         @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
         :root { --bg: #F8FAFC; --card: #FFFFFF; --primary: #0D6EFD; --text: #0F172A; }
         body { background: var(--bg); font-family: 'Outfit', sans-serif; margin: 0; padding-bottom: 110px; color: var(--text); -webkit-font-smoothing: antialiased; }
-        
         .header-ax { padding: 35px 20px 15px; text-align: center; }
         .header-ax h5 { font-weight: 800; letter-spacing: 1.5px; margin: 0; color: #0F172A; font-size: 1.5rem; }
         .status-box { display: inline-flex; align-items: center; background: #ECFDF5; padding: 6px 14px; border-radius: 100px; margin-top: 10px; }
         .status-dot { height: 7px; width: 7px; background: #10B981; border-radius: 50%; margin-right: 8px; box-shadow: 0 0 10px #10B981; }
         .status-text { font-size: 0.65rem; font-weight: 800; color: #059669; letter-spacing: 1px; }
-
         .view-ax { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 500px; margin: 0 auto; padding: 0 20px; box-sizing: border-box; justify-content: center; }
         .card-ax { background: var(--card); border-radius: 32px; box-shadow: 0 10px 40px rgba(0,0,0,0.04); padding: 30px; margin: 15px 0; width: 100%; box-sizing: border-box; border: 1px solid rgba(0,0,0,0.03); text-align: center; }
         .card-dark { background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%); color: white; border: none; }
-        
         .balance-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.5; font-weight: 600; display: block; }
         .balance-amount { font-size: 2.2rem; font-weight: 800; margin: 10px 0 20px; letter-spacing: -1px; }
-        
         .pill-address { background: rgba(0,0,0,0.05); padding: 14px; border-radius: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; word-break: break-all; color: #64748B; line-height: 1.5; text-align: left; }
         .card-dark .pill-address { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
-
         .btn-ax { background: var(--primary); color: white; border-radius: 20px; padding: 20px; font-weight: 700; border: none; width: 100%; margin-top: 10px; font-size: 1rem; box-shadow: 0 10px 25px rgba(13, 110, 253, 0.2); cursor: pointer; }
-        
         .block-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 15px; width: 100%; border: 1px solid #E2E8F0; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.02); box-sizing: border-box; }
         .block-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .block-idx { background: #E0E7FF; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 0.7rem; color: var(--primary); }
         .block-hash { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: #64748B; word-break: break-all; margin-top: 8px; background: #F8FAFC; padding: 12px; border-radius: 12px; border: 1px solid #F1F5F9; }
-
         .bottom-bar { background: rgba(255,255,255,0.9); backdrop-filter: blur(15px); position: fixed; bottom: 0; width: 100%; height: 90px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #F1F5F9; z-index: 999; }
         .nav-link-ax { color: #94A3B8; text-decoration: none; flex: 1; font-size: 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
         .nav-link-ax.active { color: var(--primary); }
@@ -179,7 +298,6 @@ const dashboardHTML = `
         <h5>AstraliX Core</h5>
         <div class="status-box"><span class="status-dot"></span><span class="status-text">NODE SYNCHRONIZED</span></div>
     </div>
-
     <div id="v-dash" class="view-ax" style="display:flex;">
         <div class="card-ax card-dark">
             <span class="balance-label">Total Supply Balance</span>
@@ -193,7 +311,6 @@ const dashboardHTML = `
         </div>
         <button class="btn-ax" onclick="mine()">VALIDATE NETWORK (+50 AX)</button>
     </div>
-
     <div id="v-wallet" class="view-ax">
         <div class="card-ax">
             <span class="balance-label" style="margin-bottom:20px;">Internal Asset Transfer</span>
@@ -202,12 +319,10 @@ const dashboardHTML = `
             <button class="btn-ax" onclick="send()">CONFIRM TRANSFER</button>
         </div>
     </div>
-
     <div id="v-explorer" class="view-ax">
         <span class="balance-label" style="margin: 10px 0 25px;">On-Chain Block Explorer</span>
         <div id="block-list" style="width:100%;"></div>
     </div>
-
     <div id="v-sec" class="view-ax">
         <div class="card-ax">
             <span class="balance-label" style="margin-bottom:15px;">Vault Access Point</span>
@@ -225,14 +340,12 @@ const dashboardHTML = `
             </div>
         </div>
     </div>
-
     <div class="bottom-bar">
         <a class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>Overview</a>
         <a class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Transfer</a>
         <a class="nav-link-ax" id="n-explorer" onclick="nav('explorer')"><i class="fas fa-cubes"></i>Explorer</a>
         <a class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</a>
     </div>
-
     <script>
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
         async function derive(seed) {
@@ -242,7 +355,6 @@ const dashboardHTML = `
             return { priv: btoa(hex).substring(0,88), pub: "AX" + hex };
         }
         let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
-        
         async function nav(id) {
             document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
             document.getElementById("v-" + id).style.display = "flex";
@@ -251,7 +363,6 @@ const dashboardHTML = `
             if(id === 'explorer') renderExplorer();
             window.scrollTo(0,0);
         }
-
         async function renderExplorer() {
             const r = await fetch("/api/chain");
             const chain = await r.json();
@@ -264,25 +375,12 @@ const dashboardHTML = `
                 let ts = b.timestamp || b.Timestamp;
                 let hash = b.hash || b.Hash || "Calculando...";
                 let txs = b.transactions || b.Transactions || [];
-                
                 let txCount = txs.length;
                 let timeStr = ts ? new Date(ts * 1000).toLocaleTimeString() : "Desconocido";
-                
-                html += '<div class="block-card">' +
-                        '<div class="block-header">' +
-                        '<span class="block-idx">BLOCK #' + idx + '</span>' +
-                        '<span style="font-size:0.65rem; color:#94A3B8;">' + timeStr + '</span>' +
-                        '</div>' +
-                        '<div style="font-size:0.65rem; font-weight:700; color:#475569; margin-bottom:5px;">State Hash:</div>' +
-                        '<div class="block-hash">' + hash + '</div>' +
-                        '<div style="font-size:0.6rem; color:#94A3B8; margin-top:10px; display:flex; justify-content:space-between;">' +
-                        '<span>TX COUNT: ' + txCount + '</span>' +
-                        '<span>SHA-512 SECURED</span>' +
-                        '</div></div>';
+                html += '<div class="block-card"><div class="block-header"><span class="block-idx">BLOCK #' + idx + '</span><span style="font-size:0.65rem; color:#94A3B8;">' + timeStr + '</span></div><div style="font-size:0.65rem; font-weight:700; color:#475569; margin-bottom:5px;">State Hash:</div><div class="block-hash">' + hash + '</div><div style="font-size:0.6rem; color:#94A3B8; margin-top:10px; display:flex; justify-content:space-between;"><span>TX COUNT: ' + txCount + '</span><span>SHA-512 SECURED</span></div></div>';
             }
             list.innerHTML = html;
         }
-
         async function login() {
             const s = document.getElementById("i-seed").value.trim().toLowerCase();
             if(!s) return;
@@ -291,7 +389,6 @@ const dashboardHTML = `
             localStorage.setItem("ax_v18_session", JSON.stringify(session));
             location.reload();
         }
-
         async function gen() {
             let seed = [];
             for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
@@ -304,7 +401,6 @@ const dashboardHTML = `
             document.getElementById("g-seed").innerHTML = seedHtml;
             document.getElementById("g-pub").innerText = keys.pub;
         }
-
         async function load() {
             if(session) {
                 const r = await fetch("/api/balance/" + session.pub);
@@ -316,19 +412,16 @@ const dashboardHTML = `
             const dp = await rp.json();
             document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
         }
-
         async function mine() {
             if(!session) return alert("Vault Identity Required");
             const r = await fetch("/api/mine?address=" + session.pub);
             if(r.ok) { alert("¡Network Validated!"); load(); } else { alert("Mempool empty. Send a transaction first!"); }
         }
-
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
             const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
             if(r.ok) { alert("Transaction Propagated!"); nav('dash'); load(); } else { alert("Validation failed."); }
         }
-
         load(); setInterval(load, 15000);
     </script>
 </body>
