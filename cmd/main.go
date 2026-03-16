@@ -194,7 +194,7 @@ const landingHTML = `
             --bg-dark: #050505; 
             --bg-card: #0A0A0A; 
             --primary: #3B82F6; 
-            --primary-glow: rgba(59, 130, 246, 0.3);
+            --primary-glow: rgba(59, 130, 246, 0.25);
             --accent: #10B981; 
             --text-main: #FFFFFF; 
             --text-muted: #94A3B8;
@@ -206,68 +206,71 @@ const landingHTML = `
         
         /* Cyber-Grid Background */
         .bg-pattern { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.2; z-index: -1; pointer-events: none; }
-        .glow-orb { position: absolute; width: 800px; height: 800px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%); top: -300px; left: 50%; transform: translateX(-50%); z-index: -1; filter: blur(60px); pointer-events: none; }
+        .glow-orb { position: absolute; width: 80vw; height: 80vw; max-width: 800px; max-height: 800px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%); top: -20vh; left: 50%; transform: translateX(-50%); z-index: -1; filter: blur(60px); pointer-events: none; }
 
-        /* Navbar */
-        .nav { padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
-        
-        /* LOGO REDISEÑADO: A y X resaltadas, tipografía más grande */
-        .logo { font-weight: 800; font-size: 2.8rem; letter-spacing: -1.5px; color: var(--text-main); text-decoration: none; display: flex; align-items: center; }
+        /* Navbar - Fully Responsive */
+        .nav { padding: 30px 5%; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; width: 100%; }
+        .logo { font-weight: 800; font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -1.5px; color: var(--text-main); text-decoration: none; display: flex; align-items: center; }
         .logo .highlight { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); }
         
-        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.9rem; background: rgba(255,255,255,0.03); padding: 12px 28px; border-radius: 100px; border: 1px solid var(--border); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
+        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: clamp(0.75rem, 2vw, 0.9rem); background: rgba(255,255,255,0.03); padding: 10px 20px; border-radius: 100px; border: 1px solid var(--border); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); white-space: nowrap; }
         .nav-link:hover { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
 
         /* Hero Section */
-        .hero { text-align: center; padding: 120px 20px 60px; position: relative; }
-        .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 8px 24px; border-radius: 100px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 30px; }
-        .hero h1 { font-size: clamp(3.5rem, 7vw, 6rem); font-weight: 800; margin: 0; letter-spacing: -3px; line-height: 1.05; background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { font-size: 1.3rem; color: var(--text-muted); max-width: 700px; margin: 30px auto 50px; font-weight: 400; line-height: 1.7; }
-        .btn-primary { background: var(--text-main); color: var(--bg-dark); padding: 20px 50px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; border: none; cursor: pointer; }
+        .hero { text-align: center; padding: 100px 5% 60px; position: relative; max-width: 1000px; margin: 0 auto; }
+        .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 8px 20px; border-radius: 100px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 30px; }
+        .hero h1 { font-size: clamp(2.8rem, 8vw, 6rem); font-weight: 800; margin: 0; letter-spacing: -3px; line-height: 1.05; background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: clamp(1rem, 3vw, 1.25rem); color: var(--text-muted); margin: 30px auto 40px; font-weight: 400; line-height: 1.7; }
+        .btn-primary { background: var(--text-main); color: var(--bg-dark); padding: 18px 40px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: clamp(0.9rem, 2.5vw, 1.1rem); display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; border: none; cursor: pointer; width: fit-content; }
         .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(255,255,255,0.2); background: #f1f5f9; }
 
-        /* Quantum Threat Section */
-        .sec-quantum { max-width: 1200px; margin: 80px auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 30px; padding: 0; display: flex; align-items: stretch; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .quantum-text { flex: 1.2; padding: 60px; }
-        .quantum-text h2 { font-size: 2.2rem; font-weight: 800; margin-top: 0; margin-bottom: 20px; letter-spacing: -1px; color: #EF4444; display: flex; align-items: center; gap: 15px; }
-        .quantum-text h2 i { font-size: 1.8rem; }
-        .quantum-text p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; line-height: 1.8; }
+        /* Quantum Threat Section - Perfectly aligned */
+        .sec-quantum { max-width: 1200px; margin: 60px 5%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 30px; display: flex; align-items: stretch; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); text-align: left; }
+        .quantum-text { flex: 1.2; padding: 50px 8%; display: flex; flex-direction: column; justify-content: center; }
+        .quantum-text h2 { font-size: clamp(1.8rem, 4vw, 2.2rem); font-weight: 800; margin: 0 0 20px; letter-spacing: -1px; color: #EF4444; display: flex; align-items: center; gap: 15px; line-height: 1.2; }
+        .quantum-text h2 i { font-size: clamp(1.5rem, 3vw, 1.8rem); flex-shrink: 0; }
+        .quantum-text p { color: var(--text-muted); font-size: clamp(0.95rem, 2vw, 1.05rem); margin: 0 0 20px; line-height: 1.8; }
+        .quantum-text p:last-child { margin-bottom: 0; }
         .quantum-text strong { color: var(--text-main); }
         
-        .quantum-code { flex: 1; background: #000; padding: 40px; border-left: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; justify-content: center; position: relative; }
-        .quantum-code::before { content: 'SECURITY COMPARISON'; position: absolute; top: 20px; right: 20px; font-size: 0.7rem; font-weight: 700; color: var(--primary); letter-spacing: 2px; }
-        .code-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 15px; }
-        .code-title { font-weight: 700; margin-bottom: 10px; font-size: 0.75rem; letter-spacing: 1px; }
+        .quantum-code { flex: 1; background: #000; padding: 50px 8%; border-left: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 1.5vw, 0.85rem); color: var(--text-muted); display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .code-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        .code-block:last-child { margin-bottom: 0; }
+        .code-title { font-weight: 700; margin-bottom: 12px; font-size: 0.8rem; letter-spacing: 1px; }
         .code-red { color: #EF4444; }
         .code-green { color: #10B981; }
 
-        /* Grid Cards */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto 100px; padding: 0 20px; }
-        .card { background: rgba(255,255,255,0.02); padding: 45px; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; backdrop-filter: blur(10px); }
+        /* Grid Cards - Left aligned for premium look */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 5% 100px; }
+        .card { background: rgba(255,255,255,0.02); padding: 40px 30px; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; backdrop-filter: blur(10px); text-align: left; display: flex; flex-direction: column; }
         .card:hover { border-color: rgba(59, 130, 246, 0.3); transform: translateY(-5px); background: rgba(59, 130, 246, 0.05); }
-        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 25px; }
-        .card h3 { font-weight: 800; font-size: 1.4rem; margin: 0 0 15px; color: var(--text-main); }
-        .card p { color: var(--text-muted); font-size: 1rem; margin: 0; line-height: 1.6; }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 20px; display: inline-block; }
+        .card h3 { font-weight: 800; font-size: 1.3rem; margin: 0 0 15px; color: var(--text-main); }
+        .card p { color: var(--text-muted); font-size: 0.95rem; margin: 0; line-height: 1.6; }
 
-        /* Pre-Sale Box */
-        .pre-sale { background: linear-gradient(180deg, var(--bg-card) 0%, #000 100%); border: 1px solid var(--border); padding: 80px 40px; text-align: center; border-radius: 40px; max-width: 800px; margin: 0 auto 100px; position: relative; overflow: hidden; }
+        /* Pre-Sale Box - Responsive Padding & Typography */
+        .pre-sale { background: linear-gradient(180deg, var(--bg-card) 0%, #000 100%); border: 1px solid var(--border); padding: 80px 5%; text-align: center; border-radius: 40px; max-width: 800px; margin: 0 auto 100px; width: 90%; position: relative; overflow: hidden; }
         .pre-sale::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
-        .price-label { font-family: 'JetBrains Mono', monospace; color: var(--primary); font-size: 0.9rem; font-weight: 700; letter-spacing: 2px; }
-        .price { font-size: 5.5rem; font-weight: 800; margin: 10px 0 20px; letter-spacing: -2px; }
-        .address-box { background: rgba(0,0,0,0.6); border: 1px dashed rgba(255,255,255,0.2); padding: 30px; border-radius: 20px; margin: 30px 0; display: inline-block; width: 100%; max-width: 550px; }
-        .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text-main); word-break: break-all; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; }
-        .network-tag { display: inline-block; background: rgba(243, 186, 47, 0.1); color: #F3BA2F; font-size: 0.75rem; font-weight: 800; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(243, 186, 47, 0.2); }
+        .price-label { font-family: 'JetBrains Mono', monospace; color: var(--primary); font-size: clamp(0.7rem, 2vw, 0.9rem); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+        .price { font-size: clamp(4rem, 10vw, 5.5rem); font-weight: 800; margin: 10px 0 20px; letter-spacing: -2px; }
         
-        .btn-wa { background: var(--accent); color: #000; padding: 20px 50px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; margin-top: 10px; }
+        .address-box { background: rgba(0,0,0,0.6); border: 1px dashed rgba(255,255,255,0.2); padding: 25px 20px; border-radius: 20px; margin: 30px auto; width: 100%; max-width: 550px; display: flex; flex-direction: column; align-items: center; }
+        .network-tag { display: inline-block; background: rgba(243, 186, 47, 0.1); color: #F3BA2F; font-size: 0.75rem; font-weight: 800; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(243, 186, 47, 0.2); margin-bottom: 15px; }
+        .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: clamp(0.8rem, 2.5vw, 1rem); color: var(--text-main); word-break: break-all; text-align: center; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; width: 100%; box-sizing: border-box; }
+        
+        .btn-wa { background: var(--accent); color: #000; padding: 18px 40px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: clamp(0.9rem, 2.5vw, 1.1rem); display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; margin-top: 10px; width: fit-content; }
         .btn-wa:hover { transform: scale(1.03); background: #12d392; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
 
-        footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border); background: #000; }
+        footer { text-align: center; padding: 40px 5%; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); background: #000; }
         
-        @media (max-width: 900px) {
-            .sec-quantum { flex-direction: column; }
-            .quantum-code { border-left: none; border-top: 1px solid var(--border); }
-            .hero h1 { font-size: 3.2rem; }
-            .logo { font-size: 2.2rem; }
+        /* Strict Mobile Adjustments */
+        @media (max-width: 850px) {
+            .sec-quantum { flex-direction: column; border-radius: 24px; }
+            .quantum-code { border-left: none; border-top: 1px solid var(--border); padding: 40px 6%; }
+            .quantum-text { padding: 40px 6%; }
+            .nav { padding: 20px 5%; }
+            .hero { padding: 80px 5% 40px; }
+            .pre-sale { padding: 60px 5%; border-radius: 30px; }
         }
     </style>
 </head>
@@ -297,15 +300,15 @@ const landingHTML = `
         <div class="quantum-code">
             <div class="code-block" style="border-color: rgba(239, 68, 68, 0.2);">
                 <div class="code-title code-red">Legacy Networks (256-bit)</div>
-                <div>Hash Length: 64 hex chars</div>
+                <div>Hash: 64 hex chars</div>
                 <div>Combinations: 2^256</div>
-                <div style="margin-top:10px; font-size:0.7rem;">[WARNING] Vulnerable to future Quantum decryption via Shor's Algorithm.</div>
+                <div style="margin-top:10px; font-size:0.75rem; color: rgba(239, 68, 68, 0.8);">[WARNING] Vulnerable to future decryption via Shor's Algorithm.</div>
             </div>
             <div class="code-block" style="border-color: rgba(16, 185, 129, 0.2);">
                 <div class="code-title code-green">AstraliX Core (512-bit)</div>
-                <div>Hash Length: 128 hex chars</div>
+                <div>Hash: 128 hex chars</div>
                 <div>Combinations: 2^512</div>
-                <div style="margin-top:10px; font-size:0.7rem;">[SECURE] Cryptographic space expanded. Quantum brute-force timeline effectively infinite.</div>
+                <div style="margin-top:10px; font-size:0.75rem; color: rgba(16, 185, 129, 0.8);">[SECURE] Cryptographic space expanded. Quantum brute-force timeline infinite.</div>
             </div>
         </div>
     </section>
@@ -331,15 +334,15 @@ const landingHTML = `
     <section id="comprar" class="pre-sale">
         <div class="price-label">Founder Node Allocation</div>
         <div class="price">21 USDT</div>
-        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Fund the core development. Secure your genesis identity on the most robust Layer 1 architecture.</p>
+        <p style="color: var(--text-muted); font-size: clamp(0.95rem, 2vw, 1.1rem); max-width: 500px; margin: 0 auto; line-height: 1.6;">Fund the core development. Secure your genesis identity on the most robust Layer 1 architecture.</p>
         
         <div class="address-box">
             <div class="network-tag">Network: BNB Smart Chain (BEP-20)</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">Official Treasury Address:</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">Official Treasury Address:</div>
             <div class="wallet-addr">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
         </div>
 
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 25px;">Send the exact allocation amount. Verify your transaction directly with the Core Team to provision your Node.</p>
+        <p style="font-size: clamp(0.85rem, 2vw, 0.95rem); color: var(--text-muted); margin: 0 auto 25px; max-width: 450px;">Send the exact allocation amount. Verify your transaction directly with the Core Team to provision your Node.</p>
         
         <a href="https://wa.me/TuNumeroAqui?text=Initiating%20Founder%20Node%20Provisioning.%20I%20have%20sent%2021%20USDT." class="btn-wa">
             <i class="fab fa-whatsapp"></i> VERIFY TRANSACTION
@@ -438,89 +441,4 @@ const dashboardHTML = `
         </div>
     </div>
     <div class="bottom-bar">
-        <a class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>Overview</a>
-        <a class="nav-link-ax" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>Transfer</a>
-        <a class="nav-link-ax" id="n-explorer" onclick="nav('explorer')"><i class="fas fa-cubes"></i>Explorer</a>
-        <a class="nav-link-ax" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>Vault</a>
-    </div>
-    <script>
-        const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
-        async function derive(seed) {
-            const buf = new TextEncoder().encode(seed);
-            const hash = await crypto.subtle.digest("SHA-512", buf);
-            const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,"0")).join("");
-            return { priv: btoa(hex).substring(0,88), pub: "AX" + hex };
-        }
-        let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
-        async function nav(id) {
-            document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
-            document.getElementById("v-" + id).style.display = "flex";
-            document.querySelectorAll(".nav-link-ax").forEach(n => n.classList.remove("active"));
-            document.getElementById("n-" + id).classList.add("active");
-            if(id === 'explorer') renderExplorer();
-            window.scrollTo(0,0);
-        }
-        async function renderExplorer() {
-            const r = await fetch("/api/chain");
-            const chain = await r.json();
-            const list = document.getElementById("block-list");
-            let html = "";
-            const revChain = chain.reverse();
-            for(let i=0; i<revChain.length; i++) {
-                let b = revChain[i];
-                let idx = b.index !== undefined ? b.index : b.Index;
-                let ts = b.timestamp || b.Timestamp;
-                let hash = b.hash || b.Hash || "Calculando...";
-                let txs = b.transactions || b.Transactions || [];
-                let txCount = txs.length;
-                let timeStr = ts ? new Date(ts * 1000).toLocaleTimeString() : "Desconocido";
-                html += '<div class="block-card"><div class="block-header"><span class="block-idx">BLOCK #' + idx + '</span><span style="font-size:0.65rem; color:#94A3B8;">' + timeStr + '</span></div><div style="font-size:0.65rem; font-weight:700; color:#475569; margin-bottom:5px;">State Hash:</div><div class="block-hash">' + hash + '</div><div style="font-size:0.6rem; color:#94A3B8; margin-top:10px; display:flex; justify-content:space-between;"><span>TX COUNT: ' + txCount + '</span><span>SHA-512 SECURED</span></div></div>';
-            }
-            list.innerHTML = html;
-        }
-        async function login() {
-            const s = document.getElementById("i-seed").value.trim().toLowerCase();
-            if(!s) return;
-            const keys = await derive(s);
-            session = { pub: keys.pub, priv: keys.priv, seed: s };
-            localStorage.setItem("ax_v18_session", JSON.stringify(session));
-            location.reload();
-        }
-        async function gen() {
-            let seed = [];
-            for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
-            const keys = await derive(seed.join(" "));
-            document.getElementById("g-res").style.display = "block";
-            let seedHtml = "";
-            for(let i=0; i<seed.length; i++) {
-                seedHtml += '<div style="font-size:0.75rem; background:white; padding:10px; border-radius:12px; color:#475569; font-weight:600; border:1px solid #F1F5F9;"><span style="color:#CBD5E1; font-size:0.6rem; margin-right:8px;">'+(i+1)+'</span>'+seed[i]+'</div>';
-            }
-            document.getElementById("g-seed").innerHTML = seedHtml;
-            document.getElementById("g-pub").innerText = keys.pub;
-        }
-        async function load() {
-            if(session) {
-                const r = await fetch("/api/balance/" + session.pub);
-                const d = await r.json();
-                document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
-                document.getElementById("addr-txt").innerText = session.pub;
-            }
-            const rp = await fetch("/api/balance/AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158");
-            const dp = await rp.json();
-            document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
-        }
-        async function mine() {
-            if(!session) return alert("Vault Identity Required");
-            const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("¡Network Validated!"); load(); } else { alert("Mempool empty. Send a transaction first!"); }
-        }
-        async function send() {
-            const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
-            const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
-            if(r.ok) { alert("Transaction Propagated!"); nav('dash'); load(); } else { alert("Validation failed."); }
-        }
-        load(); setInterval(load, 15000);
-    </script>
-</body>
-</html>
-`
+        <a class="nav-link-ax active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>Overview
