@@ -139,105 +139,109 @@ const landingHTML = `
     <title>AstraliX | The 512-bit Layer 1 Protocol</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
-        :root { --bg: #020202; --bg-card: #080808; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; --acc: #10B981; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        :root { --bg: #030303; --bg-c: #080808; --prim: #3B82F6; --prim-g: rgba(59, 130, 246, 0.15); --acc: #10B981; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
-        .bg-p { position: fixed; width: 100vw; height: 100vh; background-image: radial-gradient(circle at 1px 1px, #111 1px, transparent 0); background-size: 40px 40px; z-index: -1; }
-        .nav { padding: 25px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.8); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
+        .bg-pattern { position: fixed; width: 100vw; height: 100vh; background-image: radial-gradient(circle at 1px 1px, #111 1px, transparent 0); background-size: 32px 32px; z-index: -1; }
+        .nav { padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(3,3,3,0.7); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
         .logo { font-weight: 800; font-size: 1.8rem; letter-spacing: -1.5px; color: var(--txt); text-decoration: none; }
         .logo span { color: var(--prim); }
-        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
         .nav-links a:hover { color: var(--txt); }
-        .hero { text-align: center; padding: 100px 6% 80px; max-width: 1200px; margin: 0 auto; }
-        .hero h1 { font-size: clamp(3rem, 9vw, 6rem); font-weight: 800; letter-spacing: -3px; line-height: 1.15; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 40%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
-        .hero p { font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--txt-m); max-width: 700px; margin: 0 auto 50px; font-weight: 400; }
-        .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .btn-core { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; }
+        .btn-core:hover { box-shadow: 0 0 15px var(--prim-g); transform: translateY(-2px); }
+        .hero { text-align: center; padding: 100px 6% 80px; max-width: 1200px; margin: 0 auto; position: relative; }
+        .hero h1 { font-size: clamp(3.2rem, 9vw, 6.2rem); font-weight: 800; margin: 0; letter-spacing: -3px; line-height: 1.15; background: linear-gradient(180deg, #FFF 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 5px; }
+        .hero p { font-size: clamp(1.1rem, 2.5vw, 1.3rem); color: var(--txt-m); margin: 25px auto 45px; max-width: 750px; font-weight: 400; }
+        .hero-btns { display: flex; gap: 15px; justify-content: center; }
         .btn-p { padding: 18px 40px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 0.95rem; transition: 0.3s; }
         .btn-white { background: #FFF; color: #000; }
         .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.2); }
-        .btn-dark { border: 1px solid var(--brd); color: #FFF; background: rgba(255,255,255,0.03); }
+        .btn-dark { border: 1px solid var(--brd); color: #FFF; }
         .btn-dark:hover { background: rgba(255,255,255,0.05); }
-        .sec-q { display: flex; gap: 2px; max-width: 1200px; margin: 60px auto; padding: 0 6%; }
-        .q-box { flex: 1; background: var(--bg-card); border: 1px solid var(--brd); padding: 40px; text-align: left; }
-        .q-box h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); margin-bottom: 15px; }
-        .q-box .val { font-family: 'JetBrains Mono'; font-size: 1.6rem; font-weight: 700; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2px; max-width: 1200px; margin: 80px auto; padding: 0 6%; }
-        .card { background: var(--bg-card); border: 1px solid var(--brd); padding: 50px 40px; text-align: left; transition: 0.3s; }
-        .card:hover { background: #0A0A0A; border-color: var(--prim); }
-        .card i { color: var(--prim); font-size: 1.8rem; margin-bottom: 25px; display: block; }
-        .card h4 { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
-        .card p { color: var(--txt-m); font-size: 0.95rem; line-height: 1.7; }
-        .roadmap { max-width: 800px; margin: 100px auto; padding: 0 6%; }
-        .rm-step { border-left: 1px solid #222; padding: 0 0 50px 40px; position: relative; }
-        .rm-step::before { content: ''; position: absolute; left: -5px; top: 0; width: 9px; height: 9px; background: var(--prim); border-radius: 50%; }
-        .rm-date { font-weight: 800; color: var(--prim); font-size: 0.75rem; margin-bottom: 10px; text-transform: uppercase; }
-        .pre-sale { background: var(--bg-card); padding: 120px 6%; text-align: center; border-top: 1px solid var(--brd); }
-        .price-tag { font-size: clamp(4rem, 10vw, 6rem); font-weight: 800; letter-spacing: -4px; margin: 20px 0; }
+        .sec-title { text-align: center; margin-bottom: 50px; }
+        .sec-title h2 { font-size: 2.5rem; font-weight: 800; margin: 0; }
+        .roadmap { padding: 80px 5%; max-width: 1200px; margin: 0 auto; }
+        .rm-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .rm-item { border-left: 2px solid var(--prim); padding-left: 25px; position: relative; margin-bottom: 30px; }
+        .rm-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--prim); border-radius: 50%; box-shadow: 0 0 10px var(--prim); }
+        .rm-date { color: var(--prim); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 8px; }
+        .rm-item h4 { margin: 0 0 10px 0; font-size: 1.2rem; }
+        .rm-item p { color: var(--txt-m); font-size: 0.95rem; margin: 0; }
+        .pre-sale { background: linear-gradient(180deg, var(--bg-c) 0%, #000 100%); border-top: 1px solid var(--brd); padding: 120px 6%; text-align: center; position: relative; }
+        .price-tag { font-size: 6rem; font-weight: 800; margin: 10px 0 20px; letter-spacing: -4px; }
+        .w-box { background: #000; border: 1px solid var(--brd); padding: 30px; border-radius: 20px; max-width: 500px; margin: 30px auto; text-align: left; }
         .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-block; transition: 0.3s; }
-        footer { padding: 80px 6% 40px; border-top: 1px solid var(--brd); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; text-align: left; }
-        .f-col h5 { margin-bottom: 25px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
-        .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.85rem; }
-        @media (max-width: 850px) { footer { grid-template-columns: 1fr; } .sec-q { flex-direction: column; } .nav-links { display: none; } }
+        .btn-buy:hover { transform: scale(1.03); background: #12d392; }
+        footer { padding: 100px 6% 40px; border-top: 1px solid var(--brd); background: #020202; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; text-align: left; }
+        .f-col h4 { color: #FFF; margin-bottom: 20px; font-size: 1rem; }
+        .f-col a { display: block; color: var(--txt-m); text-decoration: none; font-size: 0.9rem; margin-bottom: 10px; transition: 0.2s; }
+        .f-col a:hover { color: var(--prim); }
+        @media (max-width: 850px) { .nav-links { display: none; } .hero { padding-top: 60px; } .sec-q { flex-direction: column; } .hero-btns { flex-direction: column; width: 100%; gap: 15px; } .hero-btns .btn-p { width: 100%; } footer { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
-    <div class="bg-p"></div>
+    <div class="bg-pattern"></div>
     <nav class="nav">
         <a href="/" class="logo"><span>A</span>strali<span>X</span></a>
         <div class="nav-links">
             <a href="/whitepaper">Protocol</a>
-            <a href="#roadmap">Mainnet</a>
+            <a href="#roadmap">April 2026</a>
+            <a href="/dashboard" class="btn-core">LAUNCH APP</a>
         </div>
     </nav>
     <header class="hero">
-        <div style="background: rgba(59,130,246,0.1); color: var(--prim); padding: 6px 16px; border-radius: 100px; font-size: 0.7rem; font-weight: 800; display: inline-block; margin-bottom: 30px; border: 1px solid rgba(59,130,246,0.2);">ALPHA TESTNET LIVE & OPERATIONAL</div>
-        <h1>The 512-bit Era Begins Here.</h1>
-        <p>Doubling cryptographic standards for the post-quantum era. Built for absolute digital asset sovereignty.</p>
+        <div style="background: rgba(59,130,246,0.1); color: var(--prim); padding: 8px 16px; border-radius: 100px; font-size: 0.7rem; font-weight: 800; display: inline-block; margin-bottom: 30px; border: 1px solid rgba(59,130,246,0.2);">ALPHA TESTNET GENESIS</div>
+        <h1>Securing the Era of<br>Quantum Intelligence.</h1>
+        <p>A mission-critical Layer 1 protocol doubling cryptographic security standards. Built for digital asset sovereignty.</p>
         <div class="hero-btns">
             <a href="#buy" class="btn-p btn-white">Acquire Node</a>
             <a href="/whitepaper" class="btn-p btn-dark">Read Whitepaper</a>
         </div>
     </header>
-    <section class="sec-q">
-        <div class="q-box">
-            <h3>Legacy Standard (BTC, ETH, SOL)</h3>
-            <div class="val" style="color: #EF4444;">256-bit</div>
-            <p style="color: var(--txt-m); font-size: 0.8rem; margin-top:10px;">Vulnerable to Shor's Algorithm and next-gen quantum decryption.</p>
-        </div>
-        <div class="q-box" style="border-left: none; background: #0A0A0A;">
-            <h3>AstraliX Standard</h3>
-            <div class="val" style="color: #10B981;">512-bit</div>
-            <p style="color: var(--txt-m); font-size: 0.8rem; margin-top:10px;">Mathematically immune to classical and quantum brute-force attacks.</p>
-        </div>
-    </section>
-    <main class="grid">
-        <div class="card"><i class="fas fa-microchip"></i><h4>Quantum-Proof</h4><p>SHA-512 architecture provides $2^{512}$ combinations, securing assets for the next century.</p></div>
-        <div class="card"><i class="fas fa-bolt"></i><h4>Go-Native</h4><p>Multi-threaded consensus engine built for sub-second block finality and massive scale.</p></div>
-        <div class="card"><i class="fas fa-fingerprint"></i><h4>Sovereign Vault</h4><p>Local mnemonic derivation. Private keys never touch a server. Pure decentralization.</p></div>
-    </main>
     <section class="roadmap" id="roadmap">
-        <div style="margin-bottom: 50px;"><h2>Strategic Roadmap</h2></div>
-        <div class="rm-step"><div class="rm-date">Q1 2026</div><h4>Genesis Alpha</h4><p>Deployment of the core engine and Founder Node allocation program.</p></div>
-        <div class="rm-step" style="border-left-color: var(--prim);"><div class="rm-date" style="background: var(--prim); color: #000; display: inline-block; padding: 2px 8px; border-radius: 4px;">APRIL 2026</div><h4>Mainnet Launch</h4><p>Official network transition. Token migration 1:1 and validator onboarding.</p></div>
+        <div class="sec-title"><h2>Roadmap</h2></div>
+        <div class="rm-grid">
+            <div class="rm-item">
+                <div class="rm-date">Q1 2026</div>
+                <h4>Genesis Alpha</h4>
+                <p>Launch of the 512-bit core engine and founder node allocation program.</p>
+            </div>
+            <div class="rm-item">
+                <div class="rm-date">Q3 2026</div>
+                <h4>Ecosystem Expansion</h4>
+                <p>Public testnet deployment and developer grants for quantum-safe DApps.</p>
+            </div>
+            <div class="rm-item" style="border-left-color: var(--prim);">
+                <div class="rm-date" style="background: var(--prim); color: #000; display: inline-block; padding: 2px 8px; border-radius: 4px;">APRIL 2026</div>
+                <h4>Mainnet Launch</h4>
+                <p>Official network transition. Token migration 1:1 and decentralized validators onboarding.</p>
+            </div>
+        </div>
     </section>
     <section id="buy" class="pre-sale">
-        <div style="text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--prim); font-size: 0.8rem;">Founder Node Program</div>
+        <div style="text-transform: uppercase; letter-spacing: 3px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom: 10px;">Founder Node Allocation</div>
         <div class="price-tag">21 USDT</div>
-        <div style="background: #000; border: 1px solid #1A1A1A; padding: 30px; border-radius: 20px; max-width: 500px; margin: 30px auto;">
+        <div class="w-box">
             <div style="color: #F3BA2F; font-size: 0.75rem; font-weight: 800; margin-bottom: 10px;">BINANCE SMART CHAIN (BEP-20)</div>
-            <div style="font-family: 'JetBrains Mono'; font-size: 0.85rem; word-break: break-all; color:var(--txt);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; word-break: break-all;">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
         </div>
-        <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">VERIFY TRANSACTION</a>
+        <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">VERIFY TRANSACTION <i class="fas fa-arrow-right"></i></a>
     </section>
     <footer>
-        <div class="f-col">
-            <a href="/" class="logo" style="font-size: 1.5rem;"><span>A</span>strali<span>X</span></a>
-            <p style="color: var(--txt-m); margin-top: 20px; font-size: 0.85rem;">Securing the future of value through 512-bit cryptographic standards.</p>
-            <a href="https://x.com/XAstraliX" target="_blank" style="margin-top:20px; color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-x-twitter"></i> @XAstraliX</a>
+        <div class="footer-grid">
+            <div class="f-col">
+                <a href="/" class="logo" style="font-size:1.5rem;"><span>A</span>strali<span>X</span></a>
+                <p style="font-size:0.8rem; color:var(--txt-m); margin-top:15px;">Next-generation Layer 1 infrastructure for the post-quantum world.</p>
+                <a href="https://x.com/XAstraliX" target="_blank" style="margin-top:20px; color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-x-twitter"></i> @XAstraliX</a>
+            </div>
+            <div class="f-col"><h4>Protocol</h4><a href="/whitepaper">Whitepaper</a><a href="https://tally.so/r/jaxlL1">Verify Node</a></div>
+            <div class="f-col"><h4>Governance</h4><a href="/dashboard">Core Dashboard</a><a href="#">validator Info</a></div>
         </div>
-        <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></div>
-        <div class="f-col"><h5>Resources</h5><a href="/dashboard">Core Dashboard</a><a href="https://tally.so/r/jaxlL1">Verify Node</a></div>
+        <div class="copy">© 2026 AstraliX Foundation. Designed for Sovereign Security.</div>
     </footer>
 </body>
 </html>
@@ -253,13 +257,13 @@ const whitepaperHTML = `
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
+        :root { --bg: #030303; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; }
         .container { max-width: 850px; margin: 0 auto; padding: 100px 6%; }
         h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -3px; margin-bottom: 20px; }
         h2 { font-size: 1.8rem; font-weight: 800; margin: 60px 0 20px; color: var(--prim); border-bottom: 1px solid var(--brd); padding-bottom: 10px; }
-        p { margin-bottom: 25px; color: #BBB; font-size: 1.1rem; }
-        .tech-box { background: #080808; border: 1px solid var(--brd); padding: 30px; border-radius: 20px; margin: 40px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--txt-m); }
+        p { margin-bottom: 25px; color: #CCC; font-size: 1.1rem; }
+        .tech-box { background: #080808; border: 1px solid var(--brd); padding: 30px; border-radius: 20px; margin: 40px 0; font-family: 'JetBrains Mono'; font-size: 0.9rem; color: var(--txt-m); }
         footer { text-align: center; padding: 80px 0; border-top: 1px solid var(--brd); margin-top: 100px; color: var(--txt-m); }
     </style>
 </head>
@@ -295,43 +299,48 @@ const dashboardHTML = `
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --card: #080808; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
+        :root { --bg: #030303; --card: #0A0A0A; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding-bottom: 100px; color: var(--txt); overflow-x: hidden; }
-        .container { max-width: 500px; margin: 0 auto; padding: 0 20px; width: 100%; }
+        .container { max-width: 500px; margin: 0 auto; padding: 0 20px; width: 100%; box-sizing: border-box; }
         .header-ax { padding: 40px 0 20px; text-align: center; }
         .status-box { display: inline-flex; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px 16px; border-radius: 100px; margin-top: 12px; border: 1px solid rgba(16, 185, 129, 0.2); }
         .status-dot { height: 8px; width: 8px; background: #10B981; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 12px #10B981; }
         .view-ax { display: none; flex-direction: column; width: 100%; gap: 20px; margin-top: 10px; }
-        .card-ax { background: var(--card); border-radius: 24px; padding: 30px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
-        .bal-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); font-weight: 700; margin-bottom: 8px; display: block; }
-        .bal-val { font-size: 1.8rem; font-weight: 800; margin-bottom: 20px; letter-spacing: -1px; word-break: break-word; }
-        .pill { background: #000; padding: 16px; border-radius: 18px; font-family: 'JetBrains Mono'; font-size: 0.6rem; word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.4; width: 100%; box-sizing: border-box; }
-        .btn-ax { background: var(--prim); color: white; border-radius: 18px; padding: 18px; font-weight: 800; border: none; width: 100%; font-size: 1rem; cursor: pointer; }
-        .bottom-bar { background: rgba(2,2,2,0.8); backdrop-filter: blur(20px); position: fixed; bottom: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
-        .nav-l { color: #444; text-decoration: none; font-size: 0.6rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+        .card-ax { background: var(--card); border-radius: 28px; padding: 35px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
+        .bal-lbl { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); font-weight: 700; margin-bottom: 12px; display: block; }
+        .bal-val { font-size: 2.2rem; font-weight: 800; margin-bottom: 25px; letter-spacing: -1px; word-break: break-word; }
+        /* BLINDAJE DE DIRECCIONES RESPONSIVE */
+        .pill { background: #000; padding: 18px; border-radius: 20px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.6rem, 2.5vw, 0.7rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; }
+        .btn-ax { background: var(--prim); color: white; border-radius: 20px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 1rem; cursor: pointer; transition: 0.3s; }
+        .bottom-bar { background: rgba(3,3,3,0.8); backdrop-filter: blur(20px); position: fixed; bottom: 0; width: 100%; height: 90px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
+        .nav-l { color: #444; text-decoration: none; font-size: 0.65rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; text-transform: uppercase; }
         .nav-l.active { color: var(--prim); }
-        .nav-l i { font-size: 1.3rem; }
-        .input-ax { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--brd); background: #000; color: #FFF; margin-bottom: 10px; box-sizing: border-box; }
+        .input-ax { width: 100%; padding: 20px; border-radius: 18px; border: 1px solid var(--brd); background: #000; color: #FFF; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; }
+        @media (max-width: 500px) { .bal-val { font-size: 1.6rem; } .card-ax { padding: 25px; } .bottom-bar { height: 80px; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header-ax"><a href="/" style="color:white; text-decoration:none; font-weight:800;">AstraliX Core</a><br><div class="status-box"><span class="status-dot"></span><span style="font-size:0.65rem; font-weight:800; color:#10B981;">ALPHA TESTNET ACTIVE</span></div></div>
+        <div class="header-ax"><a href="/" style="color:white; text-decoration:none; font-weight:800; font-size:1.2rem;">AstraliX Core</a><br><div class="status-box"><span class="status-dot"></span><span style="font-size:0.7rem; font-weight:800; color:#10B981; letter-spacing:1px;">ALPHA TESTNET ACTIVE</span></div></div>
+        
         <div id="v-dash" class="view-ax" style="display:flex;">
-            <div class="card-ax" style="border-color: var(--prim);"><span class="bal-lbl">Personal Balance</span><div id="bal-txt" class="bal-val">0.00 AX</div><div id="addr-txt" class="pill" style="text-align:center;">VAULT LOCKED</div></div>
-            <div class="card-ax"><span class="bal-lbl">Reward Pool</span><div id="pool-txt" class="bal-val" style="color:#10B981;">0.00 AX</div><div class="pill">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div></div>
+            <div class="card-ax" style="border-color: var(--prim);"><span class="bal-lbl">Personal Ledger</span><div id="bal-txt" class="bal-val">0.00 AX</div><div id="addr-txt" class="pill" style="text-align:center;">VAULT LOCKED</div></div>
+            <div class="card-ax"><span class="bal-lbl">Reward Reserve</span><div id="pool-txt" class="bal-val" style="color:#10B981;">0.00 AX</div><div class="pill">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div></div>
             <button class="btn-ax" onclick="mine()"><i class="fas fa-hammer"></i> VALIDATE NETWORK (+50 AX)</button>
         </div>
-        <div id="v-wallet" class="view-ax"><div class="card-ax"><span class="bal-lbl">Transfer Assets</span><input type="text" id="tx-to" class="input-ax" placeholder="AX Recipient Address"><input type="number" id="tx-amt" class="input-ax" placeholder="Amount AX"><button class="btn-ax" onclick="send()">CONFIRM SEND</button></div></div>
-        <div id="v-explorer" class="view-ax"><span class="bal-lbl">Blockchain Explorer</span><div id="block-list"></div></div>
-        <div id="v-sec" class="view-ax"><div class="card-ax"><span class="bal-lbl">Vault Access</span><textarea id="i-seed" class="input-ax" style="height:100px; resize:none;" placeholder="24-word seed..."></textarea><button class="btn-ax" onclick="login()">RESTORE WALLET</button><div style="text-align:center; margin: 15px 0; color:#333; font-size:0.65rem;">OR</div><button class="btn-ax" style="background:transparent; border:1px solid #222; color:#555;" onclick="gen()">GENERATE 512-BIT ID</button><div id="g-res" style="display:none; margin-top:20px;"><div id="g-seed" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div><span class="bal-lbl" style="margin-top:20px;">Public Identity</span><div class="pill" id="g-pub"></div></div></div></div>
+
+        <div id="v-wallet" class="view-ax"><div class="card-ax"><span class="bal-lbl">Secure Asset Transfer</span><input type="text" id="tx-to" class="input-ax" placeholder="Recipient AX Address"><input type="number" id="tx-amt" class="input-ax" placeholder="Amount AX Tokens"><button class="btn-ax" onclick="send()">CONFIRM DEPOSIT</button></div></div>
+        <div id="v-explorer" class="view-ax"><span class="bal-lbl">Real-Time Explorer</span><div id="block-list"></div></div>
+        <div id="v-sec" class="view-ax"><div class="card-ax"><span class="bal-lbl">Vault Security</span><textarea id="i-seed" class="input-ax" style="height:120px; resize:none;" placeholder="Enter 24-word seed..."></textarea><button class="btn-ax" onclick="login()">RESTORE WALLET</button><div style="text-align:center; margin: 20px 0; color:#333; font-size:0.7rem; font-weight:900;">SECURE ENCRYPTION</div><button class="btn-ax" style="background:transparent; border:1px solid #222; color:#555;" onclick="gen()">GENERATE IDENTITY</button><div id="g-res" style="display:none; margin-top:25px;"><div id="g-seed" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div><span class="bal-lbl" style="margin-top:25px;">Public Identity</span><div class="pill" id="g-pub"></div></div></div></div>
     </div>
+
     <div class="bottom-bar">
         <a class="nav-l active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>DASH</a>
         <a class="nav-l" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-paper-plane"></i>SEND</a>
         <a class="nav-l" id="n-explorer" onclick="nav('explorer')"><i class="fas fa-cubes"></i>CHAIN</a>
         <a class="nav-l" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>VAULT</a>
     </div>
+
     <script>
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
         async function derive(seed) {
@@ -355,7 +364,7 @@ const dashboardHTML = `
             for(let i=0; i<revChain.length; i++) {
                 let b = revChain[i]; let idx = b.Index !== undefined ? b.Index : b.index;
                 let hash = b.Hash || b.hash;
-                html += '<div class="block-card" style="background:#0A0A0A; border:1px solid #1A1A1A; padding:20px; border-radius:15px; margin-bottom:15px;"><span style="background:var(--prim); padding:4px 8px; border-radius:6px; font-size:0.6rem; font-weight:800;">BLOCK #' + idx + '</span><div class="block-hash" style="margin-top:10px; font-size:0.55rem; word-break:break-all; font-family:monospace; color:var(--txt-m);">' + hash + '</div></div>';
+                html += '<div class="block-card" style="background:#0A0A0A; border:1px solid #1A1A1A; padding:20px; border-radius:15px; margin-bottom:15px;"><span style="background:var(--prim); padding:4px 10px; border-radius:6px; font-size:0.6rem; font-weight:800;">BLOCK #' + idx + '</span><div style="margin-top:12px; font-size:0.55rem; word-break:break-all; font-family:monospace; color:var(--txt-m);">' + hash + '</div></div>';
             }
             list.innerHTML = html;
         }
