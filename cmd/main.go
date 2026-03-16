@@ -127,7 +127,7 @@ func main() {
 }
 
 // ==========================================
-// 🎨 LANDING PAGE
+// 🎨 LANDING PAGE (VALLEY STYLE + MOCKUP)
 // ==========================================
 
 const landingHTML = `
@@ -151,10 +151,10 @@ const landingHTML = `
         .nav-links a:hover { color: var(--txt); }
         .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; }
         .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
-        .hero { text-align: center; padding: 100px 6% 80px; max-width: 1200px; margin: 0 auto; position: relative; }
+        .hero { text-align: center; padding: 100px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
         .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
         .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
-        .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
+        .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
         .btn-p { padding: 18px 40px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 1rem; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-blue { background: var(--prim); color: #FFF; box-shadow: 0 0 20px rgba(59,130,246,0.3); }
         .btn-blue:hover { background: #2563EB; transform: translateY(-2px); }
@@ -162,6 +162,17 @@ const landingHTML = `
         .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.2); }
         .btn-dark { border: 1px solid var(--brd); color: #FFF; background: rgba(255,255,255,0.03); }
         .btn-dark:hover { background: rgba(255,255,255,0.08); }
+        
+        /* THE HERO MOCKUP (DASHBOARD PREVIEW) */
+        .mockup-container { max-width: 900px; margin: 0 auto; padding: 0 6%; position: relative; perspective: 1000px; }
+        .mockup-glow { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 50%; background: var(--prim); filter: blur(120px); opacity: 0.15; z-index: -1; }
+        .mockup-window { background: rgba(10,10,10,0.8); border: 1px solid #222; border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: rotateX(2deg); transition: 0.5s; text-align: left; }
+        .mockup-window:hover { transform: rotateX(0deg) translateY(-5px); border-color: #333; }
+        .mockup-header { background: #111; padding: 12px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #222; }
+        .m-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .mockup-body { padding: 30px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--txt-m); line-height: 1.8; }
+        .m-highlight { color: var(--acc); font-weight: 700; }
+        .m-address { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid #222; }
         
         .sec-q { display: flex; gap: 20px; max-width: 1200px; margin: 80px auto; padding: 0 6%; }
         .q-box { flex: 1; border-radius: 20px; padding: 40px; text-align: left; border: 1px solid; }
@@ -190,12 +201,14 @@ const landingHTML = `
         .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
         .f-col a:hover { color: var(--prim); }
         
+        /* RESPONSIVE DESIGN */
         @media (max-width: 850px) { 
             .nav-links { display: none; } 
             .hero { padding-top: 50px; } 
             .sec-q { flex-direction: column; } 
             .hero-btns { flex-direction: column; width: 100%; gap: 12px; } 
             .hero-btns .btn-p { width: 100%; } 
+            .mockup-body { font-size: 0.7rem; padding: 20px; }
             footer { grid-template-columns: 1fr; } 
         }
     </style>
@@ -211,9 +224,9 @@ const landingHTML = `
                 <a href="#roadmap">Mainnet</a>
                 <a href="/dashboard" class="btn-core-nav">ENTER DASHBOARD</a>
             </div>
-            <div style="display: flex; gap: 15px; align-items: center;">
-                <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s;"><i class="fab fa-x-twitter"></i></a>
-                <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s;"><i class="fab fa-telegram"></i></a>
+            <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
+                <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-telegram"></i></a>
             </div>
         </div>
     </nav>
@@ -227,6 +240,37 @@ const landingHTML = `
             <a href="/whitepaper" class="btn-p btn-dark">Read Whitepaper</a>
         </div>
     </header>
+
+    <div class="mockup-container">
+        <div class="mockup-glow"></div>
+        <div class="mockup-window">
+            <div class="mockup-header">
+                <span class="m-dot" style="background:#FF5F56;"></span>
+                <span class="m-dot" style="background:#FFBD2E;"></span>
+                <span class="m-dot" style="background:#27C93F;"></span>
+                <span style="margin-left:10px; font-family:'JetBrains Mono'; font-size:0.75rem; color:#666;">astralix-core-node ~ bash</span>
+            </div>
+            <div class="mockup-body">
+                <div>> initializing 512-bit quantum-resistant protocol... <span class="m-highlight">[OK]</span></div>
+                <div>> connecting to global peer network... <span class="m-highlight">[OK]</span></div>
+                <div>> synchronizing genesis ledger... <span class="m-highlight">[DONE]</span></div>
+                <br>
+                <div style="display:flex; justify-content:space-between; border-top:1px dashed #333; padding-top:20px; flex-wrap:wrap; gap:15px;">
+                    <div>
+                        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Network Status</div>
+                        <div style="color:var(--acc); font-weight:800; font-size:1.2rem;">SYNCED & ACTIVE</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Total Value Locked</div>
+                        <div style="color:#FFF; font-weight:800; font-size:1.2rem;">1,000,000,000 AX</div>
+                    </div>
+                </div>
+                <div class="m-address">
+                    <span style="color:#666;">LATEST_BLOCK_HASH:</span> AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d
+                </div>
+            </div>
+        </div>
+    </div>
 
     <section class="sec-q">
         <div class="q-box" style="border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05);">
@@ -259,18 +303,9 @@ const landingHTML = `
         
         <div style="max-width: 450px; margin: 0 auto 30px; text-align: left;">
             <div style="display: flex; flex-direction: column; gap: 15px; font-size: 1rem; color: var(--txt-m);">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i>
-                    <span><strong>10,000 AX (Testnet)</strong> Genesis Allocation</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i>
-                    <span><strong>Validator Rights:</strong> Earn AX verifying transactions</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i>
-                    <span><strong>Mainnet 1:1 Migration</strong> in April 2026</span>
-                </div>
+                <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>10,000 AX (Testnet)</strong> Genesis Allocation</span></div>
+                <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>Validator Rights:</strong> Earn AX verifying transactions</span></div>
+                <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>Mainnet 1:1 Migration</strong> in April 2026</span></div>
             </div>
         </div>
 
@@ -414,6 +449,7 @@ const dashboardHTML = `
         .card-ax { background: var(--card); border-radius: 24px; padding: 30px 25px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
         .bal-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); font-weight: 700; margin-bottom: 12px; display: block; }
         .bal-val { font-size: clamp(2rem, 8vw, 2.5rem); font-weight: 800; margin-bottom: 25px; letter-spacing: -1px; word-break: break-word; }
+        /* BLINDAJE DE DIRECCIONES RESPONSIVE */
         .pill { background: #000; padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 2.2vw, 0.75rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; text-align: left; }
         .btn-ax { background: var(--prim); color: white; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .bottom-bar { background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
