@@ -22,7 +22,7 @@ var db *sql.DB
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 // ==========================================
-// ⚙️ MOTOR BLOCKCHAIN (PRO CORE)
+// ⚙️ MOTOR BLOCKCHAIN
 // ==========================================
 
 func initDB() {
@@ -127,7 +127,7 @@ func main() {
 }
 
 // ==========================================
-// 🎨 LANDING PAGE (VALLEY STYLE)
+// 🎨 LANDING PAGE
 // ==========================================
 
 const landingHTML = `
@@ -190,7 +190,6 @@ const landingHTML = `
         .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
         .f-col a:hover { color: var(--prim); }
         
-        /* RESPONSIVE DESIGN */
         @media (max-width: 850px) { 
             .nav-links { display: none; } 
             .hero { padding-top: 50px; } 
@@ -212,9 +211,9 @@ const landingHTML = `
                 <a href="#roadmap">Mainnet</a>
                 <a href="/dashboard" class="btn-core-nav">ENTER DASHBOARD</a>
             </div>
-            <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
-                <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-x-twitter"></i></a>
-                <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-telegram"></i></a>
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s;"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s;"><i class="fab fa-telegram"></i></a>
             </div>
         </div>
     </nav>
