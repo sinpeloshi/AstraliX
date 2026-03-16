@@ -151,7 +151,7 @@ func main() {
 	})
 
 	// ==========================================
-	// 🌐 RUTAS WEB (FRONTEND)
+	// 🌐 RUTAS WEB (FRONTEND INTEGRADO)
 	// ==========================================
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -185,78 +185,89 @@ const landingHTML = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AstraliX | Next-Gen 512-bit Security</title>
+    <title>AstraliX | Quantum-Resistant 512-bit Layer 1</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
         
         :root { 
             --bg-dark: #050505; 
-            --bg-card: #111111; 
+            --bg-card: #0A0A0A; 
             --primary: #3B82F6; 
-            --primary-glow: rgba(59, 130, 246, 0.4);
+            --primary-glow: rgba(59, 130, 246, 0.3);
             --accent: #10B981; 
             --text-main: #FFFFFF; 
             --text-muted: #94A3B8;
-            --border: #222222;
+            --border: #1F2937;
         }
         
         * { box-sizing: border-box; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; color: var(--text-main); background: var(--bg-dark); line-height: 1.6; scroll-behavior: smooth; overflow-x: hidden; }
         
-        /* Grid Background Pattern */
-        .bg-pattern { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.15; z-index: -1; pointer-events: none; }
-        .glow-orb { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%); top: -200px; left: 50%; transform: translateX(-50%); z-index: -1; filter: blur(50px); pointer-events: none; }
+        /* Cyber-Grid Background */
+        .bg-pattern { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.2; z-index: -1; pointer-events: none; }
+        .glow-orb { position: absolute; width: 800px; height: 800px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%); top: -300px; left: 50%; transform: translateX(-50%); z-index: -1; filter: blur(60px); pointer-events: none; }
 
         /* Navbar */
         .nav { padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
-        .logo { font-weight: 800; font-size: 2rem; letter-spacing: -1px; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 10px; }
-        .logo span { color: var(--primary); }
-        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.95rem; background: rgba(255,255,255,0.05); padding: 12px 28px; border-radius: 100px; border: 1px solid var(--border); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
-        .nav-link:hover { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+        
+        /* LOGO REDISEÑADO: A y X resaltadas, tipografía más grande */
+        .logo { font-weight: 800; font-size: 2.8rem; letter-spacing: -1.5px; color: var(--text-main); text-decoration: none; display: flex; align-items: center; }
+        .logo .highlight { color: var(--primary); text-shadow: 0 0 15px var(--primary-glow); }
+        
+        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.9rem; background: rgba(255,255,255,0.03); padding: 12px 28px; border-radius: 100px; border: 1px solid var(--border); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(10px); }
+        .nav-link:hover { background: rgba(59, 130, 246, 0.1); border-color: var(--primary); color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
 
         /* Hero Section */
-        .hero { text-align: center; padding: 120px 20px 80px; position: relative; }
-        .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 8px 20px; border-radius: 100px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 30px; }
-        .hero h1 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800; margin: 0; letter-spacing: -2px; line-height: 1.1; background: linear-gradient(to right, #fff, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .hero p { font-size: 1.25rem; color: var(--text-muted); max-width: 650px; margin: 30px auto 50px; font-weight: 400; }
-        .btn-primary { background: var(--primary); color: white; padding: 20px 45px; border-radius: 100px; text-decoration: none; font-weight: 700; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; border: none; cursor: pointer; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
+        .hero { text-align: center; padding: 120px 20px 60px; position: relative; }
+        .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 8px 24px; border-radius: 100px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 30px; }
+        .hero h1 { font-size: clamp(3.5rem, 7vw, 6rem); font-weight: 800; margin: 0; letter-spacing: -3px; line-height: 1.05; background: linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.3rem; color: var(--text-muted); max-width: 700px; margin: 30px auto 50px; font-weight: 400; line-height: 1.7; }
+        .btn-primary { background: var(--text-main); color: var(--bg-dark); padding: 20px 50px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 35px rgba(255,255,255,0.2); background: #f1f5f9; }
 
-        /* Security Feature Section */
-        .sec-feature { max-width: 1200px; margin: 60px auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 30px; padding: 60px; display: flex; align-items: center; gap: 50px; position: relative; overflow: hidden; }
-        .sec-content { flex: 1; }
-        .sec-content h2 { font-size: 2.5rem; font-weight: 800; margin-top: 0; margin-bottom: 20px; letter-spacing: -1px; }
-        .sec-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; line-height: 1.7; }
-        .sec-visual { flex: 1; background: #000; border-radius: 20px; padding: 30px; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary); position: relative; }
-        .sec-visual::before { content: 'SHA-512 HASH GENERATION'; position: absolute; top: -12px; left: 20px; background: var(--bg-dark); padding: 0 10px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
-        .hash-line { margin: 8px 0; opacity: 0.7; word-break: break-all; }
-        .hash-line:nth-child(1) { color: #fff; opacity: 1; }
+        /* Quantum Threat Section */
+        .sec-quantum { max-width: 1200px; margin: 80px auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 30px; padding: 0; display: flex; align-items: stretch; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .quantum-text { flex: 1.2; padding: 60px; }
+        .quantum-text h2 { font-size: 2.2rem; font-weight: 800; margin-top: 0; margin-bottom: 20px; letter-spacing: -1px; color: #EF4444; display: flex; align-items: center; gap: 15px; }
+        .quantum-text h2 i { font-size: 1.8rem; }
+        .quantum-text p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; line-height: 1.8; }
+        .quantum-text strong { color: var(--text-main); }
+        
+        .quantum-code { flex: 1; background: #000; padding: 40px; border-left: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .quantum-code::before { content: 'SECURITY COMPARISON'; position: absolute; top: 20px; right: 20px; font-size: 0.7rem; font-weight: 700; color: var(--primary); letter-spacing: 2px; }
+        .code-block { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 15px; }
+        .code-title { font-weight: 700; margin-bottom: 10px; font-size: 0.75rem; letter-spacing: 1px; }
+        .code-red { color: #EF4444; }
+        .code-green { color: #10B981; }
 
         /* Grid Cards */
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto 100px; padding: 0 20px; }
-        .card { background: var(--bg-card); padding: 45px; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden; }
-        .card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-5px); }
+        .card { background: rgba(255,255,255,0.02); padding: 45px; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; backdrop-filter: blur(10px); }
+        .card:hover { border-color: rgba(59, 130, 246, 0.3); transform: translateY(-5px); background: rgba(59, 130, 246, 0.05); }
         .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 25px; }
-        .card h3 { font-weight: 800; font-size: 1.5rem; margin: 0 0 15px; }
+        .card h3 { font-weight: 800; font-size: 1.4rem; margin: 0 0 15px; color: var(--text-main); }
         .card p { color: var(--text-muted); font-size: 1rem; margin: 0; line-height: 1.6; }
 
         /* Pre-Sale Box */
-        .pre-sale { background: linear-gradient(180deg, var(--bg-card) 0%, #000 100%); border: 1px solid var(--border); padding: 80px 40px; text-align: center; border-radius: 40px; max-width: 800px; margin: 0 auto 100px; position: relative; }
+        .pre-sale { background: linear-gradient(180deg, var(--bg-card) 0%, #000 100%); border: 1px solid var(--border); padding: 80px 40px; text-align: center; border-radius: 40px; max-width: 800px; margin: 0 auto 100px; position: relative; overflow: hidden; }
+        .pre-sale::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--primary), transparent); }
         .price-label { font-family: 'JetBrains Mono', monospace; color: var(--primary); font-size: 0.9rem; font-weight: 700; letter-spacing: 2px; }
-        .price { font-size: 5rem; font-weight: 800; margin: 10px 0 20px; letter-spacing: -2px; }
-        .address-box { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 25px; border-radius: 16px; margin: 30px 0; display: inline-block; width: 100%; max-width: 500px; }
-        .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text-main); word-break: break-all; }
-        .network-tag { display: inline-block; background: #F3BA2F; color: #000; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 15px; }
+        .price { font-size: 5.5rem; font-weight: 800; margin: 10px 0 20px; letter-spacing: -2px; }
+        .address-box { background: rgba(0,0,0,0.6); border: 1px dashed rgba(255,255,255,0.2); padding: 30px; border-radius: 20px; margin: 30px 0; display: inline-block; width: 100%; max-width: 550px; }
+        .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: 1rem; color: var(--text-main); word-break: break-all; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; }
+        .network-tag { display: inline-block; background: rgba(243, 186, 47, 0.1); color: #F3BA2F; font-size: 0.75rem; font-weight: 800; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(243, 186, 47, 0.2); }
         
-        .btn-wa { background: var(--accent); color: #000; padding: 20px 40px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; margin-top: 10px; }
-        .btn-wa:hover { transform: scale(1.05); background: #12d392; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+        .btn-wa { background: var(--accent); color: #000; padding: 20px 50px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; margin-top: 10px; }
+        .btn-wa:hover { transform: scale(1.03); background: #12d392; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3); }
 
-        footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border); }
+        footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border); background: #000; }
         
         @media (max-width: 900px) {
-            .sec-feature { flex-direction: column; padding: 40px 20px; }
-            .sec-visual { width: 100%; }
+            .sec-quantum { flex-direction: column; }
+            .quantum-code { border-left: none; border-top: 1px solid var(--border); }
+            .hero h1 { font-size: 3.2rem; }
+            .logo { font-size: 2.2rem; }
         }
     </style>
 </head>
@@ -265,69 +276,78 @@ const landingHTML = `
     <div class="glow-orb"></div>
 
     <nav class="nav">
-        <a href="/" class="logo">AstraliX<span></span></a>
+        <a href="/" class="logo"><span class="highlight">A</span>strali<span class="highlight">X</span></a>
         <a href="/dashboard" class="nav-link"><i class="fas fa-terminal"></i> LAUNCH CORE</a>
     </nav>
 
     <header class="hero">
-        <div class="badge">Alpha Testnet Live</div>
-        <h1>Unbreakable Protocol.<br>Layer 1 Innovation.</h1>
-        <p>AstraliX isn't just a network; it's a cryptographic fortress. Powered by 512-bit security architecture, designed for speed, and built for the future of digital assets.</p>
-        <a href="#comprar" class="btn-primary">Become a Founder Node <i class="fas fa-arrow-right"></i></a>
+        <div class="badge">Alpha Testnet Genesis</div>
+        <h1>The 512-bit Era<br>Begins Here.</h1>
+        <p>A Layer 1 blockchain infrastructure engineered from the ground up to withstand the imminent quantum computing threat. Double the entropy, infinite security.</p>
+        <a href="#comprar" class="btn-primary">Acquire Node Access <i class="fas fa-arrow-down"></i></a>
     </header>
 
-    <section class="sec-feature">
-        <div class="sec-content">
-            <h2>The Power of 512-bits</h2>
-            <p>While industry standards rely on 256-bit encryption, AstraliX doubles the cryptographic complexity. Every wallet generation and transaction is secured using the ultra-robust <strong>SHA-512</strong> algorithm.</p>
-            <p>This means your private keys are mathematically derived from a space so massive, it is practically immune to modern brute-force and quantum computing threats. We don't just secure your assets; we future-proof them.</p>
+    <section class="sec-quantum">
+        <div class="quantum-text">
+            <h2><i class="fas fa-microchip"></i> The Quantum Threat is Real</h2>
+            <p>Traditional blockchains rely heavily on <strong>256-bit encryption</strong> (like ECDSA or SHA-256). While secure today, the rapid advancement of quantum computing and Shor's algorithm puts these networks on a countdown.</p>
+            <p>Experts predict that within the next decade, a sufficiently powerful quantum computer will be able to derive a 256-bit private key from a public address, exposing billions in digital assets.</p>
+            <p><strong>AstraliX solves the "Quantum Day" problem today.</strong> By establishing a foundational <strong>512-bit cryptographic standard</strong>, the time required to break the network via quantum brute-force remains vastly greater than the age of the universe.</p>
         </div>
-        <div class="sec-visual">
-            <div class="hash-line">Input: "alpha bravo cipher delta..."</div>
-            <div class="hash-line" style="margin-top:20px; color:#555;">Processing SHA-512...</div>
-            <div class="hash-line" style="color:#10B981; margin-top:10px;">Output Hash:</div>
-            <div class="hash-line">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</div>
-            <div class="hash-line">121a9c80d85ab2c7d9a16f2c00c5c4...</div>
+        <div class="quantum-code">
+            <div class="code-block" style="border-color: rgba(239, 68, 68, 0.2);">
+                <div class="code-title code-red">Legacy Networks (256-bit)</div>
+                <div>Hash Length: 64 hex chars</div>
+                <div>Combinations: 2^256</div>
+                <div style="margin-top:10px; font-size:0.7rem;">[WARNING] Vulnerable to future Quantum decryption via Shor's Algorithm.</div>
+            </div>
+            <div class="code-block" style="border-color: rgba(16, 185, 129, 0.2);">
+                <div class="code-title code-green">AstraliX Core (512-bit)</div>
+                <div>Hash Length: 128 hex chars</div>
+                <div>Combinations: 2^512</div>
+                <div style="margin-top:10px; font-size:0.7rem;">[SECURE] Cryptographic space expanded. Quantum brute-force timeline effectively infinite.</div>
+            </div>
         </div>
     </section>
 
     <main class="grid">
         <div class="card">
             <i class="fas fa-shield-halved"></i>
-            <h3>Mnemonic Vault</h3>
-            <p>Your identity is your seed. Our client-side vault generates 24-word recovery phrases that never touch the server, giving you absolute self-custody.</p>
+            <h3>Zero-Trust Vault</h3>
+            <p>Your 24-word recovery phrase generates a 512-bit seed locally in your browser. Private keys never touch our servers. Absolute self-custody.</p>
         </div>
         <div class="card">
             <i class="fas fa-bolt"></i>
-            <h3>High-Speed Mempool</h3>
-            <p>Transactions are validated and added to the blockchain instantly. The Go-powered backend ensures zero collision and maximum throughput.</p>
+            <h3>High-Throughput Go Engine</h3>
+            <p>Built purely in Go (Golang), the AstraliX core node handles validation and mempool states with zero memory collisions and blazing speed.</p>
         </div>
         <div class="card">
-            <i class="fas fa-coins"></i>
-            <h3>Alpha Airdrop</h3>
-            <p>Early adopters securing a Founder Node receive an immediate genesis allocation of 10,000 AX, fully migratable to the Mainnet.</p>
+            <i class="fas fa-layer-group"></i>
+            <h3>Genesis Allocation</h3>
+            <p>Early infrastructure backers (Founder Nodes) receive a genesis block airdrop of 10,000 AX, fully secured and migratable to the future Mainnet.</p>
         </div>
     </main>
 
     <section id="comprar" class="pre-sale">
-        <div class="price-label">Node Allocation Fee</div>
+        <div class="price-label">Founder Node Allocation</div>
         <div class="price">21 USDT</div>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">Secure your position in the network infrastructure.</p>
+        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 600px; margin: 0 auto;">Fund the core development. Secure your genesis identity on the most robust Layer 1 architecture.</p>
         
         <div class="address-box">
-            <span class="network-tag">BNB Smart Chain (BEP-20)</span>
+            <div class="network-tag">Network: BNB Smart Chain (BEP-20)</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">Official Treasury Address:</div>
             <div class="wallet-addr">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
         </div>
 
-        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 10px 0 30px;">Send the exact amount and verify your transaction via WhatsApp to activate your 512-bit Identity.</p>
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 0 0 25px;">Send the exact allocation amount. Verify your transaction directly with the Core Team to provision your Node.</p>
         
-        <a href="https://wa.me/TuNumeroAqui?text=Hello,%20I%20have%20sent%2021%20USDT%20for%20my%20AstraliX%20Founder%20Node" class="btn-wa">
-            <i class="fab fa-whatsapp"></i> SEND TX RECEIPT
+        <a href="https://wa.me/TuNumeroAqui?text=Initiating%20Founder%20Node%20Provisioning.%20I%20have%20sent%2021%20USDT." class="btn-wa">
+            <i class="fab fa-whatsapp"></i> VERIFY TRANSACTION
         </a>
     </section>
 
     <footer>
-        &copy; 2026 AstraliX Core Development. All rights reserved.
+        &copy; 2026 AstraliX Core Engine • Autonomous Network Infrastructure.
     </footer>
 
 </body>
