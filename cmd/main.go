@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -9,7 +10,6 @@ import (
 	"os"
 	"strings"
 	"time"
-	"context"
 
 	"astralix/core"
 	_ "github.com/lib/pq"
@@ -23,36 +23,52 @@ const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cb
 
 func initDB() {
 	connStr := os.Getenv("DATABASE_URL")
-	if connStr == "" { log.Fatal("❌ ERROR: DATABASE_URL vacía.") }
+	if connStr == "" {
+		log.Fatal("❌ ERROR: DATABASE_URL vacía.")
+	}
 	var err error
 	db, err = sql.Open("postgres", connStr)
-	if err != nil { log.Fatal("❌ ERROR de Driver:", err) }
+	if err != nil {
+		log.Fatal("❌ ERROR de Driver:", err)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = db.PingContext(ctx)
-	if err != nil { log.Fatal("❌ ERROR de conexión a la DB:", err) }
+	if err != nil {
+		log.Fatal("❌ ERROR de conexión a la DB:", err)
+	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS chain_state (id INT PRIMARY KEY, data TEXT)`)
-	if err != nil { log.Fatal("❌ ERROR creando tablas:", err) }
+	if err != nil {
+		log.Fatal("❌ ERROR creando tablas:", err)
+	}
 }
 
 func loadChain() {
 	var data string
 	err := db.QueryRow("SELECT data FROM chain_state WHERE id = 1").Scan(&data)
-	if err == nil { json.Unmarshal([]byte(data), &Blockchain) }
+	if err == nil {
+		json.Unmarshal([]byte(data), &Blockchain)
+	}
 }
 
 func saveChain() {
 	data, _ := json.Marshal(Blockchain)
 	_, err := db.Exec(`INSERT INTO chain_state (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`, string(data))
-	if err != nil { log.Println("❌ Error guardando:", err) }
+	if err != nil {
+		log.Println("❌ Error guardando:", err)
+	}
 }
 
 func getBalance(addr string) float64 {
 	var balance float64
 	for _, block := range Blockchain {
 		for _, tx := range block.Transactions {
-			if tx.Recipient == addr { balance += tx.Amount }
-			if tx.Sender == addr { balance -= tx.Amount }
+			if tx.Recipient == addr {
+				balance += tx.Amount
+			}
+			if tx.Sender == addr {
+				balance -= tx.Amount
+			}
 		}
 	}
 	return balance
@@ -61,9 +77,9 @@ func getBalance(addr string) float64 {
 func main() {
 	initDB()
 	loadChain()
-	const Difficulty = 4 
+	const Difficulty = 4
 	rootAddr := "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d"
-	
+
 	if len(Blockchain) == 0 {
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
@@ -73,36 +89,40 @@ func main() {
 		saveChain()
 	}
 
+	// ENDPOINTS DE LA API
 	http.HandleFunc("/api/balance/", func(w http.ResponseWriter, r *http.Request) {
 		addr := strings.TrimPrefix(r.URL.Path, "/api/balance/")
 		json.NewEncoder(w).Encode(map[string]interface{}{"balance": getBalance(addr)})
 	})
+	
 	http.HandleFunc("/api/chain", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Blockchain)
 	})
-	
-	// API MINE: El candado está acá
+
+	// API MINE con candado Anti-Spam
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
-		if miner == "" { http.Error(w, "Address req", 400); return }
-		
-		// ANTI-SPAM: Si no hay transacciones de usuarios, no se mina bloque ni hay premio.
-		if len(Mempool) == 0 { 
+		if miner == "" {
+			http.Error(w, "Address req", 400)
+			return
+		}
+
+		if len(Mempool) == 0 {
 			http.Error(w, "Mempool empty", 400)
-			return 
+			return
 		}
 
 		reward := 50.0
 		var txs []core.Transaction
-		txs = append(txs, Mempool...) 
-		
+		txs = append(txs, Mempool...)
+
 		if getBalance(TREASURY_POOL_ADDR) >= reward {
 			rewardTx := core.Transaction{Sender: TREASURY_POOL_ADDR, Recipient: miner, Amount: reward}
 			rewardTx.TxID = rewardTx.CalculateHash()
 			txs = append(txs, rewardTx)
 		}
-		
+
 		prev := Blockchain[len(Blockchain)-1]
 		newBlock := core.Block{Index: int64(len(Blockchain)), Timestamp: time.Now().Unix(), Transactions: txs, PrevHash: prev.Hash, Difficulty: Difficulty}
 		newBlock.Mine()
@@ -115,18 +135,26 @@ func main() {
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
-		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" { http.Error(w, "Low balance", 400); return }
+		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" {
+			http.Error(w, "Low balance", 400)
+			return
+		}
 		tx.TxID = tx.CalculateHash()
 		Mempool = append(Mempool, tx)
 		w.WriteHeader(201)
 	})
-	
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+	// RUTAS DE NAVEGACIÓN
+	// El Dashboard ahora vive en /dashboard para dejar libre el inicio a la Landing
+	http.HandleFunc("/dashboard", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, dashboardHTML)
 	})
+
 	port := os.Getenv("PORT")
-	if port == "" { port = "8080" }
+	if port == "" {
+		port = "8080"
+	}
 	log.Fatal(http.ListenAndServe("0.0.0.0:"+port, nil))
 }
 
