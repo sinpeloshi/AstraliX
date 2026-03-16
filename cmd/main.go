@@ -127,7 +127,7 @@ func main() {
 }
 
 // ==========================================
-// 🎨 LANDING PAGE (VALLEY STYLE + MOCKUP)
+// 🎨 LANDING PAGE 
 // ==========================================
 
 const landingHTML = `
@@ -147,10 +147,12 @@ const landingHTML = `
         .nav { padding: 25px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.8); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
         .logo { font-weight: 800; font-size: 1.8rem; letter-spacing: -1.5px; color: var(--txt); text-decoration: none; }
         .logo span { color: var(--prim); }
-        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
         .nav-links a:hover { color: var(--txt); }
         .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; }
         .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
+        .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
         .hero { text-align: center; padding: 100px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
         .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
         .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
@@ -258,15 +260,15 @@ const landingHTML = `
                 <div style="display:flex; justify-content:space-between; border-top:1px dashed #333; padding-top:20px; flex-wrap:wrap; gap:15px;">
                     <div>
                         <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Network Status</div>
-                        <div style="color:var(--acc); font-weight:800; font-size:1.2rem;">SYNCED & ACTIVE</div>
+                        <div style="color:var(--acc); font-weight:800; font-size:1.2rem;">SYNCED (BLOCK #<span id="mock-block">0</span>)</div>
                     </div>
                     <div>
-                        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Total Value Locked</div>
-                        <div style="color:#FFF; font-weight:800; font-size:1.2rem;">1,000,000,000 AX</div>
+                        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Genesis Supply</div>
+                        <div style="color:#FFF; font-weight:800; font-size:1.2rem;">1,000,002,021 AX</div>
                     </div>
                 </div>
                 <div class="m-address">
-                    <span style="color:#666;">LATEST_BLOCK_HASH:</span> AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d
+                    <span style="color:#666;">LATEST_HASH:</span> <span id="mock-hash" style="color:var(--txt-m);">AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d</span>
                 </div>
             </div>
         </div>
@@ -331,6 +333,25 @@ const landingHTML = `
         </div>
         <div style="text-align:center; margin-top:60px; color:var(--txt-m); font-size:0.8rem; opacity:0.5;">© 2026 AstraliX Foundation. Designed for Sovereign Security.</div>
     </footer>
+
+    <script>
+        // SCRIPT PARA ACTUALIZAR EL MOCKUP EN LA LANDING EN TIEMPO REAL
+        async function fetchRealData() {
+            try {
+                const res = await fetch("/api/chain");
+                const chain = await res.json();
+                if(chain && chain.length > 0) {
+                    const latest = chain[chain.length - 1];
+                    const idx = latest.Index !== undefined ? latest.Index : latest.index;
+                    const hash = latest.Hash || latest.hash || latest.TxID || "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d";
+                    document.getElementById("mock-block").innerText = idx;
+                    document.getElementById("mock-hash").innerText = hash;
+                }
+            } catch(e) {}
+        }
+        fetchRealData();
+        setInterval(fetchRealData, 10000);
+    </script>
 </body>
 </html>
 `
@@ -449,7 +470,6 @@ const dashboardHTML = `
         .card-ax { background: var(--card); border-radius: 24px; padding: 30px 25px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
         .bal-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); font-weight: 700; margin-bottom: 12px; display: block; }
         .bal-val { font-size: clamp(2rem, 8vw, 2.5rem); font-weight: 800; margin-bottom: 25px; letter-spacing: -1px; word-break: break-word; }
-        /* BLINDAJE DE DIRECCIONES RESPONSIVE */
         .pill { background: #000; padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 2.2vw, 0.75rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; text-align: left; }
         .btn-ax { background: var(--prim); color: white; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .bottom-bar { background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
