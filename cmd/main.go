@@ -265,7 +265,7 @@ const landingHTML = `
     <div class="glow-orb"></div>
 
     <nav class="nav">
-        <a href="/" class="logo">Astrali<span>X</span></a>
+        <a href="/" class="logo">AstraliX<span></span></a>
         <a href="/dashboard" class="nav-link"><i class="fas fa-terminal"></i> LAUNCH CORE</a>
     </nav>
 
