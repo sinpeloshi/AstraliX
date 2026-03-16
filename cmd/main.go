@@ -174,7 +174,7 @@ const landingHTML = `
         
         .nav { padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
         .logo { display: flex; align-items: center; text-decoration: none; }
-        .logo img { height: 45px; width: auto; mix-blend-mode: screen; }
+        .logo img { height: 45px; width: auto; mix-blend-mode: screen; } 
         
         .nav-links { display: flex; align-items: center; }
         .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
@@ -222,7 +222,7 @@ const landingHTML = `
         .rm-step::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--prim); border-radius: 50%; }
         .rm-date { font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase; }
         
-        /* NEW PRICING TIERS CSS */
+        /* TIERS & INSTRUCTIONS CSS */
         .pre-sale { background: var(--bg-card); padding: 100px 6%; text-align: center; border-top: 1px solid var(--brd); }
         .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto 40px; }
         .tier-card { background: #000; border: 1px solid var(--brd); border-radius: 20px; padding: 40px 30px; transition: 0.3s; position: relative; overflow: hidden; text-align: center; }
@@ -236,8 +236,9 @@ const landingHTML = `
         .t-list div { display: flex; align-items: center; gap: 12px; }
         .t-list i { color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.7rem; min-width: 12px; text-align: center; }
         
-        .w-box { background: #000; border: 1px solid var(--brd); padding: 30px; border-radius: 20px; max-width: 500px; margin: 30px auto; text-align: left; }
-        .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-block; transition: 0.3s; }
+        .inst-box { background: #0A0A0A; border: 1px solid var(--brd); border-radius: 20px; padding: 30px; margin-bottom: 20px; text-align: left; }
+        .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; }
+        .btn-buy:hover { transform: scale(1.02); background: #12d392; }
         
         footer { padding: 80px 6% 40px; border-top: 1px solid var(--brd); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; text-align: left; }
         .f-col h5 { margin-bottom: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--txt); }
@@ -366,12 +367,20 @@ const landingHTML = `
             </div>
         </div>
 
-        <div class="w-box" style="margin-top:0;">
-            <div style="color: #F3BA2F; font-size: 0.8rem; font-weight: 800; margin-bottom: 10px; text-align: center;">BINANCE SMART CHAIN (BEP-20) DEPOSIT ADDRESS</div>
-            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; word-break: break-all; color:var(--txt); text-align: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; border: 1px solid #222;">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
-        </div>
-        <div style="margin-top: 30px;">
-            <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">VERIFY TRANSACTION <i class="fas fa-arrow-right"></i></a>
+        <div style="max-width: 700px; margin: 0 auto; text-align: left;">
+            <div class="inst-box">
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: SEND FUNDS</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Send exactly <strong>21 USDT</strong> or <strong>210 USDT</strong> (Binance Smart Chain BEP-20) to the official Treasury Address below:</p>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 2.5vw, 0.9rem); word-break: break-all; color:var(--acc); text-align: center; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 10px; border: 1px dashed rgba(16,185,129,0.3);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
+            </div>
+
+            <div class="inst-box">
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: CLAIM YOUR NODE</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 25px;">Once your transaction is successful, click the button below to submit your payment proof (TXID) and receive your AstraliX Node allocation.</p>
+                <div style="text-align: center;">
+                    <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">CLAIM NODE NOW <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
         </div>
     </section>
 
