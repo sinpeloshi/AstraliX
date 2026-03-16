@@ -154,9 +154,7 @@ func main() {
 	// 🌐 RUTAS WEB (FRONTEND)
 	// ==========================================
 
-	// RUTA 1: La Vidriera (Landing Page de Preventa)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		// Si escriben cualquier cosa rara en la URL, los devolvemos a la raíz
 		if r.URL.Path != "/" {
 			http.Redirect(w, r, "/", http.StatusSeeOther)
 			return
@@ -165,13 +163,11 @@ func main() {
 		fmt.Fprint(w, landingHTML)
 	})
 
-	// RUTA 2: El Motor/Bóveda (Dashboard)
 	http.HandleFunc("/dashboard", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, dashboardHTML)
 	})
 
-	// INICIAR SERVIDOR
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
@@ -189,70 +185,151 @@ const landingHTML = `
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AstraliX | Nodos Fundadores 512-bit</title>
+    <title>AstraliX | Next-Gen 512-bit Security</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&display=swap');
-        :root { --primary: #0D6EFD; --dark: #0F172A; --accent: #25D366; --text-light: #64748B; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        
+        :root { 
+            --bg-dark: #050505; 
+            --bg-card: #111111; 
+            --primary: #3B82F6; 
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --accent: #10B981; 
+            --text-main: #FFFFFF; 
+            --text-muted: #94A3B8;
+            --border: #222222;
+        }
+        
         * { box-sizing: border-box; }
-        body { font-family: 'Outfit', sans-serif; margin: 0; color: var(--dark); background: #F8FAFC; line-height: 1.6; scroll-behavior: smooth; }
-        .nav { padding: 25px; display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; }
-        .logo { font-weight: 900; font-size: 2rem; letter-spacing: -1.5px; color: var(--dark); text-decoration: none; }
-        .nav-link { text-decoration: none; color: var(--primary); font-weight: 700; font-size: 0.9rem; background: #E0E7FF; padding: 12px 24px; border-radius: 14px; transition: 0.3s; }
-        .nav-link:hover { background: var(--primary); color: white; }
-        .hero { text-align: center; padding: 120px 20px 80px; background: white; border-bottom: 1px solid #E2E8F0; }
-        .badge { background: #E0E7FF; color: var(--primary); padding: 8px 18px; border-radius: 100px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; }
-        .hero h1 { font-size: 4.5rem; font-weight: 900; margin: 25px 0; letter-spacing: -4px; line-height: 0.85; color: var(--dark); }
-        .hero p { font-size: 1.3rem; color: var(--text-light); max-width: 700px; margin: 0 auto 45px; }
-        .btn-primary { background: var(--primary); color: white; padding: 22px 50px; border-radius: 24px; text-decoration: none; font-weight: 700; font-size: 1.2rem; box-shadow: 0 15px 35px rgba(13, 110, 253, 0.3); display: inline-block; transition: 0.3s; }
-        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(13, 110, 253, 0.4); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; max-width: 1200px; margin: 80px auto; padding: 0 20px; }
-        .card { background: white; padding: 50px 40px; border-radius: 40px; border: 1px solid #F1F5F9; text-align: center; transition: 0.4s; }
-        .card:hover { transform: translateY(-15px); box-shadow: 0 30px 60px rgba(0,0,0,0.04); }
-        .card i { font-size: 3rem; color: var(--primary); margin-bottom: 30px; }
-        .card h3 { font-weight: 800; font-size: 1.7rem; margin-bottom: 15px; }
-        .card p { color: var(--text-light); font-size: 1.05rem; }
-        .pre-sale { background: var(--dark); color: white; padding: 100px 30px; text-align: center; border-radius: 60px; max-width: 1000px; margin: 60px auto; }
-        .price-label { text-transform: uppercase; font-weight: 800; opacity: 0.5; letter-spacing: 3px; font-size: 0.9rem; }
-        .price { font-size: 6rem; font-weight: 900; margin: 10px 0; letter-spacing: -4px; }
-        .address-container { background: rgba(255,255,255,0.03); padding: 35px; border-radius: 25px; border: 2px dashed rgba(255,255,255,0.15); margin: 40px 0; }
-        .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: 1rem; word-break: break-all; color: #E2E8F0; line-height: 1.4; }
-        .btn-wa { background: var(--accent); color: white; padding: 22px 50px; border-radius: 24px; text-decoration: none; font-weight: 700; font-size: 1.1rem; display: inline-block; transition: 0.3s; box-shadow: 0 15px 35px rgba(37, 211, 102, 0.2); }
-        .btn-wa:hover { transform: scale(1.05); background: #20bd5a; }
-        footer { text-align: center; padding: 60px 20px; color: #94A3B8; font-size: 0.9rem; font-weight: 600; border-top: 1px solid #E2E8F0; margin-top: 100px; }
-        @media (max-width: 768px) { .hero h1 { font-size: 3rem; } .price { font-size: 4rem; } .pre-sale { border-radius: 30px; margin: 20px; } }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; color: var(--text-main); background: var(--bg-dark); line-height: 1.6; scroll-behavior: smooth; overflow-x: hidden; }
+        
+        /* Grid Background Pattern */
+        .bg-pattern { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 50px 50px; opacity: 0.15; z-index: -1; pointer-events: none; }
+        .glow-orb { position: absolute; width: 600px; height: 600px; background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%); top: -200px; left: 50%; transform: translateX(-50%); z-index: -1; filter: blur(50px); pointer-events: none; }
+
+        /* Navbar */
+        .nav { padding: 30px 40px; display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; }
+        .logo { font-weight: 800; font-size: 2rem; letter-spacing: -1px; color: var(--text-main); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: var(--primary); }
+        .nav-link { text-decoration: none; color: var(--text-main); font-weight: 600; font-size: 0.95rem; background: rgba(255,255,255,0.05); padding: 12px 28px; border-radius: 100px; border: 1px solid var(--border); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
+        .nav-link:hover { background: var(--primary); border-color: var(--primary); box-shadow: 0 0 20px var(--primary-glow); }
+
+        /* Hero Section */
+        .hero { text-align: center; padding: 120px 20px 80px; position: relative; }
+        .badge { display: inline-block; background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 8px 20px; border-radius: 100px; font-weight: 700; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid rgba(59, 130, 246, 0.2); margin-bottom: 30px; }
+        .hero h1 { font-size: clamp(3rem, 6vw, 5.5rem); font-weight: 800; margin: 0; letter-spacing: -2px; line-height: 1.1; background: linear-gradient(to right, #fff, #94A3B8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.25rem; color: var(--text-muted); max-width: 650px; margin: 30px auto 50px; font-weight: 400; }
+        .btn-primary { background: var(--primary); color: white; padding: 20px 45px; border-radius: 100px; text-decoration: none; font-weight: 700; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s; border: none; cursor: pointer; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
+
+        /* Security Feature Section */
+        .sec-feature { max-width: 1200px; margin: 60px auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: 30px; padding: 60px; display: flex; align-items: center; gap: 50px; position: relative; overflow: hidden; }
+        .sec-content { flex: 1; }
+        .sec-content h2 { font-size: 2.5rem; font-weight: 800; margin-top: 0; margin-bottom: 20px; letter-spacing: -1px; }
+        .sec-content p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 20px; line-height: 1.7; }
+        .sec-visual { flex: 1; background: #000; border-radius: 20px; padding: 30px; border: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--primary); position: relative; }
+        .sec-visual::before { content: 'SHA-512 HASH GENERATION'; position: absolute; top: -12px; left: 20px; background: var(--bg-dark); padding: 0 10px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+        .hash-line { margin: 8px 0; opacity: 0.7; word-break: break-all; }
+        .hash-line:nth-child(1) { color: #fff; opacity: 1; }
+
+        /* Grid Cards */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto 100px; padding: 0 20px; }
+        .card { background: var(--bg-card); padding: 45px; border-radius: 24px; border: 1px solid var(--border); transition: 0.3s; position: relative; overflow: hidden; }
+        .card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-5px); }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 25px; }
+        .card h3 { font-weight: 800; font-size: 1.5rem; margin: 0 0 15px; }
+        .card p { color: var(--text-muted); font-size: 1rem; margin: 0; line-height: 1.6; }
+
+        /* Pre-Sale Box */
+        .pre-sale { background: linear-gradient(180deg, var(--bg-card) 0%, #000 100%); border: 1px solid var(--border); padding: 80px 40px; text-align: center; border-radius: 40px; max-width: 800px; margin: 0 auto 100px; position: relative; }
+        .price-label { font-family: 'JetBrains Mono', monospace; color: var(--primary); font-size: 0.9rem; font-weight: 700; letter-spacing: 2px; }
+        .price { font-size: 5rem; font-weight: 800; margin: 10px 0 20px; letter-spacing: -2px; }
+        .address-box { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 25px; border-radius: 16px; margin: 30px 0; display: inline-block; width: 100%; max-width: 500px; }
+        .wallet-addr { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--text-main); word-break: break-all; }
+        .network-tag { display: inline-block; background: #F3BA2F; color: #000; font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 6px; margin-bottom: 15px; }
+        
+        .btn-wa { background: var(--accent); color: #000; padding: 20px 40px; border-radius: 100px; text-decoration: none; font-weight: 800; font-size: 1.1rem; display: inline-flex; align-items: center; gap: 10px; transition: 0.3s; margin-top: 10px; }
+        .btn-wa:hover { transform: scale(1.05); background: #12d392; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+
+        footer { text-align: center; padding: 40px 20px; color: var(--text-muted); font-size: 0.9rem; border-top: 1px solid var(--border); }
+        
+        @media (max-width: 900px) {
+            .sec-feature { flex-direction: column; padding: 40px 20px; }
+            .sec-visual { width: 100%; }
+        }
     </style>
 </head>
 <body>
+    <div class="bg-pattern"></div>
+    <div class="glow-orb"></div>
+
     <nav class="nav">
-        <a href="/" class="logo">AstraliX</a>
-        <a href="/dashboard" class="nav-link">DASHBOARD CORE <i class="fas fa-arrow-right" style="margin-left:8px;"></i></a>
+        <a href="/" class="logo">Astrali<span>X</span></a>
+        <a href="/dashboard" class="nav-link"><i class="fas fa-terminal"></i> LAUNCH CORE</a>
     </nav>
+
     <header class="hero">
-        <span class="badge">Nodos Fundadores • 100 Cupos Alpha</span>
-        <h1>Seguridad de 512 bits<br>hecha en el Chaco.</h1>
-        <p>AstraliX es la infraestructura blockchain de nueva generación. Un motor de Capa 1 diseñado para ser inviolable, veloz y fundacional.</p>
-        <a href="#comprar" class="btn-primary">Asegurar mi Nodo Fundador</a>
+        <div class="badge">Alpha Testnet Live</div>
+        <h1>Unbreakable Protocol.<br>Layer 1 Innovation.</h1>
+        <p>AstraliX isn't just a network; it's a cryptographic fortress. Powered by 512-bit security architecture, designed for speed, and built for the future of digital assets.</p>
+        <a href="#comprar" class="btn-primary">Become a Founder Node <i class="fas fa-arrow-right"></i></a>
     </header>
+
+    <section class="sec-feature">
+        <div class="sec-content">
+            <h2>The Power of 512-bits</h2>
+            <p>While industry standards rely on 256-bit encryption, AstraliX doubles the cryptographic complexity. Every wallet generation and transaction is secured using the ultra-robust <strong>SHA-512</strong> algorithm.</p>
+            <p>This means your private keys are mathematically derived from a space so massive, it is practically immune to modern brute-force and quantum computing threats. We don't just secure your assets; we future-proof them.</p>
+        </div>
+        <div class="sec-visual">
+            <div class="hash-line">Input: "alpha bravo cipher delta..."</div>
+            <div class="hash-line" style="margin-top:20px; color:#555;">Processing SHA-512...</div>
+            <div class="hash-line" style="color:#10B981; margin-top:10px;">Output Hash:</div>
+            <div class="hash-line">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</div>
+            <div class="hash-line">121a9c80d85ab2c7d9a16f2c00c5c4...</div>
+        </div>
+    </section>
+
     <main class="grid">
-        <div class="card"><i class="fas fa-fingerprint"></i><h3>Identidad Mnemónica</h3><p>Utilizamos protocolos de 512 bits para la generación de llaves, estableciendo un nuevo estándar de protección.</p></div>
-        <div class="card"><i class="fas fa-gem"></i><h3>Beneficios VIP</h3><p>Cada nodo fundador recibe un airdrop de 10.000 AX y acceso prioritario a la minería de red.</p></div>
-        <div class="card"><i class="fas fa-sync"></i><h3>Respaldo 1:1</h3><p>Todo el progreso y los activos generados en la fase Alpha serán migrados íntegramente a la Mainnet oficial.</p></div>
+        <div class="card">
+            <i class="fas fa-shield-halved"></i>
+            <h3>Mnemonic Vault</h3>
+            <p>Your identity is your seed. Our client-side vault generates 24-word recovery phrases that never touch the server, giving you absolute self-custody.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-bolt"></i>
+            <h3>High-Speed Mempool</h3>
+            <p>Transactions are validated and added to the blockchain instantly. The Go-powered backend ensures zero collision and maximum throughput.</p>
+        </div>
+        <div class="card">
+            <i class="fas fa-coins"></i>
+            <h3>Alpha Airdrop</h3>
+            <p>Early adopters securing a Founder Node receive an immediate genesis allocation of 10,000 AX, fully migratable to the Mainnet.</p>
+        </div>
     </main>
+
     <section id="comprar" class="pre-sale">
-        <span class="price-label">Inscripción Nodo Fundador</span>
+        <div class="price-label">Node Allocation Fee</div>
         <div class="price">21 USDT</div>
-        <p style="max-width:550px; margin: 10px auto 40px; opacity:0.8; font-size: 1.1rem;">Para activar tu identidad en la red, envía el pago (Red Binance Smart Chain BEP-20) a la siguiente dirección oficial:</p>
-        <div class="address-container">
+        <p style="color: var(--text-muted); margin-bottom: 20px;">Secure your position in the network infrastructure.</p>
+        
+        <div class="address-box">
+            <span class="network-tag">BNB Smart Chain (BEP-20)</span>
             <div class="wallet-addr">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
         </div>
-        <p style="font-size:0.95rem; opacity:0.6; margin-bottom: 30px;">Una vez realizado el envío, presiona el botón de abajo para enviarnos el comprobante por WhatsApp y activar tu cuenta.</p>
+
+        <p style="font-size: 0.9rem; color: var(--text-muted); margin: 10px 0 30px;">Send the exact amount and verify your transaction via WhatsApp to activate your 512-bit Identity.</p>
         
-        <a href="https://wa.me/TuNumeroAqui" class="btn-wa">
-            <i class="fab fa-whatsapp" style="margin-right:10px;"></i> ENVIAR COMPROBANTE
+        <a href="https://wa.me/TuNumeroAqui?text=Hello,%20I%20have%20sent%2021%20USDT%20for%20my%20AstraliX%20Founder%20Node" class="btn-wa">
+            <i class="fab fa-whatsapp"></i> SEND TX RECEIPT
         </a>
     </section>
-    <footer>&copy; 2026 AstraliX Core Engine • La Tigra, Chaco, Argentina.</footer>
+
+    <footer>
+        &copy; 2026 AstraliX Core Development. All rights reserved.
+    </footer>
+
 </body>
 </html>
 `
