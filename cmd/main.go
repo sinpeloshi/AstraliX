@@ -205,6 +205,15 @@ const landingHTML = `
         .m-highlight { color: var(--acc); font-weight: 700; }
         .m-address { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid #222; }
         
+        /* TOKENOMICS SECTION (NEW) */
+        .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
+        .tok-flex { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; margin-top: 50px; }
+        .tok-chart { position: relative; width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, var(--prim) 12.5% 30%, #8B5CF6 30% 45%, #F59E0B 45% 59%, #EC4899 59% 79%, #4B5563 79% 100%); }
+        .tok-chart::after { content: '21% REWARDS'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; height: 180px; background: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: var(--acc); letter-spacing: 2px; text-align: center; }
+        .tok-legend { text-align: left; display: flex; flex-direction: column; gap: 15px; }
+        .leg-item { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--txt-m); }
+        .leg-color { width: 12px; height: 12px; border-radius: 3px; }
+
         .sec-q { display: flex; gap: 20px; max-width: 1200px; margin: 80px auto; padding: 0 6%; }
         .q-box { flex: 1; border-radius: 20px; padding: 40px; text-align: left; border: 1px solid; }
         .q-box h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); margin-bottom: 15px; }
@@ -251,6 +260,7 @@ const landingHTML = `
             .nav-links { display: none; } 
             .hero { padding-top: 50px; } 
             .sec-q { flex-direction: column; } 
+            .tok-flex { flex-direction: column; }
             .hero-btns { flex-direction: column; width: 100%; gap: 12px; } 
             .hero-btns .btn-p { width: 100%; } 
             .mockup-body { font-size: 0.7rem; padding: 20px; }
@@ -316,6 +326,22 @@ const landingHTML = `
             </div>
         </div>
     </div>
+
+    <section class="tokenomics">
+        <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:15px;">Strategic Tokenomics</h2>
+        <p style="color:var(--txt-m); max-width:600px; margin:0 auto;">Designed for long-term sustainability, validator incentives, and massive liquidity backing.</p>
+        <div class="tok-flex">
+            <div class="tok-chart"></div>
+            <div class="tok-legend">
+                <div class="leg-item"><div class="leg-color" style="background:var(--acc);"></div><span><strong>12.5%</strong> Founder Nodes (Seed Round)</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:var(--prim);"></div><span><strong>17.5%</strong> Treasury & Protocol R&D</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:#8B5CF6;"></div><span><strong>15.0%</strong> Locked Liquidity Pool</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:#F59E0B;"></div><span><strong>14.0%</strong> Marketing & Growth</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:#EC4899;"></div><span><strong>20.0%</strong> Team & Contributors (Locked)</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:#4B5563;"></div><span><strong>21.0%</strong> Ecosystem Mining Rewards</span></div>
+            </div>
+        </div>
+    </section>
 
     <section class="sec-q">
         <div class="q-box" style="border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05);">
@@ -442,7 +468,7 @@ const whitepaperHTML = `
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
+        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; --acc: #10B981; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; overflow-x: hidden; }
         .container { max-width: 850px; margin: 0 auto; padding: 60px 6%; }
         h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; line-height: 1.1; }
@@ -504,12 +530,15 @@ const whitepaperHTML = `
         <p>When a user creates an identity, the 24-word mnemonic seed phrase undergoes a local, client-side SHA-512 derivation process. The generated 88-character Base64 private key and its corresponding 128-character hexadecimal public address never leave the local environment.</p>
         <p>Transactions are signed locally and propagated to the mempool as a cryptographic payload. The core network verifies the signature against the public address without ever needing to know the underlying seed.</p>
 
-        <h2>5. Network Tokenomics & Founder Nodes</h2>
-        <p>To bootstrap the network safely before public availability, AstraliX is launching the <strong>Founder Node Program</strong> during the Alpha Genesis phase.</p>
+        <h2>5. Network Tokenomics & Supply Distribution</h2>
+        <p>To ensure a sustainable and decentralized growth model, the AstraliX supply is capped at <strong>1,000,002,021 AX</strong>, distributed as follows:</p>
         <ul>
-            <li><strong>Total Founder Allocation:</strong> Restricted supply to ensure early network stability.</li>
-            <li><strong>Genesis Reward:</strong> Each verified Founder Node receives 10,000 AX tokens in the Genesis Block.</li>
-            <li><strong>Validation Rights:</strong> Founder nodes will have priority governance and validation privileges upon the transition to Proof-of-Stake.</li>
+            <li><strong style="color:var(--acc);">Ecosystem Mining Rewards (21.0%):</strong> A fixed pool of <strong>210,000,000 AX</strong> emitted over a 10-year decay curve to reward network validators and maintain security.</li>
+            <li><strong style="color:var(--prim);">Founder Nodes - Seed (12.5%):</strong> Initial allocation for network bootstrap and infrastructure funding.</li>
+            <li><strong>Locked Liquidity Pool (15.0%):</strong> Provision for decentralized and centralized exchange depth, ensuring asset stability.</li>
+            <li><strong>Treasury & R&D (17.5%):</strong> Managed by the Foundation for protocol upgrades, audits, and long-term research.</li>
+            <li><strong>Marketing & Community (14.0%):</strong> Allocation for ecosystem quests, airdrops, and global adoption programs.</li>
+            <li><strong>Team & Advisors (20.0%):</strong> Subject to a 24-month linear vesting schedule starting after Mainnet launch.</li>
         </ul>
 
         <h2>6. Roadmap to Mainnet (April 2026)</h2>
