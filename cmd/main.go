@@ -115,6 +115,13 @@ func main() {
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
 		if miner == "" || len(Mempool) == 0 { http.Error(w, "Error", 400); return }
+		
+		// 🛡️ REGLA ANTI-SPAM: Requiere saldo mínimo (Stake) para validar
+		if getBalance(miner) < 500 { 
+			http.Error(w, "Unauthorized: Minimum 500 AX required to validate.", 401)
+			return 
+		}
+
 		reward := 50.0
 		txs := append(Mempool, core.Transaction{Sender: TREASURY_POOL_ADDR, Recipient: miner, Amount: reward})
 		prev := Blockchain[len(Blockchain)-1]
@@ -468,7 +475,7 @@ const whitepaperHTML = `
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; --acc: #10B981; }
+        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; overflow-x: hidden; }
         .container { max-width: 850px; margin: 0 auto; padding: 60px 6%; }
         h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; line-height: 1.1; }
@@ -530,8 +537,8 @@ const whitepaperHTML = `
         <h2>5. Network Tokenomics (Fair-Launch Distribution)</h2>
         <p>To ensure a sustainable and decentralized growth model, the AstraliX supply is capped at **1,000,002,021 AX**, distributed as follows:</p>
         <ul>
-            <li><strong style="color:var(--acc);">Ecosystem Mining Rewards (40.0%):</strong> Emitted over a 10-year decay curve to reward network validators and maintain security.</li>
-            <li><strong style="color:var(--prim);">Founder Nodes - Seed (12.5%):</strong> Initial allocation for network bootstrap and infrastructure funding.</li>
+            <li><strong>Ecosystem Mining Rewards (40.0%):</strong> Emitted over a 10-year decay curve to reward network validators and maintain security.</li>
+            <li><strong>Founder Nodes - Seed (12.5%):</strong> Initial allocation for network bootstrap and infrastructure funding.</li>
             <li><strong>Locked Liquidity Pool (15.0%):</strong> Provision for decentralized and centralized exchange depth, ensuring asset stability.</li>
             <li><strong>Treasury & R&D (15.0%):</strong> Managed by the Foundation for protocol upgrades, audits, and long-term research.</li>
             <li><strong>Marketing & Community (10.0%):</strong> Allocation for ecosystem quests, airdrops, and global adoption programs.</li>
@@ -724,6 +731,12 @@ const dashboardHTML = `
         async function mine() {
             if(!session) return alert("Vault Required. Please restore your identity first.");
             const r = await fetch("/api/mine?address=" + session.pub);
+            
+            if (r.status === 401) {
+                alert("Unauthorized: Minimum 500 AX required to validate blocks.");
+                return;
+            }
+            
             if(r.ok) { alert("Block Validated! +50 AX"); load(); } else { alert("Mempool empty. Send a transaction first."); }
         }
 
