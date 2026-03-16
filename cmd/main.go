@@ -22,7 +22,7 @@ var db *sql.DB
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 // ==========================================
-// ⚙️ MOTOR BLOCKCHAIN
+// ⚙️ MOTOR BLOCKCHAIN (PRO CORE)
 // ==========================================
 
 func initDB() {
@@ -127,7 +127,7 @@ func main() {
 }
 
 // ==========================================
-// 🎨 LANDING PAGE 
+// 🎨 LANDING PAGE (VALLEY STYLE)
 // ==========================================
 
 const landingHTML = `
@@ -151,9 +151,11 @@ const landingHTML = `
         .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
         .nav-links a:hover { color: var(--txt); }
         .btn-core { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; }
-        .hero { text-align: center; padding: 80px 6% 80px; max-width: 1200px; margin: 0 auto; position: relative; }
+        .btn-core:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
+        .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
+        .hero { text-align: center; padding: 100px 6% 80px; max-width: 1200px; margin: 0 auto; position: relative; }
         .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
-        .hero p { font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--txt-m); max-width: 700px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
+        .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
         .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; }
         .btn-p { padding: 18px 40px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 1rem; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-blue { background: var(--prim); color: #FFF; box-shadow: 0 0 20px rgba(59,130,246,0.3); }
@@ -187,7 +189,7 @@ const landingHTML = `
         
         footer { padding: 80px 6% 40px; border-top: 1px solid var(--brd); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; text-align: left; }
         .f-col h5 { margin-bottom: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--txt); }
-        .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; }
+        .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
         .f-col a:hover { color: var(--prim); }
         
         /* RESPONSIVE DESIGN */
@@ -205,10 +207,17 @@ const landingHTML = `
     <div class="bg-p"></div>
     <nav class="nav">
         <a href="/" class="logo"><span>A</span>strali<span>X</span></a>
-        <div class="nav-links">
-            <a href="/whitepaper">Protocol</a>
-            <a href="#roadmap">Mainnet</a>
-            <a href="/dashboard" class="btn-core">ENTER DASHBOARD</a>
+        
+        <div style="display: flex; align-items: center; gap: 25px;">
+            <div class="nav-links">
+                <a href="/whitepaper">Protocol</a>
+                <a href="#roadmap">Mainnet</a>
+                <a href="/dashboard" class="btn-core">ENTER DASHBOARD</a>
+            </div>
+            <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
+                <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-telegram"></i></a>
+            </div>
         </div>
     </nav>
     <header class="hero">
@@ -262,7 +271,10 @@ const landingHTML = `
             <div class="f-col">
                 <a href="/" class="logo" style="font-size: 1.5rem;"><span>A</span>strali<span>X</span></a>
                 <p style="color: var(--txt-m); margin-top: 20px; font-size: 0.9rem; line-height:1.8;">Leading the cryptographic revolution through 512-bit security standards.</p>
-                <a href="https://x.com/XAstraliX" target="_blank" style="margin-top:20px; color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-x-twitter" style="font-size:1.3rem;"></i> @XAstraliX</a>
+                <div style="display:flex; gap:15px; margin-top:20px;">
+                    <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
+                    <a href="https://t.me/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-telegram" style="font-size:1.3rem;"></i> Telegram</a>
+                </div>
             </div>
             <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></div>
             <div class="f-col"><h5>Resources</h5><a href="/dashboard">Testnet Dashboard</a><a href="https://tally.so/r/jaxlL1">Verify Node</a></div>
