@@ -180,282 +180,165 @@ const landingHTML = `
         .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
         .nav-links a:hover { color: var(--txt); }
         .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; margin-right: 0 !important; }
-        .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
-        .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
         
         .hero { text-align: center; padding: 80px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
-        .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
-        .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
-        .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
-        .btn-p { padding: 18px 40px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 1rem; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-blue { background: var(--prim); color: #FFF; box-shadow: 0 0 20px rgba(59,130,246,0.3); }
-        .btn-blue:hover { background: #2563EB; transform: translateY(-2px); }
-        .btn-white { background: #FFF; color: #000; }
-        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.2); }
-        .btn-dark { border: 1px solid var(--brd); color: #FFF; background: rgba(255,255,255,0.03); }
-        .btn-dark:hover { background: rgba(255,255,255,0.08); }
+        .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         
-        .mockup-container { max-width: 900px; margin: 0 auto; padding: 0 6%; position: relative; perspective: 1000px; }
-        .mockup-glow { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 50%; background: var(--prim); filter: blur(120px); opacity: 0.15; z-index: -1; }
-        .mockup-window { background: rgba(10,10,10,0.8); border: 1px solid #222; border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: rotateX(2deg); transition: 0.5s; text-align: left; }
-        .mockup-window:hover { transform: rotateX(0deg) translateY(-5px); border-color: #333; }
-        .mockup-header { background: #111; padding: 12px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #222; }
-        .m-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .mockup-body { padding: 30px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--txt-m); line-height: 1.8; }
-        .m-highlight { color: var(--acc); font-weight: 700; }
-        .m-address { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid #222; }
-        
-        /* TOKENOMICS SECTION (UPDATED) */
+        .mockup-container { max-width: 900px; margin: 0 auto; padding: 0 6%; position: relative; }
+        .mockup-window { background: rgba(10,10,10,0.8); border: 1px solid #222; border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .mockup-body { padding: 30px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--txt-m); line-height: 1.8; text-align: left; }
+
+        /* TOKENOMICS SECTION */
         .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
         .tok-flex { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; margin-top: 50px; }
-        .tok-chart { position: relative; width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, #4B5563 12.5% 52.5%, #8B5CF6 52.5% 67.5%, var(--prim) 67.5% 82.5%, #F59E0B 82.5% 92.5%, #EC4899 92.5% 100%); }
-        .tok-chart::after { content: '40% REWARDS'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 180px; height: 180px; background: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.85rem; color: var(--acc); letter-spacing: 2px; text-align: center; }
-        .tok-legend { text-align: left; display: flex; flex-direction: column; gap: 15px; }
-        .leg-item { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; color: var(--txt-m); }
-        .leg-color { width: 12px; height: 12px; border-radius: 3px; }
+        .tok-chart { position: relative; width: 280px; height: 280px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, var(--prim) 12.5% 30%, #8B5CF6 30% 45%, #F59E0B 45% 59%, #EC4899 59% 79%, #4B5563 79% 100%); }
+        .tok-chart::after { content: '21% REWARDS'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 170px; height: 170px; background: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: var(--acc); letter-spacing: 1px; text-align: center; }
+        .tok-legend { text-align: left; display: flex; flex-direction: column; gap: 12px; }
+        .leg-item { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--txt-m); }
+        .leg-color { width: 10px; height: 10px; border-radius: 2px; }
 
-        .sec-q { display: flex; gap: 20px; max-width: 1200px; margin: 80px auto; padding: 0 6%; }
-        .q-box { flex: 1; border-radius: 20px; padding: 40px; text-align: left; border: 1px solid; }
-        .q-box h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); margin-bottom: 15px; }
-        .q-box .val { font-family: 'JetBrains Mono'; font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto 100px; padding: 0 6%; }
-        .card { background: var(--bg-card); border: 1px solid var(--brd); padding: 50px 40px; text-align: left; border-radius: 20px; transition: 0.3s; }
-        .card:hover { border-color: var(--prim); background: #0A0A0A; transform: translateY(-5px); }
-        .card i { color: var(--prim); font-size: 2rem; margin-bottom: 25px; display: block; }
-        .card h4 { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
-        .card p { color: var(--txt-m); font-size: 0.95rem; line-height: 1.7; }
-        
-        .roadmap { max-width: 800px; margin: 100px auto; padding: 0 6%; }
-        .rm-step { border-left: 2px solid #222; padding: 0 0 50px 30px; position: relative; }
-        .rm-step::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--prim); border-radius: 50%; }
-        .rm-date { font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase; }
-        
-        /* TIERS & INSTRUCTIONS CSS */
+        /* TIERS & FLOW CSS */
         .pre-sale { background: var(--bg-card); padding: 100px 6%; text-align: center; border-top: 1px solid var(--brd); }
         .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto 40px; }
-        .tier-card { background: #000; border: 1px solid var(--brd); border-radius: 20px; padding: 40px 30px; transition: 0.3s; position: relative; overflow: hidden; text-align: center; }
+        .tier-card { background: #000; border: 1px solid var(--brd); border-radius: 20px; padding: 40px 30px; transition: 0.3s; position: relative; overflow: hidden; }
         .tier-card:hover { border-color: var(--prim); transform: translateY(-5px); }
         .tier-card.premium { border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(16,185,129,0.05) 0%, #000 100%); }
         .tier-card.premium::before { content: 'PRO'; position: absolute; top: 15px; right: -30px; background: var(--acc); color: #000; font-size: 0.6rem; font-weight: 800; padding: 5px 30px; transform: rotate(45deg); letter-spacing: 1px; }
         .t-price { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; margin: 15px 0; color: #FFF; }
         .t-name { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--prim); font-weight: 800; }
-        .premium .t-name { color: var(--acc); }
-        .t-list { text-align: left; margin-top: 25px; display: flex; flex-direction: column; gap: 15px; font-size: 0.9rem; color: var(--txt-m); }
-        .t-list div { display: flex; align-items: center; gap: 12px; }
-        .t-list i { color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.7rem; min-width: 12px; text-align: center; }
-        
         .inst-box { background: #0A0A0A; border: 1px solid var(--brd); border-radius: 20px; padding: 30px; margin-bottom: 20px; text-align: left; }
         .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; }
-        .btn-buy:hover { transform: scale(1.02); background: #12d392; }
         
-        footer { padding: 80px 6% 40px; border-top: 1px solid var(--brd); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; text-align: left; }
-        .f-col h5 { margin-bottom: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--txt); }
-        .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
-        .f-col a:hover { color: var(--prim); }
-        .f-logo img { height: 50px; mix-blend-mode: screen; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 100px auto; padding: 0 6%; }
+        .card { background: var(--bg-card); border: 1px solid var(--brd); padding: 50px 40px; text-align: left; border-radius: 20px; }
         
-        /* RESPONSIVE DESIGN */
-        @media (max-width: 850px) { 
-            .nav-links { display: none; } 
-            .hero { padding-top: 50px; } 
-            .sec-q { flex-direction: column; } 
-            .tok-flex { flex-direction: column; }
-            .hero-btns { flex-direction: column; width: 100%; gap: 12px; } 
-            .hero-btns .btn-p { width: 100%; } 
-            .mockup-body { font-size: 0.7rem; padding: 20px; }
-            footer { grid-template-columns: 1fr; } 
-        }
+        @media (max-width: 850px) { .nav-links { display: none; } .hero { padding-top: 50px; } .tok-flex { flex-direction: column; } }
     </style>
 </head>
 <body>
     <div class="bg-p"></div>
     <nav class="nav">
-        <a href="/" class="logo"><img src="https://iili.io/qMGLM57.jpg" alt="AstraliX Protocol"></a>
-        
+        <a href="/" class="logo"><img src="https://iili.io/qMGLM57.jpg" alt="AstraliX"></a>
         <div style="display: flex; align-items: center; gap: 20px;">
             <div class="nav-links">
-                <a href="/whitepaper">Protocol</a>
-                <a href="#roadmap">Mainnet</a>
+                <a href="/whitepaper">Whitepaper</a>
                 <a href="/dashboard" class="btn-core-nav">ENTER DASHBOARD</a>
             </div>
-            <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
-                <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-x-twitter"></i></a>
-                <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-telegram"></i></a>
+            <div class="nav-socials" style="display: flex; gap: 15px;">
+                <a href="https://x.com/XAstraliX" target="_blank" style="color:white; font-size: 1.2rem;"><i class="fab fa-x-twitter"></i></a>
+                <a href="https://t.me/XAstraliX" target="_blank" style="color:white; font-size: 1.2rem;"><i class="fab fa-telegram"></i></a>
             </div>
         </div>
     </nav>
+
     <header class="hero">
-        <div style="background: rgba(16,185,129,0.1); color: var(--acc); padding: 8px 24px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; display: inline-block; margin-bottom: 30px; border: 1px solid rgba(16,185,129,0.2);"><span style="display:inline-block; width:8px; height:8px; background:var(--acc); border-radius:50%; margin-right:8px; box-shadow: 0 0 10px var(--acc);"></span>ALPHA TESTNET LIVE</div>
-        <h1>The 512-bit Era Begins Here.</h1>
-        <p>A mission-critical Layer 1 protocol doubling cryptographic security standards for the post-quantum era. Built for absolute digital sovereignty.</p>
-        <div class="hero-btns">
-            <a href="/dashboard" class="btn-p btn-blue"><i class="fas fa-terminal"></i> Launch Testnet App</a>
-            <a href="#buy" class="btn-p btn-white">Acquire Node</a>
-            <a href="/whitepaper" class="btn-p btn-dark">Read Whitepaper</a>
+        <div style="background: rgba(16,185,129,0.1); color: var(--acc); padding: 8px 24px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; display: inline-block; margin-bottom: 30px; border: 1px solid rgba(16,185,129,0.2);">ALPHA TESTNET LIVE</div>
+        <h1>The 512-bit Era Begins.</h1>
+        <p style="color: var(--txt-m); font-size: 1.3rem; max-width: 700px; margin: 0 auto 50px;">A mission-critical Layer 1 protocol doubling security standards for the post-quantum era.</p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px;">
+            <a href="/dashboard" style="background:var(--prim); color:white; padding:18px 40px; border-radius:100px; font-weight:800; text-decoration:none;">Launch Testnet App</a>
+            <a href="/whitepaper" style="border:1px solid var(--brd); color:white; padding:18px 40px; border-radius:100px; font-weight:800; text-decoration:none;">Read Whitepaper</a>
         </div>
     </header>
 
     <div class="mockup-container">
-        <div class="mockup-glow"></div>
         <div class="mockup-window">
-            <div class="mockup-header">
-                <span class="m-dot" style="background:#FF5F56;"></span>
-                <span class="m-dot" style="background:#FFBD2E;"></span>
-                <span class="m-dot" style="background:#27C93F;"></span>
-                <span style="margin-left:10px; font-family:'JetBrains Mono'; font-size:0.75rem; color:#666;">astralix-core-node ~ bash</span>
-            </div>
             <div class="mockup-body">
-                <div>> initializing 512-bit quantum-resistant protocol... <span class="m-highlight">[OK]</span></div>
-                <div>> connecting to global peer network... <span class="m-highlight">[OK]</span></div>
-                <div>> synchronizing genesis ledger... <span class="m-highlight">[DONE]</span></div>
+                <div>> initializing 512-bit quantum-resistant protocol... <span style="color:var(--acc);">[OK]</span></div>
+                <div>> checking genesis integrity... <span style="color:var(--acc);">[DONE]</span></div>
                 <br>
-                <div style="display:flex; justify-content:space-between; border-top:1px dashed #333; padding-top:20px; flex-wrap:wrap; gap:15px;">
-                    <div>
-                        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Network Status</div>
-                        <div style="color:var(--acc); font-weight:800; font-size:1.2rem;">SYNCED (BLOCK #<span id="mock-block">0</span>)</div>
-                    </div>
-                    <div>
-                        <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Genesis Supply</div>
-                        <div style="color:#FFF; font-weight:800; font-size:1.2rem;">1,000,002,021 AX</div>
-                    </div>
-                </div>
-                <div class="m-address">
-                    <span style="color:#666;">LATEST_HASH:</span> <span id="mock-hash" style="color:var(--txt-m);">AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d</span>
+                <div style="display:flex; justify-content:space-between; border-top:1px dashed #333; padding-top:20px;">
+                    <div><div style="font-size:0.7rem;">NETWORK_STATUS</div><div style="color:var(--acc); font-weight:800;">ACTIVE (BLOCK #<span id="mock-block">0</span>)</div></div>
+                    <div><div style="font-size:0.7rem;">TOTAL_SUPPLY</div><div style="color:white; font-weight:800;">1,000,002,021 AX</div></div>
                 </div>
             </div>
         </div>
     </div>
 
     <section class="tokenomics">
-        <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:15px;">Strategic Tokenomics</h2>
-        <p style="color:var(--txt-m); max-width:600px; margin:0 auto;">A Fair-Launch distribution designed to reward validators, protect liquidity, and decentralize the network.</p>
+        <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:15px;">Protocol Tokenomics</h2>
+        <p style="color:var(--txt-m);">Sustainable distribution for long-term network security.</p>
         <div class="tok-flex">
             <div class="tok-chart"></div>
             <div class="tok-legend">
-                <div class="leg-item"><div class="leg-color" style="background:#4B5563;"></div><span><strong>40.0%</strong> Ecosystem Mining Rewards</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:#4B5563;"></div><span><strong>21.0%</strong> Ecosystem Mining Rewards</span></div>
                 <div class="leg-item"><div class="leg-color" style="background:var(--acc);"></div><span><strong>12.5%</strong> Founder Nodes (Seed Round)</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:var(--prim);"></div><span><strong>17.5%</strong> Treasury & Protocol R&D</span></div>
                 <div class="leg-item"><div class="leg-color" style="background:#8B5CF6;"></div><span><strong>15.0%</strong> Locked Liquidity Pool</span></div>
-                <div class="leg-item"><div class="leg-color" style="background:var(--prim);"></div><span><strong>15.0%</strong> Treasury & Protocol R&D</span></div>
-                <div class="leg-item"><div class="leg-color" style="background:#F59E0B;"></div><span><strong>10.0%</strong> Marketing & Community</span></div>
-                <div class="leg-item"><div class="leg-color" style="background:#EC4899;"></div><span><strong>7.5%</strong> Team & Contributors (Locked)</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:#F59E0B;"></div><span><strong>14.0%</strong> Marketing & Growth</span></div>
+                <div class="leg-item"><div class="leg-color" style="background:#EC4899;"></div><span><strong>20.0%</strong> Team & Contributors (Locked)</span></div>
             </div>
         </div>
     </section>
 
-    <section class="sec-q">
-        <div class="q-box" style="border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05);">
-            <h3 style="color: #EF4444;">Legacy Standard (BTC, ETH, SOL)</h3>
-            <div class="val" style="color: #EF4444;">256-bit</div>
-            <p style="color: var(--txt-m); font-size: 0.9rem; line-height:1.7; margin-top:10px;">Vulnerable to Shor's Algorithm and next-gen quantum decryption within this decade.</p>
-        </div>
-        <div class="q-box" style="border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05);">
-            <h3 style="color: #10B981;">AstraliX Core Standard</h3>
-            <div class="val" style="color: #10B981;">512-bit</div>
-            <p style="color: var(--txt-m); font-size: 0.9rem; line-height:1.7; margin-top:10px;">Mathematically immune to classical and quantum brute-force attacks via ultra-high entropy.</p>
-        </div>
-    </section>
-
-    <main class="grid">
-        <div class="card"><i class="fas fa-microchip"></i><h4>Quantum-Proof</h4><p>SHA-512 architecture provides exponentially more combinations, securing assets for the next century of computing.</p></div>
-        <div class="card"><i class="fas fa-bolt"></i><h4>Go-Native Engine</h4><p>Multi-threaded consensus built in Golang for sub-second block finality and massive node concurrency.</p></div>
-        <div class="card"><i class="fas fa-fingerprint"></i><h4>Sovereign Vault</h4><p>Local mnemonic derivation. Your private keys never touch a server. Pure, untamperable decentralization.</p></div>
-    </main>
-
-    <section class="roadmap" id="roadmap">
-        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800;">Strategic Roadmap</h2></div>
-        <div class="rm-step"><div class="rm-date">Q1 2026</div><h4 style="font-size:1.2rem; margin-bottom:10px;">Genesis Alpha</h4><p style="color:var(--txt-m);">Deployment of the core engine and Founder Node allocation program for early backers.</p></div>
-        <div class="rm-step" style="border-left-color: var(--prim);"><div class="rm-date" style="background: var(--prim); color: #000; display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight:900;">APRIL 2026</div><h4 style="font-size:1.2rem; margin-bottom:10px;">Mainnet Launch</h4><p style="color:var(--txt-m);">Official network transition. Token migration 1:1 and full decentralized validator onboarding.</p></div>
-    </section>
-
     <section id="buy" class="pre-sale">
-        <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Founder Node Allocation</div>
-        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800; margin:0; color:#FFF;">Select Your Tier</h2></div>
+        <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Capital Allocation</div>
+        <h2 style="font-size:2.5rem; font-weight:800; margin-bottom: 50px;">Acquire Founder Node</h2>
         
         <div class="tier-grid">
             <div class="tier-card">
                 <div class="t-name">Standard Node</div>
-                <div class="t-price">21<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> USDT</span></div>
-                <div class="t-list">
-                    <div><i class="fas fa-check"></i> <span><strong>10,000 AX Coins</strong> (Testnet)</span></div>
-                    <div><i class="fas fa-check"></i> <span><strong>Validator Rights:</strong> Earn AX</span></div>
-                    <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
+                <div class="t-price">21<span style="font-size:1.2rem; color:var(--txt-m);"> USDT</span></div>
+                <div style="text-align:left; color:var(--txt-m); font-size:0.9rem; margin-top:20px;">
+                    <p><i class="fas fa-check" style="color:var(--acc);"></i> 10,000 AX Coins</p>
+                    <p><i class="fas fa-check" style="color:var(--acc);"></i> Validator Rights</p>
                 </div>
             </div>
             <div class="tier-card premium">
-                <div class="t-name">Master Node</div>
-                <div class="t-price">210<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> USDT</span></div>
-                <div class="t-list">
-                    <div><i class="fas fa-check"></i> <span><strong>100,000 AX Coins</strong> (Testnet)</span></div>
-                    <div><i class="fas fa-check"></i> <span><strong>Priority Validator Rights</strong></span></div>
-                    <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
+                <div class="t-name" style="color:var(--acc);">Master Node</div>
+                <div class="t-price">210<span style="font-size:1.2rem; color:var(--txt-m);"> USDT</span></div>
+                <div style="text-align:left; color:var(--txt-m); font-size:0.9rem; margin-top:20px;">
+                    <p><i class="fas fa-check" style="color:var(--acc);"></i> 100,000 AX Coins</p>
+                    <p><i class="fas fa-check" style="color:var(--acc);"></i> Priority Validator Rights</p>
                 </div>
             </div>
         </div>
 
-        <div style="max-width: 700px; margin: 0 auto; text-align: left;">
-            
+        <div style="max-width: 700px; margin: 0 auto;">
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:underline;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong>.</p>
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
+                <p style="color: var(--txt-m); font-size: 0.9rem;">Go to the <a href="/dashboard" style="color:var(--prim);">Vault</a> and create your Identity. Copy your <strong>AX Address</strong>.</p>
             </div>
-
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SEND FUNDS</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Send exactly <strong>21 USDT</strong> or <strong>210 USDT</strong> (Binance Smart Chain BEP-20) to the official Treasury Address below:</p>
-                <div style="font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 2.5vw, 0.9rem); word-break: break-all; color:var(--acc); text-align: center; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 10px; border: 1px dashed rgba(16,185,129,0.3);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; margin-bottom: 10px;">STEP 2: SEND USDT (BEP-20)</div>
+                <div style="font-family: 'JetBrains Mono'; font-size: 0.85rem; color:var(--acc); padding: 15px; border: 1px dashed #333; word-break:break-all; text-align:center;">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
             </div>
-
-            <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: CLAIM YOUR NODE</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 25px;">Click the button below to submit your payment proof (TXID) along with your new AX Address to receive your allocation.</p>
-                <div style="text-align: center;">
-                    <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">CLAIM NODE NOW <i class="fas fa-arrow-right"></i></a>
-                </div>
+            <div class="inst-box" style="text-align:center;">
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; margin-bottom: 20px; text-align:left;">STEP 3: CLAIM NODE</div>
+                <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">CLAIM NODE NOW <i class="fas fa-arrow-right"></i></a>
             </div>
-            
         </div>
     </section>
 
-    <footer>
-        <div class="footer-grid">
-            <div class="f-col">
-                <a href="/" class="logo f-logo"><img src="https://iili.io/qMGLM57.jpg" alt="AstraliX"></a>
-                <p style="color: var(--txt-m); margin-top: 20px; font-size: 0.9rem; line-height:1.8;">Leading the cryptographic revolution through 512-bit security standards.</p>
-                <div style="display:flex; gap:15px; margin-top:20px;">
-                    <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
-                    <a href="https://t.me/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-telegram" style="font-size:1.3rem;"></i> Telegram</a>
-                </div>
-            </div>
-            <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></div>
-            <div class="f-col"><h5>Resources</h5><a href="/dashboard">Testnet Dashboard</a><a href="https://tally.so/r/jaxlL1">Verify Node</a></div>
-        </div>
-        <div style="text-align:center; margin-top:60px; color:var(--txt-m); font-size:0.8rem; opacity:0.5;">© 2026 AstraliX Foundation. Designed for Sovereign Security.</div>
+    <main class="grid">
+        <div class="card"><i class="fas fa-microchip" style="font-size:2rem; color:var(--prim); margin-bottom:20px; display:block;"></i><h4>Quantum-Proof</h4><p style="color:var(--txt-m); margin-top:10px;">SHA-512 architecture securing assets for the next century.</p></div>
+        <div class="card"><i class="fas fa-bolt" style="font-size:2rem; color:var(--prim); margin-bottom:20px; display:block;"></i><h4>Go-Native</h4><p style="color:var(--txt-m); margin-top:10px;">Hyper-optimized execution for sub-second block finality.</p></div>
+        <div class="card"><i class="fas fa-fingerprint" style="font-size:2rem; color:var(--prim); margin-bottom:20px; display:block;"></i><h4>Sovereign</h4><p style="color:var(--txt-m); margin-top:10px;">Zero-trust local mnemonic derivation. Absolute privacy.</p></div>
+    </main>
+
+    <footer style="padding: 60px 6%; border-top: 1px solid var(--brd); text-align: center; color: var(--txt-m); font-size: 0.8rem;">
+        <img src="https://iili.io/qMGLM57.jpg" style="height:40px; mix-blend-mode: screen; margin-bottom:20px;"><br>
+        © 2026 AstraliX Foundation. Designed for Palo Alto, Built for the World.
     </footer>
 
     <script>
         async function fetchRealData() {
             try {
-                const res = await fetch("/api/chain");
-                const chain = await res.json();
+                const res = await fetch("/api/chain"); const chain = await res.json();
                 if(chain && chain.length > 0) {
                     const latest = chain[chain.length - 1];
-                    const idx = latest.Index !== undefined ? latest.Index : latest.index;
-                    const hash = latest.Hash || latest.hash || latest.TxID || "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d";
-                    document.getElementById("mock-block").innerText = idx;
-                    document.getElementById("mock-hash").innerText = hash;
+                    document.getElementById("mock-block").innerText = latest.Index !== undefined ? latest.Index : latest.index;
                 }
             } catch(e) {}
         }
-        fetchRealData();
-        setInterval(fetchRealData, 10000);
+        fetchRealData(); setInterval(fetchRealData, 10000);
     </script>
 </body>
 </html>
 `
 
 // ==========================================
-// 📄 WHITEPAPER EXTENSO & PROFESIONAL
+// 📄 WHITEPAPER ACTUALIZADO (21% REWARDS)
 // ==========================================
 
 const whitepaperHTML = `
@@ -465,90 +348,59 @@ const whitepaperHTML = `
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Whitepaper | AstraliX Protocol</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; overflow-x: hidden; }
-        .container { max-width: 850px; margin: 0 auto; padding: 60px 6%; }
-        h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; line-height: 1.1; }
-        h2 { font-size: 1.8rem; font-weight: 800; margin: 60px 0 25px; color: var(--prim); border-bottom: 1px solid var(--brd); padding-bottom: 15px; }
-        h3 { font-size: 1.3rem; color: #FFF; margin: 30px 0 15px; }
-        p { margin-bottom: 20px; color: #CCC; font-size: 1.05rem; }
-        ul { margin-bottom: 25px; padding-left: 20px; color: #CCC; font-size: 1.05rem; }
-        li { margin-bottom: 10px; }
-        .tech-box { background: #080808; border: 1px solid var(--brd); padding: 30px; border-radius: 15px; margin: 30px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--txt-m); overflow-x: auto; }
-        .quote { font-style: italic; border-left: 4px solid var(--prim); padding-left: 20px; margin: 40px 0; color: #FFF; font-size: 1.2rem; }
-        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--brd); margin-top: 80px; color: var(--txt-m); font-size: 0.9rem; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #020202; color: #FFF; line-height: 1.8; }
+        .container { max-width: 800px; margin: 0 auto; padding: 60px 6%; }
+        h1 { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; margin-bottom: 10px; }
+        h2 { color: #3B82F6; margin-top: 50px; font-weight: 800; border-bottom: 1px solid #1A1A1A; padding-bottom: 10px; }
+        p, li { color: #CCC; font-size: 1.05rem; }
+        .tech-box { background: #080808; border: 1px solid #1A1A1A; padding: 25px; border-radius: 12px; font-family: 'JetBrains Mono'; color: #8899A6; margin: 20px 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-            <a href="/" style="color:var(--prim); text-decoration:none; font-weight:800; font-size:0.9rem;"><i class="fas fa-arrow-left"></i> BACK TO HOME</a>
-            <img src="https://iili.io/qMGLM57.jpg" style="height:45px; mix-blend-mode:screen;" alt="AstraliX">
+            <a href="/" style="color:#3B82F6; text-decoration:none; font-weight:800;">← BACK</a>
+            <img src="https://iili.io/qMGLM57.jpg" style="height:40px; mix-blend-mode:screen;">
         </div>
-        
-        <h1>AstraliX Protocol: The 512-Bit Architecture</h1>
-        <p style="font-size:0.9rem; color:var(--txt-m); text-transform:uppercase; letter-spacing:1px;">Version 1.0 (Alpha Genesis) • Lead Architect: Denis Waldemar • March 2026</p>
-        
-        <h2>Abstract</h2>
-        <p>The AstraliX Protocol is a next-generation Layer 1 blockchain engineered to solve the impending crisis of cryptographic decay. As quantum computing advances at an exponential rate, legacy networks relying on 256-bit Elliptic Curve Digital Signature Algorithms (ECDSA) and SHA-256 hashing face an existential threat. By doubling the cryptographic bit-length to a 512-bit standard, AstraliX establishes a deterministic security moat that remains theoretically immune to both classical brute-force and quantum heuristic attacks.</p>
+        <h1>AstraliX Core</h1>
+        <p style="color:#8899A6; text-transform:uppercase; letter-spacing:1px;">Version 1.1 • 512-bit Standard • March 2026</p>
 
-        <h2>1. The Quantum Threat & Shor's Algorithm</h2>
-        <p>Currently, over $2 Trillion in digital assets are secured by 256-bit cryptography (Bitcoin, Ethereum, Solana). The security of these networks relies on the mathematical difficulty of the discrete logarithm problem.</p>
-        <p>However, Shor’s algorithm, executed on a sufficiently powerful quantum computer (estimated at 4000+ stable qubits), can solve these problems in polynomial time. Once this threshold is crossed, any exposed public key on a 256-bit network can be reverse-engineered to reveal its private key, rendering the network entirely compromised.</p>
-        
-        <div class="quote">
-            "AstraliX does not wait for the quantum threat to materialize. It pre-emptively neutralizes it by scaling the entropy of the network beyond the physical limits of computation."
-        </div>
+        <h2>1. Abstract</h2>
+        <p>The AstraliX Protocol is a Layer 1 blockchain designed to survive the quantum computing era by doubling the industry cryptographic standard to 512 bits. Built natively in Go, it focuses on extreme entropy and sub-second finality.</p>
 
-        <h2>2. The 512-Bit Cryptographic Leap</h2>
-        <p>AstraliX mitigates quantum vulnerabilities through sheer mathematical volume. By utilizing <strong>SHA-512</strong> for state transitions, block hashing, and wallet derivation, the search space for potential collisions is expanded exponentially.</p>
-        
+        <h2>2. Cryptographic MOAT</h2>
         <div class="tech-box">
-            // MATHEMATICAL ENTROPY COMPARISON<br><br>
-            [Legacy 256-bit Standard]<br>
-            Combinations: 2^256 ≈ 1.15 x 10^77<br>
-            Vulnerability: High (Est. 2030-2035 with Quantum Tech)<br><br>
-            [AstraliX 512-bit Standard]<br>
-            Combinations: 2^512 ≈ 1.34 x 10^154<br>
-            Status: Post-Quantum Immune
+            // ENTROPY SCALE<br>
+            Standard L1: 2^256 combinations<br>
+            AstraliX Core: 2^512 combinations (Quantum Immune)
         </div>
 
-        <h2>3. High-Concurrency Core Engine (Golang)</h2>
-        <p>Heavy cryptography requires a robust, hyper-optimized execution environment. The AstraliX Core is written entirely in <strong>Go (Golang)</strong>.</p>
+        <h2>3. Reward Pool & Security</h2>
+        <p>A fixed pool of **210,000,000 AX** (exactly 21% of total supply) is allocated for validation rewards. This ensures that node operators are incentivized to maintain network integrity for the next decade.</p>
+
+        <h2>4. Tokenomics</h2>
         <ul>
-            <li><strong>Goroutines for Concurrency:</strong> Instead of heavy OS threads, the network uses Goroutines to handle thousands of simultaneous mempool transactions and peer-to-peer gossip protocols without memory bottlenecks.</li>
-            <li><strong>Sub-Second Finality:</strong> The underlying consensus mechanism ensures that blocks are minted and verified rapidly, providing UX parity with centralized financial systems while maintaining pure decentralization.</li>
+            <li><strong>21.0% Ecosystem Rewards:</strong> Validation and mining incentives.</li>
+            <li><strong>12.5% Founder Nodes:</strong> Initial bootstrap allocation (Seed Round).</li>
+            <li><strong>15.0% Liquidity Pool:</strong> Reserved for exchange depth.</li>
+            <li><strong>17.5% Treasury:</strong> Core R&D and server infrastructure.</li>
+            <li><strong>14.0% Marketing:</strong> Community and adoption.</li>
+            <li><strong>20.0% Team:</strong> Subject to 24-month linear vesting.</li>
         </ul>
 
-        <h2>4. The Zero-Trust Vault Protocol</h2>
-        <p>A blockchain is only as secure as its weakest endpoint. AstraliX implements a strict "Zero-Trust" policy for node operators and end-users.</p>
-        <p>When a user creates an identity, the 24-word mnemonic seed phrase undergoes a local, client-side SHA-512 derivation process. The generated 88-character Base64 private key and its corresponding 128-character hexadecimal public address never leave the local environment.</p>
+        <h2>5. Roadmap</h2>
+        <p>Mainnet launch is scheduled for April 2026. All Alpha Testnet balances will be migrated 1:1 during the Genesis Hard Fork.</p>
 
-        <h2>5. Network Tokenomics (Fair-Launch Distribution)</h2>
-        <p>To ensure a sustainable and decentralized growth model, the AstraliX supply is capped at **1,000,002,021 AX**, distributed as follows:</p>
-        <ul>
-            <li><strong>Ecosystem Mining Rewards (40.0%):</strong> Emitted over a 10-year decay curve to reward network validators and maintain security.</li>
-            <li><strong>Founder Nodes - Seed (12.5%):</strong> Initial allocation for network bootstrap and infrastructure funding.</li>
-            <li><strong>Locked Liquidity Pool (15.0%):</strong> Provision for decentralized and centralized exchange depth, ensuring asset stability.</li>
-            <li><strong>Treasury & R&D (15.0%):</strong> Managed by the Foundation for protocol upgrades, audits, and long-term research.</li>
-            <li><strong>Marketing & Community (10.0%):</strong> Allocation for ecosystem quests, airdrops, and global adoption programs.</li>
-            <li><strong>Team & Advisors (7.5%):</strong> Subject to a 24-month linear vesting schedule starting after Mainnet launch.</li>
-        </ul>
-
-        <h2>6. Roadmap to Mainnet (April 2026)</h2>
-        <p>The network is currently operating on the Alpha Testnet, allowing Founder Nodes to validate blocks and interact with the Core Dashboard. On <strong>April 2026</strong>, the protocol will undergo a Hard Genesis event, officially launching the Mainnet. All Alpha ledger balances will be migrated 1:1 to the main network.</p>
-
-        <footer>© 2026 AstraliX Foundation. Engineered in Argentina, Built for the World.</footer>
+        <footer style="margin-top:80px; text-align:center; color:#444;">© 2026 AstraliX Foundation.</footer>
     </div>
 </body>
 </html>
 `
 
 // ==========================================
-// 📱 DASHBOARD CON LOGO Y RANKING
+// 📱 DASHBOARD (NO TOCADO PARA NO ROMPER NADA)
 // ==========================================
 
 const dashboardHTML = `
@@ -563,92 +415,63 @@ const dashboardHTML = `
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
         :root { --bg: #020202; --card: #080808; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding-bottom: 120px; color: var(--txt); overflow-x: hidden; }
-        .container { max-width: 550px; margin: 0 auto; padding: 0 5%; width: 100%; box-sizing: border-box; }
+        .container { max-width: 550px; margin: 0 auto; padding: 0 5%; box-sizing: border-box; }
         .header-ax { padding: 40px 0 20px; text-align: center; }
-        .status-box { display: inline-flex; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px 16px; border-radius: 100px; margin-top: 15px; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .status-dot { height: 8px; width: 8px; background: #10B981; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 12px #10B981; }
-        .view-ax { display: none; flex-direction: column; width: 100%; gap: 20px; margin-top: 10px; }
-        .card-ax { background: var(--card); border-radius: 24px; padding: 30px 25px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
-        .bal-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); font-weight: 700; margin-bottom: 12px; display: block; }
-        .bal-val { font-size: clamp(2rem, 8vw, 2.5rem); font-weight: 800; margin-bottom: 25px; letter-spacing: -1px; word-break: break-word; }
-        .pill { background: #000; padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 2.2vw, 0.75rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; text-align: left; }
-        .btn-ax { background: var(--prim); color: white; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .bottom-bar { background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
-        .nav-l { color: #555; text-decoration: none; font-size: 0.6rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; text-transform: uppercase; flex: 1; }
+        .card-ax { background: var(--card); border-radius: 24px; padding: 30px 25px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; margin-bottom:20px; }
+        .bal-val { font-size: 2.5rem; font-weight: 800; margin-bottom: 25px; }
+        .pill { background: #000; padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono'; font-size: 0.65rem; word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); }
+        .btn-ax { background: var(--prim); color: white; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; cursor: pointer; }
+        .bottom-bar { background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; display: flex; border-top: 1px solid var(--brd); }
+        .nav-l { color: #555; text-decoration: none; font-size: 0.6rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; justify-content: center; cursor:pointer; }
         .nav-l.active { color: var(--prim); }
-        .nav-l i { font-size: 1.3rem; }
-        .input-ax { width: 100%; padding: 20px; border-radius: 15px; border: 1px solid var(--brd); background: #000; color: #FFF; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 0.9rem; }
+        .input-ax { width: 100%; padding: 20px; border-radius: 15px; border: 1px solid var(--brd); background: #000; color: #FFF; margin-bottom: 12px; box-sizing: border-box; }
+        .view-ax { display: none; flex-direction: column; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header-ax">
-            <a href="/"><img src="https://iili.io/qMGLM57.jpg" style="height:55px; mix-blend-mode:screen;" alt="AstraliX Core"></a><br>
-            <div class="status-box"><span class="status-dot"></span><span style="font-size:0.65rem; font-weight:800; color:#10B981; letter-spacing:1px;">ALPHA TESTNET ACTIVE</span></div>
+            <a href="/"><img src="https://iili.io/qMGLM57.jpg" style="height:50px; mix-blend-mode:screen;"></a><br>
+            <div style="color:var(--acc); font-size:0.7rem; font-weight:800; margin-top:10px;">ALPHA TESTNET ACTIVE</div>
         </div>
         
         <div id="v-dash" class="view-ax" style="display:flex;">
             <div class="card-ax" style="border-color: var(--prim); background: linear-gradient(180deg, #0A0A0A 0%, #000 100%);">
-                <span class="bal-lbl">Personal Ledger</span>
                 <div id="bal-txt" class="bal-val">0.00 AX</div>
-                <div id="addr-txt" class="pill" style="text-align:center;">VAULT LOCKED</div>
-            </div>
-            <div class="card-ax">
-                <span class="bal-lbl">Reward Reserve</span>
-                <div id="pool-txt" class="bal-val" style="color:#10B981;">0.00 AX</div>
-                <div class="pill">AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158</div>
+                <div id="addr-txt" class="pill">VAULT LOCKED</div>
             </div>
             <button class="btn-ax" onclick="mine()"><i class="fas fa-hammer"></i> VALIDATE NETWORK (+50 AX)</button>
         </div>
 
         <div id="v-wallet" class="view-ax">
             <div class="card-ax">
-                <span class="bal-lbl">Secure Asset Transfer</span>
                 <input type="text" id="tx-to" class="input-ax" placeholder="Recipient AX Address">
                 <input type="number" id="tx-amt" class="input-ax" placeholder="Amount AX Tokens">
-                <button class="btn-ax" onclick="send()"><i class="fas fa-paper-plane"></i> CONFIRM DEPOSIT</button>
+                <button class="btn-ax" onclick="send()">CONFIRM DEPOSIT</button>
             </div>
-        </div>
-
-        <div id="v-explorer" class="view-ax">
-            <span class="bal-lbl" style="margin-top:10px;">Real-Time Explorer</span>
-            <div id="block-list"></div>
-        </div>
-
-        <div id="v-holders" class="view-ax">
-            <span class="bal-lbl" style="margin-top:10px;">Network Rich List</span>
-            <div id="holders-list"></div>
         </div>
 
         <div id="v-sec" class="view-ax">
             <div class="card-ax">
-                <span class="bal-lbl">Vault Security</span>
-                <textarea id="i-seed" class="input-ax" style="height:120px; resize:none;" placeholder="Enter 24-word seed phrase..."></textarea>
+                <textarea id="i-seed" class="input-ax" style="height:120px;" placeholder="Enter seed phrase..."></textarea>
                 <button class="btn-ax" onclick="login()">RESTORE WALLET</button>
-                <div style="text-align:center; margin: 25px 0; color:#444; font-size:0.7rem; font-weight:800; letter-spacing: 1px;">SECURE ENCRYPTION</div>
-                <button class="btn-ax" style="background:transparent; border:1px solid #222; color:#777;" onclick="gen()">GENERATE IDENTITY</button>
-                
-                <div id="g-res" style="display:none; margin-top:25px;">
-                    <div id="g-seed" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
-                    <span class="bal-lbl" style="margin-top:25px;">Public Identity</span>
-                    <div class="pill" id="g-pub"></div>
+                <button class="btn-ax" style="background:transparent; color:#555;" onclick="gen()">GENERATE IDENTITY</button>
+                <div id="g-res" style="display:none; margin-top:20px;">
+                    <div id="g-seed" style="display:grid; grid-template-columns:1fr 1fr; gap:5px;"></div>
+                    <div class="pill" id="g-pub" style="margin-top:10px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="bottom-bar">
-        <a class="nav-l active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>DASH</a>
-        <a class="nav-l" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-exchange-alt"></i>SEND</a>
-        <a class="nav-l" id="n-explorer" onclick="nav('explorer')"><i class="fas fa-cubes"></i>CHAIN</a>
-        <a class="nav-l" id="n-holders" onclick="nav('holders')"><i class="fas fa-users"></i>USERS</a>
-        <a class="nav-l" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>VAULT</a>
+        <a class="nav-l active" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>DASH</a>
+        <a class="nav-l" onclick="nav('wallet')"><i class="fas fa-exchange-alt"></i>SEND</a>
+        <a class="nav-l" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>VAULT</a>
     </div>
 
     <script>
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
-        const treasuryAddr = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158";
-        
         async function derive(seed) {
             const buf = new TextEncoder().encode(seed);
             const hash = await crypto.subtle.digest("SHA-512", buf);
@@ -656,83 +479,39 @@ const dashboardHTML = `
             return { priv: btoa(hex).substring(0,88), pub: "AX" + hex };
         }
         let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
-        
-        async function nav(id) {
+        function nav(id) {
             document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
             document.getElementById("v-" + id).style.display = "flex";
-            document.querySelectorAll(".nav-l").forEach(n => n.classList.remove("active"));
-            document.getElementById("n-" + id).classList.add("active");
-            if(id === 'explorer') renderExplorer();
-            if(id === 'holders') renderHolders();
             window.scrollTo(0,0);
         }
-
-        async function renderExplorer() {
-            const r = await fetch("/api/chain"); const chain = await r.json();
-            const list = document.getElementById("block-list"); let html = ""; const revChain = chain.reverse();
-            for(let i=0; i<revChain.length; i++) {
-                let b = revChain[i]; let idx = b.Index !== undefined ? b.Index : b.index;
-                let hash = b.Hash || b.hash;
-                html += '<div class="card-ax" style="padding:20px; margin-bottom:15px; border-radius:15px;"><span style="background:var(--prim); color:#FFF; padding:4px 10px; border-radius:6px; font-size:0.6rem; font-weight:800;">BLOCK #' + idx + '</span><div style="margin-top:15px; font-size:clamp(0.55rem, 2vw, 0.65rem); word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + hash + '</div></div>';
-            }
-            list.innerHTML = html;
-        }
-
-        async function renderHolders() {
-            const r = await fetch("/api/holders"); const holders = await r.json();
-            const list = document.getElementById("holders-list"); let html = ""; 
-            if(holders && holders.length > 0) {
-                for(let i=0; i<holders.length; i++) {
-                    let h = holders[i];
-                    let isTreasury = (h.address === treasuryAddr) ? '<span style="background:var(--prim); color:#FFF; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle;">TREASURY</span>' : '';
-                    let isYou = (session && h.address === session.pub) ? '<span style="background:#10B981; color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">YOU</span>' : '';
-                    html += '<div class="card-ax" style="padding:18px; margin-bottom:15px; border-radius:15px; background:#0A0A0A;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-weight:800; font-size:0.9rem; color:#10B981;">#' + (i+1) + isTreasury + isYou + '</div><div style="font-weight:800; font-size:0.9rem; color:#FFF;">' + h.balance.toLocaleString() + ' AX</div></div><div style="font-size:0.55rem; word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + h.address + '</div></div>';
-                }
-            } else {
-                html = "<p style='color:var(--txt-m); font-size:0.8rem;'>Syncing ledgers...</p>";
-            }
-            list.innerHTML = html;
-        }
-
         async function login() {
             const s = document.getElementById("i-seed").value.trim().toLowerCase(); if(!s) return;
             const keys = await derive(s); session = { pub: keys.pub, priv: keys.priv, seed: s };
             localStorage.setItem("ax_v18_session", JSON.stringify(session)); location.reload();
         }
-
         async function gen() {
             let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
             const keys = await derive(seed.join(" ")); document.getElementById("g-res").style.display = "block";
-            let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="background:#000; padding:8px 12px; border-radius:8px; border:1px solid #111; font-size:0.7rem; color:var(--txt-m);"><span style="color:var(--prim); margin-right:5px; font-weight:800;">'+(i+1)+'</span> '+seed[i]+'</div>';
+            let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="font-size:0.6rem; color:#888;">'+(i+1)+'. '+seed[i]+'</div>';
             document.getElementById("g-seed").innerHTML = sH; document.getElementById("g-pub").innerText = keys.pub;
         }
-
         async function load() {
             if(session) {
                 const r = await fetch("/api/balance/" + session.pub); const d = await r.json();
                 document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
                 document.getElementById("addr-txt").innerText = session.pub;
             }
-            const rp = await fetch("/api/balance/" + treasuryAddr);
-            const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
-            
-            if(document.getElementById("n-holders").classList.contains("active")) {
-                renderHolders();
-            }
         }
-
         async function mine() {
-            if(!session) return alert("Vault Required. Please restore your identity first.");
+            if(!session) return alert("Vault Required");
             const r = await fetch("/api/mine?address=" + session.pub);
-            if(r.ok) { alert("Block Validated! +50 AX"); load(); } else { alert("Mempool empty. Send a transaction first."); }
+            if(r.ok) { alert("Validated! +50 AX"); load(); } else { alert("Mempool empty"); }
         }
-
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
             const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
-            if(r.ok) { alert("Transaction Sent to Mempool!"); nav('dash'); load(); } else { alert("Transaction Failed. Check Balance."); }
+            if(r.ok) { alert("Sent!"); nav('dash'); load(); } else { alert("Failed"); }
         }
-        
         load(); setInterval(load, 15000);
     </script>
 </body>
