@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"time"
 
@@ -22,7 +23,7 @@ var db *sql.DB
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
 // ==========================================
-// ⚙️ MOTOR BLOCKCHAIN
+// ⚙️ MOTOR BLOCKCHAIN (PRO CORE)
 // ==========================================
 
 func initDB() {
@@ -85,6 +86,34 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Blockchain)
 	})
+	// NUEVO ENDPOINT: HOLDERS RANKING
+	http.HandleFunc("/api/holders", func(w http.ResponseWriter, r *http.Request) {
+		balances := make(map[string]float64)
+		for _, block := range Blockchain {
+			for _, tx := range block.Transactions {
+				balances[tx.Recipient] += tx.Amount
+				if tx.Sender != "SYSTEM" {
+					balances[tx.Sender] -= tx.Amount
+				}
+			}
+		}
+		type Holder struct {
+			Address string  `json:"address"`
+			Balance float64 `json:"balance"`
+		}
+		var holders []Holder
+		for addr, bal := range balances {
+			if bal > 0 {
+				holders = append(holders, Holder{Address: addr, Balance: bal})
+			}
+		}
+		// Ordenar de mayor a menor
+		sort.Slice(holders, func(i, j int) bool {
+			return holders[i].Balance > holders[j].Balance
+		})
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(holders)
+	})
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
 		if miner == "" || len(Mempool) == 0 { http.Error(w, "Error", 400); return }
@@ -127,7 +156,7 @@ func main() {
 }
 
 // ==========================================
-// 🎨 LANDING PAGE 
+// 🎨 LANDING PAGE (VALLEY STYLE)
 // ==========================================
 
 const landingHTML = `
@@ -147,12 +176,10 @@ const landingHTML = `
         .nav { padding: 25px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.8); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
         .logo { font-weight: 800; font-size: 1.8rem; letter-spacing: -1.5px; color: var(--txt); text-decoration: none; }
         .logo span { color: var(--prim); }
-        .nav-links { display: flex; gap: 30px; align-items: center; }
-        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
         .nav-links a:hover { color: var(--txt); }
         .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; }
         .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
-        .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
         .hero { text-align: center; padding: 100px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
         .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
         .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
@@ -165,7 +192,6 @@ const landingHTML = `
         .btn-dark { border: 1px solid var(--brd); color: #FFF; background: rgba(255,255,255,0.03); }
         .btn-dark:hover { background: rgba(255,255,255,0.08); }
         
-        /* THE HERO MOCKUP (DASHBOARD PREVIEW) */
         .mockup-container { max-width: 900px; margin: 0 auto; padding: 0 6%; position: relative; perspective: 1000px; }
         .mockup-glow { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 50%; background: var(--prim); filter: blur(120px); opacity: 0.15; z-index: -1; }
         .mockup-window { background: rgba(10,10,10,0.8); border: 1px solid #222; border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: rotateX(2deg); transition: 0.5s; text-align: left; }
@@ -203,7 +229,6 @@ const landingHTML = `
         .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
         .f-col a:hover { color: var(--prim); }
         
-        /* RESPONSIVE DESIGN */
         @media (max-width: 850px) { 
             .nav-links { display: none; } 
             .hero { padding-top: 50px; } 
@@ -302,7 +327,6 @@ const landingHTML = `
     <section id="buy" class="pre-sale">
         <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Founder Node Allocation</div>
         <div class="price-tag">21 USDT</div>
-        
         <div style="max-width: 450px; margin: 0 auto 30px; text-align: left;">
             <div style="display: flex; flex-direction: column; gap: 15px; font-size: 1rem; color: var(--txt-m);">
                 <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>10,000 AX (Testnet)</strong> Genesis Allocation</span></div>
@@ -310,7 +334,6 @@ const landingHTML = `
                 <div style="display: flex; align-items: center; gap: 12px;"><i class="fas fa-check" style="color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.8rem;"></i><span><strong>Mainnet 1:1 Migration</strong> in April 2026</span></div>
             </div>
         </div>
-
         <div class="w-box">
             <div style="color: #F3BA2F; font-size: 0.8rem; font-weight: 800; margin-bottom: 10px;">BINANCE SMART CHAIN (BEP-20)</div>
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; word-break: break-all; color:var(--txt);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
@@ -335,7 +358,6 @@ const landingHTML = `
     </footer>
 
     <script>
-        // SCRIPT PARA ACTUALIZAR EL MOCKUP EN LA LANDING EN TIEMPO REAL
         async function fetchRealData() {
             try {
                 const res = await fetch("/api/chain");
@@ -447,7 +469,7 @@ const whitepaperHTML = `
 `
 
 // ==========================================
-// 📱 DASHBOARD (OS STYLE & FULL RESPONSIVE)
+// 📱 DASHBOARD CON "HOLDERS RANKING"
 // ==========================================
 
 const dashboardHTML = `
@@ -473,7 +495,7 @@ const dashboardHTML = `
         .pill { background: #000; padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 2.2vw, 0.75rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; text-align: left; }
         .btn-ax { background: var(--prim); color: white; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .bottom-bar { background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
-        .nav-l { color: #555; text-decoration: none; font-size: 0.65rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; text-transform: uppercase; flex: 1; }
+        .nav-l { color: #555; text-decoration: none; font-size: 0.6rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; text-transform: uppercase; flex: 1; }
         .nav-l.active { color: var(--prim); }
         .nav-l i { font-size: 1.3rem; }
         .input-ax { width: 100%; padding: 20px; border-radius: 15px; border: 1px solid var(--brd); background: #000; color: #FFF; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 0.9rem; }
@@ -514,6 +536,11 @@ const dashboardHTML = `
             <div id="block-list"></div>
         </div>
 
+        <div id="v-holders" class="view-ax">
+            <span class="bal-lbl" style="margin-top:10px;">Network Rich List</span>
+            <div id="holders-list"></div>
+        </div>
+
         <div id="v-sec" class="view-ax">
             <div class="card-ax">
                 <span class="bal-lbl">Vault Security</span>
@@ -535,11 +562,14 @@ const dashboardHTML = `
         <a class="nav-l active" id="n-dash" onclick="nav('dash')"><i class="fas fa-chart-pie"></i>DASH</a>
         <a class="nav-l" id="n-wallet" onclick="nav('wallet')"><i class="fas fa-exchange-alt"></i>SEND</a>
         <a class="nav-l" id="n-explorer" onclick="nav('explorer')"><i class="fas fa-cubes"></i>CHAIN</a>
+        <a class="nav-l" id="n-holders" onclick="nav('holders')"><i class="fas fa-users"></i>USERS</a>
         <a class="nav-l" id="n-sec" onclick="nav('sec')"><i class="fas fa-shield-halved"></i>VAULT</a>
     </div>
 
     <script>
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
+        const treasuryAddr = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158";
+        
         async function derive(seed) {
             const buf = new TextEncoder().encode(seed);
             const hash = await crypto.subtle.digest("SHA-512", buf);
@@ -554,6 +584,7 @@ const dashboardHTML = `
             document.querySelectorAll(".nav-l").forEach(n => n.classList.remove("active"));
             document.getElementById("n-" + id).classList.add("active");
             if(id === 'explorer') renderExplorer();
+            if(id === 'holders') renderHolders();
             window.scrollTo(0,0);
         }
 
@@ -564,6 +595,23 @@ const dashboardHTML = `
                 let b = revChain[i]; let idx = b.Index !== undefined ? b.Index : b.index;
                 let hash = b.Hash || b.hash;
                 html += '<div class="card-ax" style="padding:20px; margin-bottom:15px; border-radius:15px;"><span style="background:var(--prim); color:#FFF; padding:4px 10px; border-radius:6px; font-size:0.6rem; font-weight:800;">BLOCK #' + idx + '</span><div style="margin-top:15px; font-size:clamp(0.55rem, 2vw, 0.65rem); word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + hash + '</div></div>';
+            }
+            list.innerHTML = html;
+        }
+
+        // NUEVA FUNCIÓN PARA RENDERIZAR HOLDERS
+        async function renderHolders() {
+            const r = await fetch("/api/holders"); const holders = await r.json();
+            const list = document.getElementById("holders-list"); let html = ""; 
+            if(holders && holders.length > 0) {
+                for(let i=0; i<holders.length; i++) {
+                    let h = holders[i];
+                    let isTreasury = (h.address === treasuryAddr) ? '<span style="background:var(--prim); color:#FFF; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle;">TREASURY</span>' : '';
+                    let isYou = (session && h.address === session.pub) ? '<span style="background:#10B981; color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">YOU</span>' : '';
+                    html += '<div class="card-ax" style="padding:18px; margin-bottom:15px; border-radius:15px; background:#0A0A0A;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-weight:800; font-size:0.9rem; color:#10B981;">#' + (i+1) + isTreasury + isYou + '</div><div style="font-weight:800; font-size:0.9rem; color:#FFF;">' + h.balance.toLocaleString() + ' AX</div></div><div style="font-size:0.55rem; word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + h.address + '</div></div>';
+                }
+            } else {
+                html = "<p style='color:var(--txt-m); font-size:0.8rem;'>Syncing ledgers...</p>";
             }
             list.innerHTML = html;
         }
@@ -587,8 +635,13 @@ const dashboardHTML = `
                 document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
                 document.getElementById("addr-txt").innerText = session.pub;
             }
-            const rp = await fetch("/api/balance/AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158");
+            const rp = await fetch("/api/balance/" + treasuryAddr);
             const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
+            
+            // Si estamos en la pestaña de holders, actualizarla
+            if(document.getElementById("n-holders").classList.contains("active")) {
+                renderHolders();
+            }
         }
 
         async function mine() {
