@@ -368,19 +368,26 @@ const landingHTML = `
         </div>
 
         <div style="max-width: 700px; margin: 0 auto; text-align: left;">
+            
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: SEND FUNDS</div>
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:underline;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong>.</p>
+            </div>
+
+            <div class="inst-box">
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SEND FUNDS</div>
                 <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Send exactly <strong>21 USDT</strong> or <strong>210 USDT</strong> (Binance Smart Chain BEP-20) to the official Treasury Address below:</p>
                 <div style="font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 2.5vw, 0.9rem); word-break: break-all; color:var(--acc); text-align: center; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 10px; border: 1px dashed rgba(16,185,129,0.3);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
             </div>
 
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: CLAIM YOUR NODE</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 25px;">Once your transaction is successful, click the button below to submit your payment proof (TXID) and receive your AstraliX Node allocation.</p>
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: CLAIM YOUR NODE</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 25px;">Click the button below to submit your payment proof (TXID) along with your new AX Address to receive your allocation.</p>
                 <div style="text-align: center;">
                     <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">CLAIM NODE NOW <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
+            
         </div>
     </section>
 
