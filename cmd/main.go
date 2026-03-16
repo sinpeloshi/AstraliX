@@ -86,7 +86,6 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Blockchain)
 	})
-	// NUEVO ENDPOINT: HOLDERS RANKING
 	http.HandleFunc("/api/holders", func(w http.ResponseWriter, r *http.Request) {
 		balances := make(map[string]float64)
 		for _, block := range Blockchain {
@@ -107,7 +106,6 @@ func main() {
 				holders = append(holders, Holder{Address: addr, Balance: bal})
 			}
 		}
-		// Ordenar de mayor a menor
 		sort.Slice(holders, func(i, j int) bool {
 			return holders[i].Balance > holders[j].Balance
 		})
@@ -173,14 +171,19 @@ const landingHTML = `
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
         .bg-p { position: fixed; width: 100vw; height: 100vh; background-image: radial-gradient(circle at 1px 1px, #111 1px, transparent 0); background-size: 40px 40px; z-index: -1; }
-        .nav { padding: 25px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.8); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
-        .logo { font-weight: 800; font-size: 1.8rem; letter-spacing: -1.5px; color: var(--txt); text-decoration: none; }
-        .logo span { color: var(--prim); }
+        
+        .nav { padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
+        .logo { display: flex; align-items: center; text-decoration: none; }
+        .logo img { height: 45px; width: auto; mix-blend-mode: screen; } /* Truco para borrar el fondo negro del JPG */
+        
+        .nav-links { display: flex; align-items: center; }
         .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
         .nav-links a:hover { color: var(--txt); }
-        .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; }
+        .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; margin-right: 0 !important; }
         .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
-        .hero { text-align: center; padding: 100px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
+        .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
+        
+        .hero { text-align: center; padding: 80px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
         .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
         .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
         .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
@@ -228,7 +231,9 @@ const landingHTML = `
         .f-col h5 { margin-bottom: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--txt); }
         .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
         .f-col a:hover { color: var(--prim); }
+        .f-logo img { height: 50px; mix-blend-mode: screen; }
         
+        /* RESPONSIVE DESIGN */
         @media (max-width: 850px) { 
             .nav-links { display: none; } 
             .hero { padding-top: 50px; } 
@@ -243,9 +248,9 @@ const landingHTML = `
 <body>
     <div class="bg-p"></div>
     <nav class="nav">
-        <a href="/" class="logo"><span>A</span>strali<span>X</span></a>
+        <a href="/" class="logo"><img src="https://iili.io/qMGLM57.jpg" alt="AstraliX Protocol"></a>
         
-        <div style="display: flex; align-items: center; gap: 25px;">
+        <div style="display: flex; align-items: center; gap: 20px;">
             <div class="nav-links">
                 <a href="/whitepaper">Protocol</a>
                 <a href="#roadmap">Mainnet</a>
@@ -344,7 +349,7 @@ const landingHTML = `
     <footer>
         <div class="footer-grid">
             <div class="f-col">
-                <a href="/" class="logo" style="font-size: 1.5rem;"><span>A</span>strali<span>X</span></a>
+                <a href="/" class="logo f-logo"><img src="https://iili.io/qMGLM57.jpg" alt="AstraliX"></a>
                 <p style="color: var(--txt-m); margin-top: 20px; font-size: 0.9rem; line-height:1.8;">Leading the cryptographic revolution through 512-bit security standards.</p>
                 <div style="display:flex; gap:15px; margin-top:20px;">
                     <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
@@ -408,9 +413,12 @@ const whitepaperHTML = `
 </head>
 <body>
     <div class="container">
-        <a href="/" style="color:var(--prim); text-decoration:none; font-weight:800; font-size:0.9rem;"><i class="fas fa-arrow-left"></i> BACK TO HOME</a>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+            <a href="/" style="color:var(--prim); text-decoration:none; font-weight:800; font-size:0.9rem;"><i class="fas fa-arrow-left"></i> BACK TO HOME</a>
+            <img src="https://iili.io/qMGLM57.jpg" style="height:45px; mix-blend-mode:screen;" alt="AstraliX">
+        </div>
         
-        <h1 style="margin-top:40px;">AstraliX Protocol: The 512-Bit Architecture</h1>
+        <h1>AstraliX Protocol: The 512-Bit Architecture</h1>
         <p style="font-size:0.9rem; color:var(--txt-m); text-transform:uppercase; letter-spacing:1px;">Version 1.0 (Alpha Genesis) • Lead Architect: Denis Waldemar • March 2026</p>
         
         <h2>Abstract</h2>
@@ -469,7 +477,7 @@ const whitepaperHTML = `
 `
 
 // ==========================================
-// 📱 DASHBOARD CON "HOLDERS RANKING"
+// 📱 DASHBOARD CON LOGO Y RANKING
 // ==========================================
 
 const dashboardHTML = `
@@ -486,7 +494,7 @@ const dashboardHTML = `
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding-bottom: 120px; color: var(--txt); overflow-x: hidden; }
         .container { max-width: 550px; margin: 0 auto; padding: 0 5%; width: 100%; box-sizing: border-box; }
         .header-ax { padding: 40px 0 20px; text-align: center; }
-        .status-box { display: inline-flex; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px 16px; border-radius: 100px; margin-top: 12px; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .status-box { display: inline-flex; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px 16px; border-radius: 100px; margin-top: 15px; border: 1px solid rgba(16, 185, 129, 0.2); }
         .status-dot { height: 8px; width: 8px; background: #10B981; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 12px #10B981; }
         .view-ax { display: none; flex-direction: column; width: 100%; gap: 20px; margin-top: 10px; }
         .card-ax { background: var(--card); border-radius: 24px; padding: 30px 25px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
@@ -504,7 +512,7 @@ const dashboardHTML = `
 <body>
     <div class="container">
         <div class="header-ax">
-            <a href="/" style="color:white; text-decoration:none; font-weight:800; font-size:1.3rem; letter-spacing: -0.5px;">AstraliX Core</a><br>
+            <a href="/"><img src="https://iili.io/qMGLM57.jpg" style="height:55px; mix-blend-mode:screen;" alt="AstraliX Core"></a><br>
             <div class="status-box"><span class="status-dot"></span><span style="font-size:0.65rem; font-weight:800; color:#10B981; letter-spacing:1px;">ALPHA TESTNET ACTIVE</span></div>
         </div>
         
@@ -599,7 +607,6 @@ const dashboardHTML = `
             list.innerHTML = html;
         }
 
-        // NUEVA FUNCIÓN PARA RENDERIZAR HOLDERS
         async function renderHolders() {
             const r = await fetch("/api/holders"); const holders = await r.json();
             const list = document.getElementById("holders-list"); let html = ""; 
@@ -638,7 +645,6 @@ const dashboardHTML = `
             const rp = await fetch("/api/balance/" + treasuryAddr);
             const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
             
-            // Si estamos en la pestaña de holders, actualizarla
             if(document.getElementById("n-holders").classList.contains("active")) {
                 renderHolders();
             }
