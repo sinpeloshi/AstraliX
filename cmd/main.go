@@ -316,7 +316,7 @@ const landingHTML = `
         <p>A mission-critical Layer 1 protocol doubling cryptographic security standards for the post-quantum era. Built for absolute digital sovereignty.</p>
         <div class="hero-btns">
             <a href="/dashboard" class="btn-p btn-blue"><i class="fas fa-terminal"></i> Launch Testnet App</a>
-            <a href="#buy" class="btn-p btn-white">Acquire Node</a>
+            <a href="#buy" class="btn-p btn-white">Apply for Node</a>
             <a href="/whitepaper" class="btn-p btn-dark">Read Whitepaper</a>
         </div>
     </header>
@@ -394,25 +394,25 @@ const landingHTML = `
     </section>
 
     <section id="buy" class="pre-sale">
-        <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Founder Node Allocation</div>
-        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800; margin:0; color:#FFF;">Select Your Tier</h2></div>
+        <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Founder Node Whitelist</div>
+        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800; margin:0; color:#FFF;">Strategic Node Application</h2></div>
         
         <div class="tier-grid">
             <div class="tier-card">
                 <div class="t-name">Standard Node</div>
-                <div class="t-price">21<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> USDT</span></div>
+                <div class="t-price" style="font-size: 2.5rem;">10K<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> AX</span></div>
                 <div class="t-list">
-                    <div><i class="fas fa-check"></i> <span><strong>10,000 AX Coins</strong> (Testnet)</span></div>
+                    <div><i class="fas fa-check"></i> <span><strong>Seed Allocation</strong> (Testnet)</span></div>
                     <div><i class="fas fa-check"></i> <span><strong>Validator Rights:</strong> Earn AX</span></div>
                     <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
                 </div>
             </div>
             <div class="tier-card premium">
                 <div class="t-name">Master Node</div>
-                <div class="t-price">210<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> USDT</span></div>
+                <div class="t-price" style="font-size: 2.5rem;">100K<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> AX</span></div>
                 <div class="t-list">
-                    <div><i class="fas fa-check"></i> <span><strong>100,000 AX Coins</strong> (Testnet)</span></div>
-                    <div><i class="fas fa-check"></i> <span><strong>Priority Validator Rights</strong></span></div>
+                    <div><i class="fas fa-check"></i> <span><strong>Priority Allocation</strong> (Testnet)</span></div>
+                    <div><i class="fas fa-check"></i> <span><strong>Premium Validator Rights</strong></span></div>
                     <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
                 </div>
             </div>
@@ -422,21 +422,20 @@ const landingHTML = `
             
             <div class="inst-box">
                 <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:underline;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong>.</p>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:underline;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong> to include in your application.</p>
             </div>
 
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SEND FUNDS</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Send exactly <strong>21 USDT</strong> or <strong>210 USDT</strong> (Binance Smart Chain BEP-20) to the official Treasury Address below:</p>
-                <div style="font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 2.5vw, 0.9rem); word-break: break-all; color:var(--acc); text-align: center; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 10px; border: 1px dashed rgba(16,185,129,0.3);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
-            </div>
-
-            <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: CLAIM YOUR NODE</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 25px;">Click the button below to submit your payment proof (TXID) along with your new AX Address to receive your allocation.</p>
-                <div style="text-align: center;">
-                    <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">CLAIM NODE NOW <i class="fas fa-arrow-right"></i></a>
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SUBMIT APPLICATION</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">We are currently selecting strategic infrastructure partners for the Genesis Block. Complete the application form via Tally.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">APPLY FOR NODE <i class="fas fa-arrow-right"></i></a>
                 </div>
+            </div>
+
+            <div class="inst-box">
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: ONBOARDING</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 0;">If your profile is selected, you will receive an official email from <strong>info@astralix.network</strong> with the private SAFT and funding instructions to activate your node.</p>
             </div>
             
         </div>
@@ -797,4 +796,3 @@ const dashboardHTML = `
     </script>
 </body>
 </html>
-`
