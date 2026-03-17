@@ -190,7 +190,6 @@ const landingHTML = `
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>AstraliX | The 512-bit Layer 1 Protocol</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
         :root { --bg: #020202; --bg-card: #080808; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; --acc: #10B981; }
@@ -205,7 +204,7 @@ const landingHTML = `
         .nav-links { display: flex; align-items: center; }
         .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
         .nav-links a:hover { color: var(--txt); }
-        .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; margin-right: 0 !important; border: none; cursor: pointer; }
+        .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; margin-right: 0 !important; }
         .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
         .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
         
@@ -231,7 +230,7 @@ const landingHTML = `
         .m-highlight { color: var(--acc); font-weight: 700; }
         .m-address { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid #222; }
         
-        /* TOKENOMICS SECTION */
+        /* TOKENOMICS SECTION (UPDATED FAIR-LAUNCH 40%) */
         .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
         .tok-flex { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; margin-top: 50px; }
         .tok-chart { position: relative; width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, #4B5563 12.5% 52.5%, #8B5CF6 52.5% 67.5%, var(--prim) 67.5% 82.5%, #F59E0B 82.5% 92.5%, #EC4899 92.5% 100%); }
@@ -272,10 +271,8 @@ const landingHTML = `
         .t-list i { color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.7rem; min-width: 12px; text-align: center; }
         
         .inst-box { background: #0A0A0A; border: 1px solid var(--brd); border-radius: 20px; padding: 30px; margin-bottom: 20px; text-align: left; }
-        
-        /* WEB3 BOTÓN */
-        .btn-buy-web3 { background: var(--acc); color: #000; padding: 15px; border-radius: 100px; font-weight: 800; width: 100%; border: none; cursor: pointer; margin-top: 20px; font-size: 0.9rem; transition: 0.3s; }
-        .btn-buy-web3:hover { background: #12d392; transform: scale(1.02); }
+        .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; }
+        .btn-buy:hover { transform: scale(1.02); background: #12d392; }
         
         footer { padding: 80px 6% 40px; border-top: 1px solid var(--brd); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; text-align: left; }
         .f-col h5 { margin-bottom: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--txt); }
@@ -305,8 +302,8 @@ const landingHTML = `
             <div class="nav-links">
                 <a href="/whitepaper">Protocol</a>
                 <a href="#roadmap">Mainnet</a>
+                <a href="/dashboard" class="btn-core-nav">ENTER DASHBOARD</a>
             </div>
-            <button id="connectBtn" class="btn-core-nav" onclick="connectWallet()"><i class="fas fa-wallet"></i> CONNECT WALLET</button>
             <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
                 <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fa-brands fa-x-twitter"></i></a>
                 <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-telegram"></i></a>
@@ -409,7 +406,6 @@ const landingHTML = `
                     <div><i class="fas fa-check"></i> <span><strong>Validator Rights:</strong> Earn AX</span></div>
                     <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
                 </div>
-                <button class="btn-buy-web3" onclick="buyNode(21)">BUY WITH USDT <i class="fas fa-wallet"></i></button>
             </div>
             <div class="tier-card premium">
                 <div class="t-name">Master Node</div>
@@ -419,16 +415,30 @@ const landingHTML = `
                     <div><i class="fas fa-check"></i> <span><strong>Priority Validator Rights</strong></span></div>
                     <div><i class="fas fa-check"></i> <span>Mainnet 1:1 Migration</span></div>
                 </div>
-                <button class="btn-buy-web3" onclick="buyNode(210)">BUY WITH USDT <i class="fas fa-wallet"></i></button>
             </div>
         </div>
 
         <div style="max-width: 700px; margin: 0 auto; text-align: left;">
+            
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">IMPORTANT INSTRUCTIONS</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Clicking "BUY WITH USDT" will prompt your Web3 Wallet (MetaMask, TrustWallet) to send funds securely to the AstraliX Treasury via the Binance Smart Chain.</p>
-                <p style="color: var(--txt-m); font-size: 0.95rem;">After the transaction is confirmed on the blockchain, you will receive a TXID (Transaction Hash) and will be redirected to complete your node allocation form.</p>
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:underline;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong>.</p>
             </div>
+
+            <div class="inst-box">
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SEND FUNDS</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Send exactly <strong>21 USDT</strong> or <strong>210 USDT</strong> (Binance Smart Chain BEP-20) to the official Treasury Address below:</p>
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: clamp(0.75rem, 2.5vw, 0.9rem); word-break: break-all; color:var(--acc); text-align: center; padding: 15px; background: rgba(16,185,129,0.05); border-radius: 10px; border: 1px dashed rgba(16,185,129,0.3);">0x948a663b1bd1292ded76a8412af2092bf0462d7c</div>
+            </div>
+
+            <div class="inst-box">
+                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: CLAIM YOUR NODE</div>
+                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 25px;">Click the button below to submit your payment proof (TXID) along with your new AX Address to receive your allocation.</p>
+                <div style="text-align: center;">
+                    <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">CLAIM NODE NOW <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+            
         </div>
     </section>
 
@@ -449,82 +459,6 @@ const landingHTML = `
     </footer>
 
     <script>
-        const TREASURY_ADDR = "0x948a663b1bd1292ded76a8412af2092bf0462d7c";
-        const USDT_CONTRACT = "0x55d398326f99059fF775485246999027B3197955"; // USDT BEP-20 Official
-        const USDT_ABI = ["function transfer(address to, uint256 amount) public returns (bool)"];
-
-        let userAccount = null;
-
-        async function connectWallet() {
-            if (window.ethereum) {
-                // CONEXIÓN NORMAL (PC o Navegador interno de la Wallet)
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    userAccount = accounts[0];
-                    const connectBtn = document.getElementById('connectBtn');
-                    connectBtn.innerHTML = '<i class="fas fa-check-circle"></i> ' + userAccount.substring(0,6) + "..." + userAccount.substring(38);
-                    connectBtn.style.background = "var(--acc)";
-                    connectBtn.style.color = "#000";
-                } catch (err) { 
-                    alert("Wallet connection rejected."); 
-                }
-            } else { 
-                // DETECCIÓN DE CELULAR Y DEEP LINKING (La magia para que no se rompa nada)
-                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                if (isMobile) {
-                    const cleanUrl = window.location.href.replace(/^https?:\/\//, '');
-                    if(confirm("📱 Mobile Detected!\n\nTo buy a node, you need to open this website INSIDE your MetaMask or Trust Wallet app.\n\nClick OK to open MetaMask now.")) {
-                        window.location.href = 'https://metamask.app.link/dapp/' + cleanUrl;
-                    }
-                } else {
-                    alert("Web3 Wallet not found. Please install the MetaMask or Trust Wallet extension for your browser."); 
-                }
-            }
-        }
-
-        async function buyNode(amount) {
-            if (!userAccount) { 
-                await connectWallet(); 
-                if(!userAccount) return; 
-            }
-            
-            try {
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
-                const network = await provider.getNetwork();
-                
-                // Verifica que estén en la red correcta (BSC Mainnet = 56)
-                if (network.chainId !== 56) {
-                    alert("Network Error: Please switch your wallet to Binance Smart Chain (BSC Mainnet).");
-                    return;
-                }
-
-                const signer = provider.getSigner();
-                const contract = new ethers.Contract(USDT_CONTRACT, USDT_ABI, signer);
-                
-                // USDT en BSC tiene 18 decimales
-                const amountInWei = ethers.utils.parseUnits(amount.toString(), 18);
-                
-                alert("Initiating secure payment for " + amount + " USDT.\n\nPlease confirm the transaction in your Web3 Wallet.");
-                
-                const tx = await contract.transfer(TREASURY_ADDR, amountInWei);
-                console.log("Transaction Hash:", tx.hash);
-                
-                alert("Transaction Submitted! \n\nTXID: " + tx.hash + "\n\nYou will now be redirected to complete your Node Claim form.");
-                
-                // Redirige al formulario de Tally pasando el TXID por la URL para facilitar el registro
-                window.open("https://tally.so/r/jaxlL1?txid=" + tx.hash, "_blank");
-
-            } catch (err) {
-                console.error("Web3 Error:", err);
-                if (err.code === "INSUFFICIENT_FUNDS" || (err.data && err.data.message && err.data.message.includes("insufficient"))) {
-                    alert("Transaction failed: Insufficient BNB for gas fees or insufficient USDT balance.");
-                } else {
-                    alert("Transaction cancelled or failed. Please try again.");
-                }
-            }
-        }
-
-        // Script original de la landing para mostrar el último bloque
         async function fetchRealData() {
             try {
                 const res = await fetch("/api/chain");
@@ -742,7 +676,7 @@ const dashboardHTML = `
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
         const treasuryAddr = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158";
         
-        let currentGeneratedSeed = []; 
+        let currentGeneratedSeed = []; // VARIABLE GLOBAL PARA GUARDAR LA SEMILLA
         
         async function derive(seed) {
             const buf = new TextEncoder().encode(seed);
@@ -797,12 +731,13 @@ const dashboardHTML = `
 
         async function gen() {
             let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
-            currentGeneratedSeed = seed; 
+            currentGeneratedSeed = seed; // GUARDAMOS LA SEMILLA GENERADA
             const keys = await derive(seed.join(" ")); document.getElementById("g-res").style.display = "block";
             let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="background:#000; padding:8px 12px; border-radius:8px; border:1px solid #111; font-size:0.7rem; color:var(--txt-m);"><span style="color:var(--prim); margin-right:5px; font-weight:800;">'+(i+1)+'</span> '+seed[i]+'</div>';
             document.getElementById("g-seed").innerHTML = sH; document.getElementById("g-pub").innerText = keys.pub;
         }
 
+        // NUEVA FUNCIÓN PARA COPIAR AL PORTAPAPELES
         function copySeed() {
             if(currentGeneratedSeed.length > 0) {
                 const seedString = currentGeneratedSeed.join(" ");
