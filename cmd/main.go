@@ -209,7 +209,7 @@ const landingHTML = `
         .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
         
         .hero { text-align: center; padding: 80px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
-        .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFF 30%, #555 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; padding-bottom: 10px; }
+        .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFFFFF 40%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.4)); padding-bottom: 10px; }
         .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
         .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
         .btn-p { padding: 18px 40px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 1rem; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
@@ -312,8 +312,8 @@ const landingHTML = `
     </nav>
     <header class="hero">
         <div style="background: rgba(16,185,129,0.1); color: var(--acc); padding: 8px 24px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; display: inline-block; margin-bottom: 30px; border: 1px solid rgba(16,185,129,0.2);"><span style="display:inline-block; width:8px; height:8px; background:var(--acc); border-radius:50%; margin-right:8px; box-shadow: 0 0 10px var(--acc);"></span>ALPHA TESTNET LIVE</div>
-        <h1>The 512-bit Era Begins Here.</h1>
-        <p>A mission-critical Layer 1 protocol doubling cryptographic security standards for the post-quantum era. Built for absolute digital sovereignty.</p>
+        <h1>The 512-bit Standard is Here.</h1>
+        <p>Redefining cryptographic sovereignty with the world's first ISP-backed DePIN Layer 1. Mathematically immune. Physically anchored.</p>
         <div class="hero-btns">
             <a href="/dashboard" class="btn-p btn-blue"><i class="fas fa-terminal"></i> Launch Testnet App</a>
             <a href="#buy" class="btn-p btn-white">Apply for Node</a>
