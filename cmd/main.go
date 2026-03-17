@@ -350,7 +350,7 @@ const landingHTML = `
                 <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(255,255,255,0.1); padding-top:20px; flex-wrap:wrap; gap:15px;">
                     <div>
                         <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Network Status</div>
-                        <div style="color:var(--acc); font-weight:800; font-size:1.2rem;">SYNCED (BLOCK #<span id="mock-block">0</span>)</div>
+                        <div style="color:var(--acc); font-weight:800; font-size:1.2rem;">SYNCED (BLOCK #<span id="mock-block" style="transition: color 0.3s;">0</span>)</div>
                     </div>
                     <div>
                         <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Genesis Supply</div>
@@ -358,7 +358,7 @@ const landingHTML = `
                     </div>
                 </div>
                 <div class="m-address">
-                    <span style="color:#666;">LATEST_HASH:</span> <span id="mock-hash" style="color:var(--txt-m);">AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d</span>
+                    <span style="color:#666;">LATEST_HASH:</span> <span id="mock-hash" style="color:var(--txt-m); transition: color 0.3s; word-break: break-all;">AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d</span>
                 </div>
             </div>
         </div>
@@ -466,21 +466,46 @@ const landingHTML = `
     </footer>
 
     <script>
+        let lastBlockIdx = -1;
         async function fetchRealData() {
             try {
                 const res = await fetch("/api/chain");
                 const chain = await res.json();
                 if(chain && chain.length > 0) {
                     const latest = chain[chain.length - 1];
-                    const idx = latest.Index !== undefined ? latest.Index : latest.index;
-                    const hash = latest.Hash || latest.hash || latest.TxID || "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d";
-                    document.getElementById("mock-block").innerText = idx;
-                    document.getElementById("mock-hash").innerText = hash;
+                    let idx = latest.Index !== undefined ? latest.Index : (latest.index !== undefined ? latest.index : 0);
+                    
+                    let hash = "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d";
+                    
+                    const txs = latest.Transactions || latest.transactions || [];
+                    if (latest.Hash) hash = latest.Hash;
+                    else if (latest.hash) hash = latest.hash;
+                    else if (txs.length > 0) {
+                        hash = txs[0].TxID || txs[0].txId || hash;
+                    }
+
+                    if (idx !== lastBlockIdx) {
+                        const blockEl = document.getElementById("mock-block");
+                        const hashEl = document.getElementById("mock-hash");
+                        
+                        blockEl.innerText = idx;
+                        hashEl.innerText = hash;
+                        
+                        // Efecto de flash al actualizar
+                        blockEl.style.color = "#FFF";
+                        hashEl.style.color = "var(--acc)";
+                        setTimeout(() => {
+                            blockEl.style.color = "var(--acc)";
+                            hashEl.style.color = "var(--txt-m)";
+                        }, 800);
+
+                        lastBlockIdx = idx;
+                    }
                 }
             } catch(e) {}
         }
         fetchRealData();
-        setInterval(fetchRealData, 10000);
+        setInterval(fetchRealData, 2500); // Actualiza cada 2.5 segundos
     </script>
 </body>
 </html>
@@ -639,25 +664,34 @@ const dashboardHTML = `
                 const revChain = [...chain].reverse();
 
                 if(chain.length > 1) {
-                    const totalTxs = chain.reduce((acc, b) => acc + (b.Transactions ? b.Transactions.length : 0), 0);
-                    const timeSpan = chain[chain.length-1].Timestamp - chain[0].Timestamp;
+                    const firstTs = chain[0].Timestamp !== undefined ? chain[0].Timestamp : chain[0].timestamp;
+                    const lastTs = chain[chain.length-1].Timestamp !== undefined ? chain[chain.length-1].Timestamp : chain[chain.length-1].timestamp;
+                    
+                    const totalTxs = chain.reduce((acc, b) => {
+                        const t = b.Transactions || b.transactions || [];
+                        return acc + t.length;
+                    }, 0);
+                    
+                    const timeSpan = lastTs - firstTs;
                     const tps = (timeSpan > 0) ? (totalTxs / timeSpan).toFixed(2) : 0;
                     document.getElementById("speed-txt").innerText = "NETWORK TPS: " + tps;
                 }
 
                 revChain.forEach(b => {
-                    const txs = b.Transactions || [];
-                    const totalAmount = txs.reduce((acc, tx) => acc + tx.Amount, 0);
+                    const txs = b.Transactions || b.transactions || [];
+                    const totalAmount = txs.reduce((acc, tx) => acc + (tx.Amount !== undefined ? tx.Amount : (tx.amount || 0)), 0);
                     let idx = b.Index !== undefined ? b.Index : b.index;
-                    let hash = b.Hash || b.hash || b.TxID || "Genesis";
+                    let diff = b.Difficulty !== undefined ? b.Difficulty : b.difficulty;
+                    let ts = b.Timestamp !== undefined ? b.Timestamp : b.timestamp;
+                    let hash = b.Hash || b.hash || (txs.length > 0 ? (txs[0].TxID || txs[0].txId) : "Genesis");
                     
                     html += '<div class="block-card">' +
-                            '<span class="time-badge"><i class="far fa-clock"></i> ' + timeAgo(b.Timestamp) + '</span>' +
+                            '<span class="time-badge"><i class="far fa-clock"></i> ' + timeAgo(ts) + '</span>' +
                             '<div style="font-weight:900; color:#3b82f6; font-size:1rem;">BLOCK #' + idx + '</div>' +
                             '<div class="block-meta">' +
                                 '<div class="meta-box">TRANSACTIONS<span class="meta-val">' + txs.length + '</span></div>' +
                                 '<div class="meta-box">TOTAL VOLUME<span class="meta-val">' + totalAmount.toLocaleString() + ' AX</span></div>' +
-                                '<div class="meta-box">DIFFICULTY<span class="meta-val">' + b.Difficulty + '</span></div>' +
+                                '<div class="meta-box">DIFFICULTY<span class="meta-val">' + diff + '</span></div>' +
                                 '<div class="meta-box">STATUS<span class="meta-val" style="color:#10b981;">FINALIZED</span></div>' +
                             '</div>' +
                             '<div class="block-hash">' + hash + '</div>' +
