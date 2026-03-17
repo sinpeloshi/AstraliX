@@ -242,7 +242,7 @@ const landingHTML = `
         .m-highlight { color: var(--acc); font-weight: 700; }
         .m-address { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05); }
         
-        /* TOKENOMICS SECTION (UPDATED FAIR-LAUNCH 40%) */
+        /* TOKENOMICS SECTION */
         .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
         .tok-flex { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; margin-top: 50px; }
         .tok-chart { position: relative; width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, #4B5563 12.5% 52.5%, #8B5CF6 52.5% 67.5%, var(--prim) 67.5% 82.5%, #F59E0B 82.5% 92.5%, #EC4899 92.5% 100%); }
@@ -316,6 +316,7 @@ const landingHTML = `
             </div>
             <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
                 <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="https://t.me/AstraliXProtocol" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fa-brands fa-telegram"></i></a>
                 <a href="mailto:info@astralix.network" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fas fa-envelope"></i></a>
             </div>
         </div>
@@ -464,6 +465,7 @@ const landingHTML = `
                 <p style="color: #A1A1AA; margin-top: 20px; font-size: 0.9rem; line-height:1.8;">Leading the cryptographic revolution through 512-bit security standards.</p>
                 <div style="display:flex; gap:15px; margin-top:20px;">
                     <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
+                    <a href="https://t.me/AstraliXProtocol" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-telegram" style="font-size:1.3rem;"></i> Telegram</a>
                     <a href="mailto:info@astralix.network" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fas fa-envelope" style="font-size:1.3rem;"></i> Email</a>
                 </div>
             </div>
