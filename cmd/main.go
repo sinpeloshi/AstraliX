@@ -191,44 +191,85 @@ const landingHTML = `
     <title>AstraliX | The 512-bit Layer 1 Protocol</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+        /* Agregamos Inter como fuente principal para darle el look "Stripe/Vercel" */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap');
+        
         :root { --bg: #020202; --bg-card: #080808; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; --acc: #10B981; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
-        .bg-p { position: fixed; width: 100vw; height: 100vh; background-image: radial-gradient(circle at 1px 1px, #111 1px, transparent 0); background-size: 40px 40px; z-index: -1; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.5; overflow-x: hidden; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; letter-spacing: -0.02em; }
         
-        .nav { padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); z-index: 100; border-bottom: 1px solid var(--brd); }
+        /* Fondo de malla de puntos más sutil y elegante */
+        .bg-p { position: fixed; width: 100vw; height: 100vh; background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 0); background-size: 30px 30px; z-index: -1; }
+        
+        .nav { padding: 20px 6%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: rgba(2,2,2,0.7); backdrop-filter: blur(24px); z-index: 100; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .logo { display: flex; align-items: center; text-decoration: none; }
         .logo img { height: 45px; width: auto; mix-blend-mode: screen; } 
         
         .nav-links { display: flex; align-items: center; }
         .nav-links a { color: var(--txt-m); text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.2s; margin-right: 25px; }
         .nav-links a:hover { color: var(--txt); }
-        .btn-core-nav { background: var(--prim); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; text-decoration: none; transition: 0.3s; margin-right: 0 !important; }
-        .btn-core-nav:hover { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); transform: translateY(-2px); }
+        .btn-core-nav { background: rgba(255,255,255,0.1); color: white !important; padding: 10px 22px; border-radius: 100px; font-size: 0.75rem; font-weight: 700; text-decoration: none; transition: 0.3s; margin-right: 0 !important; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-core-nav:hover { background: rgba(255,255,255,1); color: #000 !important; }
         .nav-socials a:hover { color: var(--prim) !important; transform: translateY(-2px); }
         
-        .hero { text-align: center; padding: 80px 6% 40px; max-width: 1200px; margin: 0 auto; position: relative; }
-        .hero h1 { font-size: clamp(3rem, 9vw, 6.2rem); font-weight: 800; letter-spacing: -3px; line-height: 1.1; margin-bottom: 25px; background: linear-gradient(180deg, #FFFFFF 40%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 25px rgba(59, 130, 246, 0.4)); padding-bottom: 10px; }
-        .hero p { font-size: clamp(1rem, 2.5vw, 1.4rem); color: var(--txt-m); max-width: 750px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; }
+        .hero { text-align: center; padding: 100px 6% 60px; max-width: 1200px; margin: 0 auto; position: relative; }
+        
+        /* 🔥 EL NUEVO TITULO SILICON VALLEY 🔥 */
+        .hero-title-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+        
+        /* El "Glow" difuminado detrás del texto */
+        .hero-title-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 60%);
+            filter: blur(40px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .hero h1 { 
+            font-size: clamp(3.5rem, 10vw, 7rem); 
+            font-weight: 900; 
+            letter-spacing: -0.05em; 
+            line-height: 1.05; 
+            margin: 0;
+            /* Gradiente suave estilo Apple/Vercel (del centro claro a los bordes sutilmente más oscuros) */
+            background: radial-gradient(100% 100% at 50% 0%, #FFFFFF 0%, #A1A1AA 100%);
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            text-shadow: 0px 4px 20px rgba(0,0,0,0.5);
+            padding: 10px 0;
+        }
+        
+        .hero p { font-size: clamp(1.1rem, 2.5vw, 1.3rem); color: #A1A1AA; max-width: 700px; margin: 0 auto 50px; font-weight: 400; line-height: 1.6; letter-spacing: -0.01em; }
+        
         .hero-btns { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
-        .btn-p { padding: 18px 40px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 1rem; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-blue { background: var(--prim); color: #FFF; box-shadow: 0 0 20px rgba(59,130,246,0.3); }
-        .btn-blue:hover { background: #2563EB; transform: translateY(-2px); }
-        .btn-white { background: #FFF; color: #000; }
-        .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255,255,255,0.2); }
-        .btn-dark { border: 1px solid var(--brd); color: #FFF; background: rgba(255,255,255,0.03); }
-        .btn-dark:hover { background: rgba(255,255,255,0.08); }
+        .btn-p { padding: 16px 36px; border-radius: 100px; font-weight: 600; text-decoration: none; font-size: 1rem; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; gap: 10px; letter-spacing: -0.01em; }
+        .btn-blue { background: var(--txt); color: #000; box-shadow: 0 0 20px rgba(255,255,255,0.2); }
+        .btn-blue:hover { background: #E4E4E7; transform: translateY(-2px); }
+        .btn-white { background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-white:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .btn-dark { color: #A1A1AA; }
+        .btn-dark:hover { color: #FFF; }
         
         .mockup-container { max-width: 900px; margin: 0 auto; padding: 0 6%; position: relative; perspective: 1000px; }
         .mockup-glow { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 50%; background: var(--prim); filter: blur(120px); opacity: 0.15; z-index: -1; }
-        .mockup-window { background: rgba(10,10,10,0.8); border: 1px solid #222; border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); transform: rotateX(2deg); transition: 0.5s; text-align: left; }
-        .mockup-window:hover { transform: rotateX(0deg) translateY(-5px); border-color: #333; }
-        .mockup-header { background: #111; padding: 12px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #222; }
+        .mockup-window { background: rgba(5,5,5,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; overflow: hidden; backdrop-filter: blur(20px); box-shadow: 0 30px 60px -12px rgba(0,0,0,0.8); transform: rotateX(2deg); transition: 0.5s; text-align: left; }
+        .mockup-window:hover { transform: rotateX(0deg) translateY(-5px); border-color: rgba(255,255,255,0.2); }
+        .mockup-header { background: rgba(255,255,255,0.02); padding: 12px 20px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .m-dot { width: 10px; height: 10px; border-radius: 50%; }
-        .mockup-body { padding: 30px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--txt-m); line-height: 1.8; }
+        .mockup-body { padding: 30px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #A1A1AA; line-height: 1.8; }
         .m-highlight { color: var(--acc); font-weight: 700; }
-        .m-address { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid #222; }
+        .m-address { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05); }
         
         /* TOKENOMICS SECTION (UPDATED FAIR-LAUNCH 40%) */
         .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
@@ -245,39 +286,39 @@ const landingHTML = `
         .q-box .val { font-family: 'JetBrains Mono'; font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
         
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto 100px; padding: 0 6%; }
-        .card { background: var(--bg-card); border: 1px solid var(--brd); padding: 50px 40px; text-align: left; border-radius: 20px; transition: 0.3s; }
-        .card:hover { border-color: var(--prim); background: #0A0A0A; transform: translateY(-5px); }
-        .card i { color: var(--prim); font-size: 2rem; margin-bottom: 25px; display: block; }
-        .card h4 { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; }
-        .card p { color: var(--txt-m); font-size: 0.95rem; line-height: 1.7; }
+        .card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 50px 40px; text-align: left; border-radius: 20px; transition: 0.3s; }
+        .card:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); transform: translateY(-5px); }
+        .card i { color: var(--txt); font-size: 2rem; margin-bottom: 25px; display: block; opacity: 0.8; }
+        .card h4 { font-size: 1.3rem; font-weight: 700; margin-bottom: 15px; letter-spacing: -0.02em; }
+        .card p { color: #A1A1AA; font-size: 0.95rem; line-height: 1.7; }
         
         .roadmap { max-width: 800px; margin: 100px auto; padding: 0 6%; }
-        .rm-step { border-left: 2px solid #222; padding: 0 0 50px 30px; position: relative; }
+        .rm-step { border-left: 2px solid rgba(255,255,255,0.1); padding: 0 0 50px 30px; position: relative; }
         .rm-step::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--prim); border-radius: 50%; }
         .rm-date { font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom: 10px; text-transform: uppercase; }
         
         /* TIERS & INSTRUCTIONS CSS */
-        .pre-sale { background: var(--bg-card); padding: 100px 6%; text-align: center; border-top: 1px solid var(--brd); }
+        .pre-sale { background: rgba(255,255,255,0.01); padding: 100px 6%; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
         .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 800px; margin: 0 auto 40px; }
-        .tier-card { background: #000; border: 1px solid var(--brd); border-radius: 20px; padding: 40px 30px; transition: 0.3s; position: relative; overflow: hidden; text-align: center; }
-        .tier-card:hover { border-color: var(--prim); transform: translateY(-5px); }
-        .tier-card.premium { border-color: rgba(16, 185, 129, 0.4); background: linear-gradient(180deg, rgba(16,185,129,0.05) 0%, #000 100%); }
-        .tier-card.premium::before { content: 'PRO'; position: absolute; top: 15px; right: -30px; background: var(--acc); color: #000; font-size: 0.6rem; font-weight: 800; padding: 5px 30px; transform: rotate(45deg); letter-spacing: 1px; }
-        .t-price { font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; margin: 15px 0; color: #FFF; }
-        .t-name { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--prim); font-weight: 800; }
-        .premium .t-name { color: var(--acc); }
-        .t-list { text-align: left; margin-top: 25px; display: flex; flex-direction: column; gap: 15px; font-size: 0.9rem; color: var(--txt-m); }
+        .tier-card { background: #000; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 40px 30px; transition: 0.3s; position: relative; overflow: hidden; text-align: center; }
+        .tier-card:hover { border-color: rgba(255,255,255,0.3); transform: translateY(-5px); }
+        .tier-card.premium { border-color: rgba(59, 130, 246, 0.4); background: radial-gradient(100% 100% at 50% 0%, rgba(59, 130, 246, 0.1) 0%, #000 100%); }
+        .tier-card.premium::before { content: 'PRIORITY'; position: absolute; top: 15px; right: -35px; background: var(--prim); color: #FFF; font-size: 0.55rem; font-weight: 800; padding: 5px 35px; transform: rotate(45deg); letter-spacing: 1px; }
+        .t-price { font-size: 3rem; font-weight: 900; letter-spacing: -0.05em; margin: 15px 0; color: #FFF; }
+        .t-name { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: #A1A1AA; font-weight: 800; }
+        .premium .t-name { color: var(--txt); }
+        .t-list { text-align: left; margin-top: 25px; display: flex; flex-direction: column; gap: 15px; font-size: 0.9rem; color: #A1A1AA; }
         .t-list div { display: flex; align-items: center; gap: 12px; }
-        .t-list i { color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.7rem; min-width: 12px; text-align: center; }
+        .t-list i { color: var(--txt); background: rgba(255,255,255,0.1); padding: 5px; border-radius: 50%; font-size: 0.6rem; min-width: 12px; text-align: center; }
         
-        .inst-box { background: #0A0A0A; border: 1px solid var(--brd); border-radius: 20px; padding: 30px; margin-bottom: 20px; text-align: left; }
-        .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; }
-        .btn-buy:hover { transform: scale(1.02); background: #12d392; }
+        .inst-box { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 30px; margin-bottom: 20px; text-align: left; }
+        .btn-buy { background: var(--txt); color: #000; padding: 18px 40px; border-radius: 100px; font-weight: 700; text-decoration: none; font-size: 1.05rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; letter-spacing: -0.01em; }
+        .btn-buy:hover { transform: scale(1.02); background: #E4E4E7; }
         
-        footer { padding: 80px 6% 40px; border-top: 1px solid var(--brd); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; text-align: left; }
+        footer { padding: 80px 6% 40px; border-top: 1px solid rgba(255,255,255,0.05); display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; max-width: 1200px; margin: 0 auto; text-align: left; }
         .f-col h5 { margin-bottom: 20px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--txt); }
-        .f-col a { display: block; color: var(--txt-m); text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
-        .f-col a:hover { color: var(--prim); }
+        .f-col a { display: block; color: #A1A1AA; text-decoration: none; margin-bottom: 12px; font-size: 0.9rem; transition: 0.2s; }
+        .f-col a:hover { color: var(--txt); }
         .f-logo img { height: 50px; mix-blend-mode: screen; }
         
         /* RESPONSIVE DESIGN */
@@ -312,12 +353,16 @@ const landingHTML = `
     </nav>
     <header class="hero">
         <div style="background: rgba(16,185,129,0.1); color: var(--acc); padding: 8px 24px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; display: inline-block; margin-bottom: 30px; border: 1px solid rgba(16,185,129,0.2);"><span style="display:inline-block; width:8px; height:8px; background:var(--acc); border-radius:50%; margin-right:8px; box-shadow: 0 0 10px var(--acc);"></span>ALPHA TESTNET LIVE</div>
-        <h1>The 512-bit Standard is Here.</h1>
+        
+        <div class="hero-title-container">
+            <h1>The 512-bit<br>Standard is Here.</h1>
+        </div>
+        
         <p>Redefining cryptographic sovereignty with the world's first ISP-backed DePIN Layer 1. Mathematically immune. Physically anchored.</p>
+        
         <div class="hero-btns">
             <a href="/dashboard" class="btn-p btn-blue"><i class="fas fa-terminal"></i> Launch Testnet App</a>
             <a href="#buy" class="btn-p btn-white">Apply for Node</a>
-            <a href="/whitepaper" class="btn-p btn-dark">Read Whitepaper</a>
         </div>
     </header>
 
@@ -335,7 +380,7 @@ const landingHTML = `
                 <div>> connecting to global peer network... <span class="m-highlight">[OK]</span></div>
                 <div>> synchronizing genesis ledger... <span class="m-highlight">[DONE]</span></div>
                 <br>
-                <div style="display:flex; justify-content:space-between; border-top:1px dashed #333; padding-top:20px; flex-wrap:wrap; gap:15px;">
+                <div style="display:flex; justify-content:space-between; border-top:1px dashed rgba(255,255,255,0.1); padding-top:20px; flex-wrap:wrap; gap:15px;">
                     <div>
                         <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">Network Status</div>
                         <div style="color:var(--acc); font-weight:800; font-size:1.2rem;">SYNCED (BLOCK #<span id="mock-block">0</span>)</div>
@@ -353,8 +398,8 @@ const landingHTML = `
     </div>
 
     <section class="tokenomics">
-        <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:15px;">Strategic Tokenomics</h2>
-        <p style="color:var(--txt-m); max-width:600px; margin:0 auto;">A Fair-Launch distribution designed to reward validators, protect liquidity, and decentralize the network.</p>
+        <h2 style="font-size:2.5rem; font-weight:800; margin-bottom:15px; letter-spacing: -0.03em;">Strategic Tokenomics</h2>
+        <p style="color:#A1A1AA; max-width:600px; margin:0 auto;">A Fair-Launch distribution designed to reward validators, protect liquidity, and decentralize the network.</p>
         <div class="tok-flex">
             <div class="tok-chart"></div>
             <div class="tok-legend">
@@ -369,15 +414,15 @@ const landingHTML = `
     </section>
 
     <section class="sec-q">
-        <div class="q-box" style="border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05);">
+        <div class="q-box" style="border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.03);">
             <h3 style="color: #EF4444;">Legacy Standard (BTC, ETH, SOL)</h3>
             <div class="val" style="color: #EF4444;">256-bit</div>
-            <p style="color: var(--txt-m); font-size: 0.9rem; line-height:1.7; margin-top:10px;">Vulnerable to Shor's Algorithm and next-gen quantum decryption within this decade.</p>
+            <p style="color: #A1A1AA; font-size: 0.9rem; line-height:1.7; margin-top:10px;">Vulnerable to Shor's Algorithm and next-gen quantum decryption within this decade.</p>
         </div>
-        <div class="q-box" style="border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05);">
+        <div class="q-box" style="border-color: rgba(16,185,129,0.2); background: rgba(16,185,129,0.03);">
             <h3 style="color: #10B981;">AstraliX Core Standard</h3>
             <div class="val" style="color: #10B981;">512-bit</div>
-            <p style="color: var(--txt-m); font-size: 0.9rem; line-height:1.7; margin-top:10px;">Mathematically immune to classical and quantum brute-force attacks via ultra-high entropy.</p>
+            <p style="color: #A1A1AA; font-size: 0.9rem; line-height:1.7; margin-top:10px;">Mathematically immune to classical and quantum brute-force attacks via ultra-high entropy.</p>
         </div>
     </section>
 
@@ -388,19 +433,19 @@ const landingHTML = `
     </main>
 
     <section class="roadmap" id="roadmap">
-        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800;">Strategic Roadmap</h2></div>
-        <div class="rm-step"><div class="rm-date">Q1 2026</div><h4 style="font-size:1.2rem; margin-bottom:10px;">Genesis Alpha</h4><p style="color:var(--txt-m);">Deployment of the core engine and Founder Node allocation program for early backers.</p></div>
-        <div class="rm-step" style="border-left-color: var(--prim);"><div class="rm-date" style="background: var(--prim); color: #000; display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight:900;">APRIL 2026</div><h4 style="font-size:1.2rem; margin-bottom:10px;">Mainnet Launch</h4><p style="color:var(--txt-m);">Official network transition. Token migration 1:1 and full decentralized validator onboarding.</p></div>
+        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800; letter-spacing: -0.03em;">Strategic Roadmap</h2></div>
+        <div class="rm-step"><div class="rm-date">Q1 2026</div><h4 style="font-size:1.2rem; margin-bottom:10px;">Genesis Alpha</h4><p style="color:#A1A1AA;">Deployment of the core engine and Founder Node allocation program for early backers.</p></div>
+        <div class="rm-step" style="border-left-color: var(--prim);"><div class="rm-date" style="background: var(--prim); color: #FFF; display: inline-block; padding: 4px 12px; border-radius: 4px; font-weight:800;">APRIL 2026</div><h4 style="font-size:1.2rem; margin-bottom:10px;">Mainnet Launch</h4><p style="color:#A1A1AA;">Official network transition. Token migration 1:1 and full decentralized validator onboarding.</p></div>
     </section>
 
     <section id="buy" class="pre-sale">
         <div style="text-transform: uppercase; letter-spacing: 4px; font-weight: 800; color: var(--prim); font-size: 0.8rem; margin-bottom:15px;">Founder Node Whitelist</div>
-        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800; margin:0; color:#FFF;">Strategic Node Application</h2></div>
+        <div style="margin-bottom: 50px;"><h2 style="font-size:2.5rem; font-weight:800; margin:0; color:#FFF; letter-spacing: -0.03em;">Strategic Node Application</h2></div>
         
         <div class="tier-grid">
             <div class="tier-card">
                 <div class="t-name">Standard Node</div>
-                <div class="t-price" style="font-size: 2.5rem;">10K<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> AX</span></div>
+                <div class="t-price">10K<span style="font-size:1.2rem; color:#A1A1AA; font-weight:600;"> AX</span></div>
                 <div class="t-list">
                     <div><i class="fas fa-check"></i> <span><strong>Seed Allocation</strong> (Testnet)</span></div>
                     <div><i class="fas fa-check"></i> <span><strong>Validator Rights:</strong> Earn AX</span></div>
@@ -409,7 +454,7 @@ const landingHTML = `
             </div>
             <div class="tier-card premium">
                 <div class="t-name">Master Node</div>
-                <div class="t-price" style="font-size: 2.5rem;">100K<span style="font-size:1.2rem; color:var(--txt-m); font-weight:600;"> AX</span></div>
+                <div class="t-price">100K<span style="font-size:1.2rem; color:#A1A1AA; font-weight:600;"> AX</span></div>
                 <div class="t-list">
                     <div><i class="fas fa-check"></i> <span><strong>Priority Allocation</strong> (Testnet)</span></div>
                     <div><i class="fas fa-check"></i> <span><strong>Premium Validator Rights</strong></span></div>
@@ -421,21 +466,21 @@ const landingHTML = `
         <div style="max-width: 700px; margin: 0 auto; text-align: left;">
             
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:underline;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong> to include in your application.</p>
+                <div style="color: var(--txt); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
+                <p style="color: #A1A1AA; font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:none; font-weight:600;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong> to include in your application.</p>
             </div>
 
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SUBMIT APPLICATION</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 15px;">We are currently selecting strategic infrastructure partners for the Genesis Block. Complete the application form via Tally.</p>
+                <div style="color: var(--txt); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SUBMIT APPLICATION</div>
+                <p style="color: #A1A1AA; font-size: 0.95rem; margin-bottom: 15px;">We are currently selecting strategic infrastructure partners for the Genesis Block. Complete the application form via Tally.</p>
                 <div style="text-align: center; margin-top: 20px;">
                     <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">APPLY FOR NODE <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
             <div class="inst-box">
-                <div style="color: var(--prim); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: ONBOARDING</div>
-                <p style="color: var(--txt-m); font-size: 0.95rem; margin-bottom: 0;">If your profile is selected, you will receive an official email from <strong>info@astralix.network</strong> with the private SAFT and funding instructions to activate your node.</p>
+                <div style="color: var(--txt); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: ONBOARDING</div>
+                <p style="color: #A1A1AA; font-size: 0.95rem; margin-bottom: 0;">If your profile is selected, you will receive an official email from <strong>info@astralix.network</strong> with the private SAFT and funding instructions to activate your node.</p>
             </div>
             
         </div>
@@ -445,16 +490,16 @@ const landingHTML = `
         <div class="footer-grid">
             <div class="f-col">
                 <a href="/" class="logo f-logo"><img src="https://iili.io/qMGLM57.jpg" alt="AstraliX"></a>
-                <p style="color: var(--txt-m); margin-top: 20px; font-size: 0.9rem; line-height:1.8;">Leading the cryptographic revolution through 512-bit security standards.</p>
+                <p style="color: #A1A1AA; margin-top: 20px; font-size: 0.9rem; line-height:1.8;">Leading the cryptographic revolution through 512-bit security standards.</p>
                 <div style="display:flex; gap:15px; margin-top:20px;">
-                    <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
-                    <a href="mailto:info@astralix.network" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fas fa-envelope" style="font-size:1.3rem;"></i> Email</a>
+                    <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
+                    <a href="mailto:info@astralix.network" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fas fa-envelope" style="font-size:1.3rem;"></i> Email</a>
                 </div>
             </div>
             <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></div>
             <div class="f-col"><h5>Resources</h5><a href="/dashboard">Testnet Dashboard</a><a href="https://tally.so/r/jaxlL1">Verify Node</a></div>
         </div>
-        <div style="text-align:center; margin-top:60px; color:var(--txt-m); font-size:0.8rem; opacity:0.5;">© 2026 AstraliX Foundation. Designed for Sovereign Security.</div>
+        <div style="text-align:center; margin-top:60px; color:#A1A1AA; font-size:0.8rem; opacity:0.5;">© 2026 AstraliX Foundation. Designed for Sovereign Security.</div>
     </footer>
 
     <script>
@@ -491,17 +536,17 @@ const whitepaperHTML = `
     <title>Whitepaper | AstraliX Protocol</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400&display=swap');
+        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #A1A1AA; --brd: rgba(255,255,255,0.1); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; overflow-x: hidden; letter-spacing: -0.01em; }
         .container { max-width: 850px; margin: 0 auto; padding: 60px 6%; }
-        h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; line-height: 1.1; }
-        h2 { font-size: 1.8rem; font-weight: 800; margin: 60px 0 25px; color: var(--prim); border-bottom: 1px solid var(--brd); padding-bottom: 15px; }
-        h3 { font-size: 1.3rem; color: #FFF; margin: 30px 0 15px; }
-        p { margin-bottom: 20px; color: #CCC; font-size: 1.05rem; }
-        ul { margin-bottom: 25px; padding-left: 20px; color: #CCC; font-size: 1.05rem; }
+        h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; letter-spacing: -0.04em; margin-bottom: 20px; line-height: 1.1; }
+        h2 { font-size: 1.8rem; font-weight: 800; margin: 60px 0 25px; color: var(--txt); border-bottom: 1px solid var(--brd); padding-bottom: 15px; letter-spacing: -0.02em; }
+        h3 { font-size: 1.3rem; color: #FFF; margin: 30px 0 15px; font-weight: 700; }
+        p { margin-bottom: 20px; color: var(--txt-m); font-size: 1.05rem; }
+        ul { margin-bottom: 25px; padding-left: 20px; color: var(--txt-m); font-size: 1.05rem; }
         li { margin-bottom: 10px; }
-        .tech-box { background: #080808; border: 1px solid var(--brd); padding: 30px; border-radius: 15px; margin: 30px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--txt-m); overflow-x: auto; }
+        .tech-box { background: rgba(255,255,255,0.02); border: 1px solid var(--brd); padding: 30px; border-radius: 15px; margin: 30px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--txt-m); overflow-x: auto; }
         .quote { font-style: italic; border-left: 4px solid var(--prim); padding-left: 20px; margin: 40px 0; color: #FFF; font-size: 1.2rem; }
         footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--brd); margin-top: 80px; color: var(--txt-m); font-size: 0.9rem; }
     </style>
@@ -509,12 +554,12 @@ const whitepaperHTML = `
 <body>
     <div class="container">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-            <a href="/" style="color:var(--prim); text-decoration:none; font-weight:800; font-size:0.9rem;"><i class="fas fa-arrow-left"></i> BACK TO HOME</a>
+            <a href="/" style="color:var(--txt); text-decoration:none; font-weight:700; font-size:0.9rem;"><i class="fas fa-arrow-left"></i> BACK TO HOME</a>
             <img src="https://iili.io/qMGLM57.jpg" style="height:45px; mix-blend-mode:screen;" alt="AstraliX">
         </div>
         
         <h1>AstraliX Protocol: The 512-Bit Architecture</h1>
-        <p style="font-size:0.9rem; color:var(--txt-m); text-transform:uppercase; letter-spacing:1px;">Version 1.0 (Alpha Genesis) • Lead Architect: Denis Waldemar • March 2026</p>
+        <p style="font-size:0.9rem; color:var(--prim); font-weight: 700; text-transform:uppercase; letter-spacing:1px;">Version 1.0 (Alpha Genesis) • Lead Architect: Denis Waldemar • March 2026</p>
         
         <h2>Abstract</h2>
         <p>The AstraliX Protocol is a next-generation Layer 1 blockchain engineered to solve the impending crisis of cryptographic decay. As quantum computing advances at an exponential rate, legacy networks relying on 256-bit Elliptic Curve Digital Signature Algorithms (ECDSA) and SHA-256 hashing face an existential threat. By doubling the cryptographic bit-length to a 512-bit standard, AstraliX establishes a deterministic security moat that remains theoretically immune to both classical brute-force and quantum heuristic attacks.</p>
@@ -584,9 +629,9 @@ const dashboardHTML = `
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --card: #080808; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding-bottom: 120px; color: var(--txt); overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400&display=swap');
+        :root { --bg: #020202; --card: rgba(255,255,255,0.02); --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #A1A1AA; --brd: rgba(255,255,255,0.05); }
+        body { background: var(--bg); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 120px; color: var(--txt); overflow-x: hidden; letter-spacing: -0.01em; }
         .container { max-width: 550px; margin: 0 auto; padding: 0 5%; width: 100%; box-sizing: border-box; }
         .header-ax { padding: 40px 0 20px; text-align: center; }
         .status-box { display: inline-flex; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px 16px; border-radius: 100px; margin-top: 15px; border: 1px solid rgba(16, 185, 129, 0.2); }
@@ -595,13 +640,14 @@ const dashboardHTML = `
         .card-ax { background: var(--card); border-radius: 24px; padding: 30px 25px; width: 100%; border: 1px solid var(--brd); box-sizing: border-box; }
         .bal-lbl { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px; color: var(--txt-m); font-weight: 700; margin-bottom: 12px; display: block; }
         .bal-val { font-size: clamp(2rem, 8vw, 2.5rem); font-weight: 800; margin-bottom: 25px; letter-spacing: -1px; word-break: break-word; }
-        .pill { background: #000; padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 2.2vw, 0.75rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; text-align: left; }
-        .btn-ax { background: var(--prim); color: white; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .pill { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; font-family: 'JetBrains Mono', monospace; font-size: clamp(0.55rem, 2.2vw, 0.75rem); word-break: break-all; color: var(--txt-m); border: 1px solid var(--brd); line-height: 1.5; width: 100%; box-sizing: border-box; text-align: left; }
+        .btn-ax { background: var(--txt); color: #000; border-radius: 15px; padding: 20px; font-weight: 800; border: none; width: 100%; font-size: 0.95rem; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-ax:hover { background: #E4E4E7; transform: translateY(-2px); }
         .bottom-bar { background: rgba(2,2,2,0.85); backdrop-filter: blur(20px); position: fixed; bottom: 0; left: 0; width: 100%; height: 85px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid var(--brd); z-index: 1000; }
         .nav-l { color: #555; text-decoration: none; font-size: 0.6rem; font-weight: 800; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; text-transform: uppercase; flex: 1; }
-        .nav-l.active { color: var(--prim); }
+        .nav-l.active { color: var(--txt); }
         .nav-l i { font-size: 1.3rem; }
-        .input-ax { width: 100%; padding: 20px; border-radius: 15px; border: 1px solid var(--brd); background: #000; color: #FFF; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 0.9rem; }
+        .input-ax { width: 100%; padding: 20px; border-radius: 15px; border: 1px solid var(--brd); background: rgba(0,0,0,0.5); color: #FFF; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -612,7 +658,7 @@ const dashboardHTML = `
         </div>
         
         <div id="v-dash" class="view-ax" style="display:flex;">
-            <div class="card-ax" style="border-color: var(--prim); background: linear-gradient(180deg, #0A0A0A 0%, #000 100%);">
+            <div class="card-ax" style="border-color: rgba(59, 130, 246, 0.3); background: radial-gradient(100% 100% at 50% 0%, rgba(59, 130, 246, 0.05) 0%, rgba(255,255,255,0.02) 100%);">
                 <span class="bal-lbl">Personal Ledger</span>
                 <div id="bal-txt" class="bal-val">0.00 AX</div>
                 <div id="addr-txt" class="pill" style="text-align:center;">VAULT LOCKED</div>
@@ -650,7 +696,7 @@ const dashboardHTML = `
                 <textarea id="i-seed" class="input-ax" style="height:120px; resize:none;" placeholder="Enter 24-word seed phrase..."></textarea>
                 <button class="btn-ax" onclick="login()">RESTORE WALLET</button>
                 <div style="text-align:center; margin: 25px 0; color:#444; font-size:0.7rem; font-weight:800; letter-spacing: 1px;">SECURE ENCRYPTION</div>
-                <button class="btn-ax" style="background:transparent; border:1px solid #222; color:#777;" onclick="gen()">GENERATE IDENTITY</button>
+                <button class="btn-ax" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:var(--txt-m);" onclick="gen()">GENERATE IDENTITY</button>
                 
                 <div id="g-res" style="display:none; margin-top:25px;">
                     <button class="btn-ax" style="margin-bottom: 15px;" onclick="copySeed()"><i class="fas fa-copy"></i> COPY 24-WORD SEED</button>
@@ -701,7 +747,7 @@ const dashboardHTML = `
             for(let i=0; i<revChain.length; i++) {
                 let b = revChain[i]; let idx = b.Index !== undefined ? b.Index : b.index;
                 let hash = b.Hash || b.hash;
-                html += '<div class="card-ax" style="padding:20px; margin-bottom:15px; border-radius:15px;"><span style="background:var(--prim); color:#FFF; padding:4px 10px; border-radius:6px; font-size:0.6rem; font-weight:800;">BLOCK #' + idx + '</span><div style="margin-top:15px; font-size:clamp(0.55rem, 2vw, 0.65rem); word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + hash + '</div></div>';
+                html += '<div class="card-ax" style="padding:20px; margin-bottom:15px; border-radius:15px;"><span style="background:var(--txt); color:#000; padding:4px 10px; border-radius:6px; font-size:0.6rem; font-weight:800;">BLOCK #' + idx + '</span><div style="margin-top:15px; font-size:clamp(0.55rem, 2vw, 0.65rem); word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + hash + '</div></div>';
             }
             list.innerHTML = html;
         }
@@ -712,9 +758,9 @@ const dashboardHTML = `
             if(holders && holders.length > 0) {
                 for(let i=0; i<holders.length; i++) {
                     let h = holders[i];
-                    let isTreasury = (h.address === treasuryAddr) ? '<span style="background:var(--prim); color:#FFF; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle;">TREASURY</span>' : '';
+                    let isTreasury = (h.address === treasuryAddr) ? '<span style="background:var(--txt); color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">TREASURY</span>' : '';
                     let isYou = (session && h.address === session.pub) ? '<span style="background:#10B981; color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">YOU</span>' : '';
-                    html += '<div class="card-ax" style="padding:18px; margin-bottom:15px; border-radius:15px; background:#0A0A0A;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-weight:800; font-size:0.9rem; color:#10B981;">#' + (i+1) + isTreasury + isYou + '</div><div style="font-weight:800; font-size:0.9rem; color:#FFF;">' + h.balance.toLocaleString() + ' AX</div></div><div style="font-size:0.55rem; word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + h.address + '</div></div>';
+                    html += '<div class="card-ax" style="padding:18px; margin-bottom:15px; border-radius:15px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-weight:800; font-size:0.9rem; color:#10B981;">#' + (i+1) + isTreasury + isYou + '</div><div style="font-weight:800; font-size:0.9rem; color:#FFF;">' + h.balance.toLocaleString() + ' AX</div></div><div style="font-size:0.55rem; word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + h.address + '</div></div>';
                 }
             } else {
                 html = "<p style='color:var(--txt-m); font-size:0.8rem;'>Syncing ledgers...</p>";
@@ -732,7 +778,7 @@ const dashboardHTML = `
             let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
             currentGeneratedSeed = seed; // GUARDAMOS LA SEMILLA GENERADA
             const keys = await derive(seed.join(" ")); document.getElementById("g-res").style.display = "block";
-            let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="background:#000; padding:8px 12px; border-radius:8px; border:1px solid #111; font-size:0.7rem; color:var(--txt-m);"><span style="color:var(--prim); margin-right:5px; font-weight:800;">'+(i+1)+'</span> '+seed[i]+'</div>';
+            let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="background:rgba(0,0,0,0.5); padding:8px 12px; border-radius:8px; border:1px solid var(--brd); font-size:0.7rem; color:var(--txt-m);"><span style="color:var(--txt); margin-right:5px; font-weight:800;">'+(i+1)+'</span> '+seed[i]+'</div>';
             document.getElementById("g-seed").innerHTML = sH; document.getElementById("g-pub").innerText = keys.pub;
         }
 
