@@ -654,6 +654,8 @@ const dashboardHTML = `
                 <button class="btn-ax" style="background:transparent; border:1px solid #222; color:#777;" onclick="gen()">GENERATE IDENTITY</button>
                 
                 <div id="g-res" style="display:none; margin-top:25px;">
+                    <button class="btn-ax" style="margin-bottom: 15px;" onclick="copySeed()"><i class="fas fa-copy"></i> COPY 24-WORD SEED</button>
+                    
                     <div id="g-seed" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
                     <span class="bal-lbl" style="margin-top:25px;">Public Identity</span>
                     <div class="pill" id="g-pub"></div>
@@ -673,6 +675,8 @@ const dashboardHTML = `
     <script>
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
         const treasuryAddr = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158";
+        
+        let currentGeneratedSeed = []; // VARIABLE GLOBAL PARA GUARDAR LA SEMILLA
         
         async function derive(seed) {
             const buf = new TextEncoder().encode(seed);
@@ -727,9 +731,22 @@ const dashboardHTML = `
 
         async function gen() {
             let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
+            currentGeneratedSeed = seed; // GUARDAMOS LA SEMILLA GENERADA
             const keys = await derive(seed.join(" ")); document.getElementById("g-res").style.display = "block";
             let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="background:#000; padding:8px 12px; border-radius:8px; border:1px solid #111; font-size:0.7rem; color:var(--txt-m);"><span style="color:var(--prim); margin-right:5px; font-weight:800;">'+(i+1)+'</span> '+seed[i]+'</div>';
             document.getElementById("g-seed").innerHTML = sH; document.getElementById("g-pub").innerText = keys.pub;
+        }
+
+        // NUEVA FUNCIÓN PARA COPIAR AL PORTAPAPELES
+        function copySeed() {
+            if(currentGeneratedSeed.length > 0) {
+                const seedString = currentGeneratedSeed.join(" ");
+                navigator.clipboard.writeText(seedString).then(() => {
+                    alert("24-word seed copied to clipboard! Keep it safe.");
+                }).catch(err => {
+                    alert("Error copying seed. Please copy manually.");
+                });
+            }
         }
 
         async function load() {
