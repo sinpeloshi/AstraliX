@@ -241,7 +241,6 @@ const landingHTML = `
         .m-highlight { color: var(--acc); font-weight: 700; }
         .m-address { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05); }
         
-        /* TOKENOMICS SECTION */
         .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
         .tok-flex { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; margin-top: 50px; }
         .tok-chart { position: relative; width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, #4B5563 12.5% 52.5%, #8B5CF6 52.5% 67.5%, var(--prim) 67.5% 82.5%, #F59E0B 82.5% 92.5%, #EC4899 92.5% 100%); }
@@ -491,7 +490,6 @@ const landingHTML = `
                         blockEl.innerText = idx;
                         hashEl.innerText = hash;
                         
-                        // Efecto de flash al actualizar
                         blockEl.style.color = "#FFF";
                         hashEl.style.color = "var(--acc)";
                         setTimeout(() => {
@@ -505,14 +503,14 @@ const landingHTML = `
             } catch(e) {}
         }
         fetchRealData();
-        setInterval(fetchRealData, 2500); // Actualiza cada 2.5 segundos
+        setInterval(fetchRealData, 2500); 
     </script>
 </body>
 </html>
 `
 
 // ==========================================
-// 📱 DASHBOARD CON LOGO Y RANKING
+// 📄 DASHBOARD CON LOGO Y RANKING
 // ==========================================
 
 const dashboardHTML = `
@@ -545,12 +543,12 @@ const dashboardHTML = `
         .input-ax { width: 100%; padding: 20px; border-radius: 15px; border: 1px solid var(--brd); background: rgba(0,0,0,0.5); color: #FFF; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 0.9rem; }
         
         /* BLOQUES EXPLORER MEJORADOS */
-        .block-card { background: #080808; border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; margin-bottom: 15px; position: relative; overflow: hidden; transition: 0.3s; }
-        .block-card:hover { border-color: #3b82f6; transform: scale(1.01); }
+        .block-card { background: #080808; border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; margin-bottom: 15px; position: relative; transition: 0.3s; }
+        .block-card:hover { border-color: rgba(59, 130, 246, 0.4); transform: translateY(-2px); }
         .block-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .meta-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; font-size: 0.65rem; }
+        .meta-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; font-size: 0.65rem; color: var(--txt-m); }
         .meta-val { display: block; font-weight: 800; font-size: 0.85rem; color: #fff; margin-top: 4px; }
-        .block-hash { font-family: 'JetBrains Mono'; font-size: 0.6rem; color: #555; word-break: break-all; background: #000; padding: 10px; border-radius: 10px; margin-top: 15px; border: 1px solid #111; }
+        .block-hash { font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; color: var(--txt-m); word-break: break-all; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px; margin-top: 15px; border: 1px solid var(--brd); }
         .time-badge { position: absolute; top: 20px; right: 20px; font-size: 0.6rem; background: rgba(59,130,246,0.1); color: #3b82f6; padding: 4px 10px; border-radius: 100px; font-weight: 800; }
     </style>
 </head>
@@ -585,9 +583,9 @@ const dashboardHTML = `
         </div>
 
         <div id="v-explorer" class="view-ax">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span class="bal-lbl">L1 Global Explorer</span>
-                <span id="speed-txt" style="font-size:0.6rem; color:#10B981; font-weight:800;">TPS: 0.0</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; margin-top:10px;">
+                <span class="bal-lbl" style="margin-bottom:0;">L1 Global Explorer</span>
+                <span id="speed-txt" style="font-size:0.65rem; color:#10B981; font-weight:800; letter-spacing:1px;">TPS: 0.0</span>
             </div>
             <div id="block-list"></div>
         </div>
@@ -638,6 +636,7 @@ const dashboardHTML = `
         }
         
         function timeAgo(ts) {
+            if (!ts) return "Unknown";
             const now = Math.floor(Date.now() / 1000);
             const diff = now - ts;
             if (diff < 60) return diff + "s ago";
@@ -664,8 +663,8 @@ const dashboardHTML = `
                 const revChain = [...chain].reverse();
 
                 if(chain.length > 1) {
-                    const firstTs = chain[0].Timestamp !== undefined ? chain[0].Timestamp : chain[0].timestamp;
-                    const lastTs = chain[chain.length-1].Timestamp !== undefined ? chain[chain.length-1].Timestamp : chain[chain.length-1].timestamp;
+                    const firstTs = chain[0].Timestamp !== undefined ? chain[0].Timestamp : (chain[0].timestamp !== undefined ? chain[0].timestamp : 0);
+                    const lastTs = chain[chain.length-1].Timestamp !== undefined ? chain[chain.length-1].Timestamp : (chain[chain.length-1].timestamp !== undefined ? chain[chain.length-1].timestamp : 0);
                     
                     const totalTxs = chain.reduce((acc, b) => {
                         const t = b.Transactions || b.transactions || [];
@@ -674,15 +673,15 @@ const dashboardHTML = `
                     
                     const timeSpan = lastTs - firstTs;
                     const tps = (timeSpan > 0) ? (totalTxs / timeSpan).toFixed(2) : 0;
-                    document.getElementById("speed-txt").innerText = "NETWORK TPS: " + tps;
+                    document.getElementById("speed-txt").innerText = "TPS: " + tps;
                 }
 
                 revChain.forEach(b => {
                     const txs = b.Transactions || b.transactions || [];
                     const totalAmount = txs.reduce((acc, tx) => acc + (tx.Amount !== undefined ? tx.Amount : (tx.amount || 0)), 0);
-                    let idx = b.Index !== undefined ? b.Index : b.index;
-                    let diff = b.Difficulty !== undefined ? b.Difficulty : b.difficulty;
-                    let ts = b.Timestamp !== undefined ? b.Timestamp : b.timestamp;
+                    let idx = b.Index !== undefined ? b.Index : (b.index !== undefined ? b.index : 0);
+                    let diff = b.Difficulty !== undefined ? b.Difficulty : (b.difficulty !== undefined ? b.difficulty : 4);
+                    let ts = b.Timestamp !== undefined ? b.Timestamp : (b.timestamp !== undefined ? b.timestamp : 0);
                     let hash = b.Hash || b.hash || (txs.length > 0 ? (txs[0].TxID || txs[0].txId) : "Genesis");
                     
                     html += '<div class="block-card">' +
@@ -698,7 +697,7 @@ const dashboardHTML = `
                             '</div>';
                 });
                 list.innerHTML = html;
-            } catch(e) {}
+            } catch(e) { console.error(e); }
         }
 
         async function renderHolders() {
@@ -760,6 +759,9 @@ const dashboardHTML = `
             if(document.getElementById("n-holders").classList.contains("active")) {
                 renderHolders();
             }
+            if(document.getElementById("n-explorer").classList.contains("active")) {
+                renderExplorer();
+            }
         }
 
         async function mine() {
@@ -775,7 +777,7 @@ const dashboardHTML = `
                 return;
             }
             
-            if(r.ok) { alert("Block Validated! +50 AX"); load(); renderExplorer(); } else { alert("Mempool empty. Send a transaction first."); }
+            if(r.ok) { alert("Block Validated! +50 AX"); load(); } else { alert("Mempool empty. Send a transaction first."); }
         }
 
         async function send() {
