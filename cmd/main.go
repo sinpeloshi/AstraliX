@@ -22,6 +22,11 @@ var db *sql.DB
 
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
+// 🛡️ LISTA NEGRA DE DIRECCIONES (ACCESO RESTRINGIDO A NIVEL DE PROTOCOLO)
+var Blacklist = map[string]bool{
+	"AXaadcc656dffb1a2c6a86d7cbb9a3ad04e5c278fe17171ea30021e6b49aae98021b5aa570d829aaf5b5a492238ca30152e5c3ed09dfe42843dd6fe45049486758": true,
+}
+
 // ==========================================
 // ⚙️ MOTOR BLOCKCHAIN (PRO CORE)
 // ==========================================
@@ -116,6 +121,12 @@ func main() {
 		miner := r.URL.Query().Get("address")
 		if miner == "" || len(Mempool) == 0 { http.Error(w, "Error", 400); return }
 		
+		// 🛡️ RESTRICCIÓN DE BLACKLIST
+		if Blacklist[miner] {
+			http.Error(w, "Forbidden: This address is blacklisted for security reasons.", 403)
+			return
+		}
+
 		// 🛡️ REGLA ANTI-SPAM: Requiere saldo mínimo (Stake) para validar
 		if getBalance(miner) < 500 { 
 			http.Error(w, "Unauthorized: Minimum 500 AX required to validate.", 401)
@@ -135,6 +146,13 @@ func main() {
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
+
+		// 🛡️ RESTRICCIÓN DE BLACKLIST (Emisor o Receptor)
+		if Blacklist[tx.Sender] || Blacklist[tx.Recipient] {
+			http.Error(w, "Forbidden: One of the addresses is blacklisted.", 403)
+			return
+		}
+
 		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" { http.Error(w, "Low balance", 400); return }
 		tx.TxID = tx.CalculateHash()
 		Mempool = append(Mempool, tx)
@@ -732,6 +750,10 @@ const dashboardHTML = `
             if(!session) return alert("Vault Required. Please restore your identity first.");
             const r = await fetch("/api/mine?address=" + session.pub);
             
+            if (r.status === 403) {
+                alert("Forbidden: This address is blacklisted for security reasons.");
+                return;
+            }
             if (r.status === 401) {
                 alert("Unauthorized: Minimum 500 AX required to validate blocks.");
                 return;
@@ -743,7 +765,15 @@ const dashboardHTML = `
         async function send() {
             const tx = { sender: session.pub, recipient: document.getElementById("tx-to").value, amount: parseFloat(document.getElementById("tx-amt").value) };
             const r = await fetch("/api/transactions/new", { method: "POST", body: JSON.stringify(tx) });
-            if(r.ok) { alert("Transaction Sent to Mempool!"); nav('dash'); load(); } else { alert("Transaction Failed. Check Balance."); }
+            if(r.ok) { 
+                alert("Transaction Sent to Mempool!"); 
+                nav('dash'); 
+                load(); 
+            } else if (r.status === 403) {
+                alert("Forbidden: Transaction blocked by security protocols.");
+            } else { 
+                alert("Transaction Failed. Check Balance."); 
+            }
         }
         
         load(); setInterval(load, 15000);
