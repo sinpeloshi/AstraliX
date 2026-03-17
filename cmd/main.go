@@ -172,7 +172,6 @@ func main() {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, whitepaperHTML)
 	})
-	// RUTAS DE DOCUMENTOS
 	http.HandleFunc("/tech-paper", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, techPaperHTML)
@@ -307,11 +306,10 @@ const landingHTML = `
     <div class="bg-p"></div>
     <nav class="nav">
         <a href="/" class="logo"><img src="https://iili.io/qMGLM57.jpg" alt="AstraliX Protocol"></a>
-        
         <div style="display: flex; align-items: center; gap: 20px;">
             <div class="nav-links">
                 <a href="/whitepaper">Protocol</a>
-                <a href="#roadmap">Mainnet</a>
+                <a href="/tech-paper">Docs</a>
                 <a href="/dashboard" class="btn-core-nav">ENTER DASHBOARD</a>
             </div>
             <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
@@ -323,16 +321,13 @@ const landingHTML = `
     </nav>
     <header class="hero">
         <div style="background: rgba(16,185,129,0.1); color: var(--acc); padding: 8px 24px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; display: inline-block; margin-bottom: 30px; border: 1px solid rgba(16,185,129,0.2);"><span style="display:inline-block; width:8px; height:8px; background:var(--acc); border-radius:50%; margin-right:8px; box-shadow: 0 0 10px var(--acc);"></span>ALPHA TESTNET LIVE</div>
-        
         <div class="hero-title-container">
             <h1>The 512-bit<br>Standard is Here.</h1>
         </div>
-        
         <p>Redefining cryptographic sovereignty with the world's first ISP-backed DePIN Layer 1. Mathematically immune. Physically anchored.</p>
-        
         <div class="hero-btns">
             <a href="/dashboard" class="btn-p btn-blue"><i class="fas fa-terminal"></i> Launch Testnet App</a>
-            <a href="#buy" class="btn-p btn-white">Apply for Node</a>
+            <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-p btn-white">Apply for Node</a>
             <a href="/whitepaper" class="btn-p btn-dark"><i class="fas fa-file-alt"></i> Read Whitepaper</a>
             <a href="/tech-paper" class="btn-p btn-dark" style="border-color: rgba(59, 130, 246, 0.4);"><i class="fas fa-code"></i> Technical Paper</a>
         </div>
@@ -436,12 +431,10 @@ const landingHTML = `
         </div>
 
         <div style="max-width: 700px; margin: 0 auto; text-align: left;">
-            
             <div class="inst-box">
                 <div style="color: var(--txt); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 1: GENERATE VAULT</div>
                 <p style="color: #A1A1AA; font-size: 0.95rem; margin-bottom: 15px;">Open the <a href="/dashboard" target="_blank" style="color:var(--prim); text-decoration:none; font-weight:600;">Testnet App</a>, go to the <strong>VAULT</strong> tab, and generate your 512-bit Identity. Copy your public <strong>AX Address</strong> to include in your application.</p>
             </div>
-
             <div class="inst-box">
                 <div style="color: var(--txt); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 2: SUBMIT APPLICATION</div>
                 <p style="color: #A1A1AA; font-size: 0.95rem; margin-bottom: 15px;">We are currently selecting strategic infrastructure partners for the Genesis Block. Complete the application form via Tally.</p>
@@ -449,12 +442,10 @@ const landingHTML = `
                     <a href="https://tally.so/r/jaxlL1" target="_blank" class="btn-buy">APPLY FOR NODE <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
-
             <div class="inst-box">
                 <div style="color: var(--txt); font-weight: 800; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px;">STEP 3: ONBOARDING</div>
                 <p style="color: #A1A1AA; font-size: 0.95rem; margin-bottom: 0;">If your profile is selected, you will receive an official email from <strong>info@astralix.network</strong> with the private SAFT and funding instructions to activate your node.</p>
             </div>
-            
         </div>
     </section>
 
@@ -466,10 +457,9 @@ const landingHTML = `
                 <div style="display:flex; gap:15px; margin-top:20px;">
                     <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
                     <a href="https://t.me/AstraliXProtocol" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-telegram" style="font-size:1.3rem;"></i> Telegram</a>
-                    <a href="mailto:info@astralix.network" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fas fa-envelope" style="font-size:1.3rem;"></i> Email</a>
                 </div>
             </div>
-            <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></div>
+            <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="/tech-paper">Technical Paper</a></div>
             <div class="f-col"><h5>Resources</h5><a href="/dashboard">Testnet Dashboard</a><a href="https://tally.so/r/jaxlL1">Verify Node</a></div>
         </div>
         <div style="text-align:center; margin-top:60px; color:#A1A1AA; font-size:0.8rem; opacity:0.5;">© 2026 AstraliX Foundation. Designed for Sovereign Security.</div>
@@ -497,7 +487,7 @@ const landingHTML = `
 `
 
 // ==========================================
-// 📄 DASHBOARD CON LOGO Y RANKING
+// 📱 DASHBOARD CON LOGO Y RANKING
 // ==========================================
 
 const dashboardHTML = `
@@ -528,6 +518,15 @@ const dashboardHTML = `
         .nav-l.active { color: var(--txt); }
         .nav-l i { font-size: 1.3rem; }
         .input-ax { width: 100%; padding: 20px; border-radius: 15px; border: 1px solid var(--brd); background: rgba(0,0,0,0.5); color: #FFF; margin-bottom: 12px; box-sizing: border-box; font-family: inherit; font-size: 0.9rem; }
+        
+        /* BLOQUES EXPLORER MEJORADOS */
+        .block-card { background: #080808; border: 1px solid #1a1a1a; border-radius: 20px; padding: 20px; margin-bottom: 15px; position: relative; overflow: hidden; transition: 0.3s; }
+        .block-card:hover { border-color: #3b82f6; transform: scale(1.01); }
+        .block-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .meta-box { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 12px; font-size: 0.65rem; }
+        .meta-val { display: block; font-weight: 800; font-size: 0.85rem; color: #fff; margin-top: 4px; }
+        .block-hash { font-family: 'JetBrains Mono'; font-size: 0.6rem; color: #555; word-break: break-all; background: #000; padding: 10px; border-radius: 10px; margin-top: 15px; border: 1px solid #111; }
+        .time-badge { position: absolute; top: 20px; right: 20px; font-size: 0.6rem; background: rgba(59,130,246,0.1); color: #3b82f6; padding: 4px 10px; border-radius: 100px; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -561,7 +560,10 @@ const dashboardHTML = `
         </div>
 
         <div id="v-explorer" class="view-ax">
-            <span class="bal-lbl" style="margin-top:10px;">Real-Time Explorer</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <span class="bal-lbl">L1 Global Explorer</span>
+                <span id="speed-txt" style="font-size:0.6rem; color:#10B981; font-weight:800;">TPS: 0.0</span>
+            </div>
             <div id="block-list"></div>
         </div>
 
@@ -580,7 +582,6 @@ const dashboardHTML = `
                 
                 <div id="g-res" style="display:none; margin-top:25px;">
                     <button class="btn-ax" style="margin-bottom: 15px;" onclick="copySeed()"><i class="fas fa-copy"></i> COPY 24-WORD SEED</button>
-                    
                     <div id="g-seed" style="display:grid; grid-template-columns:1fr 1fr; gap:8px;"></div>
                     <span class="bal-lbl" style="margin-top:25px;">Public Identity</span>
                     <div class="pill" id="g-pub"></div>
@@ -601,7 +602,8 @@ const dashboardHTML = `
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
         const treasuryAddr = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158";
         
-        let currentGeneratedSeed = []; // VARIABLE GLOBAL PARA GUARDAR LA SEMILLA
+        let currentGeneratedSeed = []; 
+        let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
         
         async function derive(seed) {
             const buf = new TextEncoder().encode(seed);
@@ -609,8 +611,15 @@ const dashboardHTML = `
             const hex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2,"0")).join("");
             return { priv: btoa(hex).substring(0,88), pub: "AX" + hex };
         }
-        let session = JSON.parse(localStorage.getItem("ax_v18_session")) || null;
         
+        function timeAgo(ts) {
+            const now = Math.floor(Date.now() / 1000);
+            const diff = now - ts;
+            if (diff < 60) return diff + "s ago";
+            if (diff < 3600) return Math.floor(diff/60) + "m ago";
+            return Math.floor(diff/3600) + "h ago";
+        }
+
         async function nav(id) {
             document.querySelectorAll(".view-ax").forEach(v => v.style.display = "none");
             document.getElementById("v-" + id).style.display = "flex";
@@ -622,30 +631,58 @@ const dashboardHTML = `
         }
 
         async function renderExplorer() {
-            const r = await fetch("/api/chain"); const chain = await r.json();
-            const list = document.getElementById("block-list"); let html = ""; const revChain = chain.reverse();
-            for(let i=0; i<revChain.length; i++) {
-                let b = revChain[i]; let idx = b.Index !== undefined ? b.Index : b.index;
-                let hash = b.Hash || b.hash;
-                html += '<div class="card-ax" style="padding:20px; margin-bottom:15px; border-radius:15px;"><span style="background:var(--txt); color:#000; padding:4px 10px; border-radius:6px; font-size:0.6rem; font-weight:800;">BLOCK #' + idx + '</span><div style="margin-top:15px; font-size:clamp(0.55rem, 2vw, 0.65rem); word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + hash + '</div></div>';
-            }
-            list.innerHTML = html;
+            try {
+                const r = await fetch("/api/chain"); 
+                const chain = await r.json();
+                const list = document.getElementById("block-list"); 
+                let html = ""; 
+                const revChain = [...chain].reverse();
+
+                if(chain.length > 1) {
+                    const totalTxs = chain.reduce((acc, b) => acc + (b.Transactions ? b.Transactions.length : 0), 0);
+                    const timeSpan = chain[chain.length-1].Timestamp - chain[0].Timestamp;
+                    const tps = (timeSpan > 0) ? (totalTxs / timeSpan).toFixed(2) : 0;
+                    document.getElementById("speed-txt").innerText = "NETWORK TPS: " + tps;
+                }
+
+                revChain.forEach(b => {
+                    const txs = b.Transactions || [];
+                    const totalAmount = txs.reduce((acc, tx) => acc + tx.Amount, 0);
+                    let idx = b.Index !== undefined ? b.Index : b.index;
+                    let hash = b.Hash || b.hash || b.TxID || "Genesis";
+                    
+                    html += '<div class="block-card">' +
+                            '<span class="time-badge"><i class="far fa-clock"></i> ' + timeAgo(b.Timestamp) + '</span>' +
+                            '<div style="font-weight:900; color:#3b82f6; font-size:1rem;">BLOCK #' + idx + '</div>' +
+                            '<div class="block-meta">' +
+                                '<div class="meta-box">TRANSACTIONS<span class="meta-val">' + txs.length + '</span></div>' +
+                                '<div class="meta-box">TOTAL VOLUME<span class="meta-val">' + totalAmount.toLocaleString() + ' AX</span></div>' +
+                                '<div class="meta-box">DIFFICULTY<span class="meta-val">' + b.Difficulty + '</span></div>' +
+                                '<div class="meta-box">STATUS<span class="meta-val" style="color:#10b981;">FINALIZED</span></div>' +
+                            '</div>' +
+                            '<div class="block-hash">' + hash + '</div>' +
+                            '</div>';
+                });
+                list.innerHTML = html;
+            } catch(e) {}
         }
 
         async function renderHolders() {
-            const r = await fetch("/api/holders"); const holders = await r.json();
-            const list = document.getElementById("holders-list"); let html = ""; 
-            if(holders && holders.length > 0) {
-                for(let i=0; i<holders.length; i++) {
-                    let h = holders[i];
-                    let isTreasury = (h.address === treasuryAddr) ? '<span style="background:var(--txt); color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">TREASURY</span>' : '';
-                    let isYou = (session && h.address === session.pub) ? '<span style="background:#10B981; color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">YOU</span>' : '';
-                    html += '<div class="card-ax" style="padding:18px; margin-bottom:15px; border-radius:15px;"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-weight:800; font-size:0.9rem; color:#10B981;">#' + (i+1) + isTreasury + isYou + '</div><div style="font-weight:800; font-size:0.9rem; color:#FFF;">' + h.balance.toLocaleString() + ' AX</div></div><div style="font-size:0.55rem; word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + h.address + '</div></div>';
+            try {
+                const r = await fetch("/api/holders"); const holders = await r.json();
+                const list = document.getElementById("holders-list"); let html = ""; 
+                if(holders && holders.length > 0) {
+                    for(let i=0; i<holders.length; i++) {
+                        let h = holders[i];
+                        let isTreasury = (h.address === treasuryAddr) ? '<span style="background:var(--txt); color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">TREASURY</span>' : '';
+                        let isYou = (session && h.address === session.pub) ? '<span style="background:#10B981; color:#000; padding:2px 6px; border-radius:4px; font-size:0.5rem; margin-left:8px; vertical-align:middle; font-weight:800;">YOU</span>' : '';
+                        html += '<div class="card-ax" style="padding:18px; margin-bottom:15px; border-radius:15px; background:rgba(255,255,255,0.02);"><div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><div style="font-weight:800; font-size:0.9rem; color:#10B981;">#' + (i+1) + isTreasury + isYou + '</div><div style="font-weight:800; font-size:0.9rem; color:#FFF;">' + h.balance.toLocaleString() + ' AX</div></div><div style="font-size:0.55rem; word-break:break-all; font-family:\'JetBrains Mono\', monospace; color:var(--txt-m); line-height:1.4;">' + h.address + '</div></div>';
+                    }
+                } else {
+                    html = "<p style='color:var(--txt-m); font-size:0.8rem;'>Syncing ledgers...</p>";
                 }
-            } else {
-                html = "<p style='color:var(--txt-m); font-size:0.8rem;'>Syncing ledgers...</p>";
-            }
-            list.innerHTML = html;
+                list.innerHTML = html;
+            } catch(e) {}
         }
 
         async function login() {
@@ -656,13 +693,12 @@ const dashboardHTML = `
 
         async function gen() {
             let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
-            currentGeneratedSeed = seed; // GUARDAMOS LA SEMILLA GENERADA
+            currentGeneratedSeed = seed; 
             const keys = await derive(seed.join(" ")); document.getElementById("g-res").style.display = "block";
             let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="background:rgba(0,0,0,0.5); padding:8px 12px; border-radius:8px; border:1px solid var(--brd); font-size:0.7rem; color:var(--txt-m);"><span style="color:var(--txt); margin-right:5px; font-weight:800;">'+(i+1)+'</span> '+seed[i]+'</div>';
             document.getElementById("g-seed").innerHTML = sH; document.getElementById("g-pub").innerText = keys.pub;
         }
 
-        // NUEVA FUNCIÓN PARA COPIAR AL PORTAPAPELES
         function copySeed() {
             if(currentGeneratedSeed.length > 0) {
                 const seedString = currentGeneratedSeed.join(" ");
@@ -676,12 +712,16 @@ const dashboardHTML = `
 
         async function load() {
             if(session) {
-                const r = await fetch("/api/balance/" + session.pub); const d = await r.json();
-                document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
-                document.getElementById("addr-txt").innerText = session.pub;
+                try {
+                    const r = await fetch("/api/balance/" + session.pub); const d = await r.json();
+                    document.getElementById("bal-txt").innerText = d.balance.toLocaleString() + " AX";
+                    document.getElementById("addr-txt").innerText = session.pub;
+                } catch(e) {}
             }
-            const rp = await fetch("/api/balance/" + treasuryAddr);
-            const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
+            try {
+                const rp = await fetch("/api/balance/" + treasuryAddr);
+                const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
+            } catch(e) {}
             
             if(document.getElementById("n-holders").classList.contains("active")) {
                 renderHolders();
@@ -701,7 +741,7 @@ const dashboardHTML = `
                 return;
             }
             
-            if(r.ok) { alert("Block Validated! +50 AX"); load(); } else { alert("Mempool empty. Send a transaction first."); }
+            if(r.ok) { alert("Block Validated! +50 AX"); load(); renderExplorer(); } else { alert("Mempool empty. Send a transaction first."); }
         }
 
         async function send() {
@@ -725,7 +765,7 @@ const dashboardHTML = `
 `
 
 // ==========================================
-// 📄 WHITEPAPER ORIGINAL (NO TOCADO)
+// 📄 WHITEPAPER ORIGINAL 
 // ==========================================
 const whitepaperHTML = `
 <!DOCTYPE html>
