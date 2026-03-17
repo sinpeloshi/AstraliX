@@ -231,7 +231,7 @@ const landingHTML = `
         .m-highlight { color: var(--acc); font-weight: 700; }
         .m-address { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid #222; }
         
-        /* TOKENOMICS SECTION (UPDATED FAIR-LAUNCH 40%) */
+        /* TOKENOMICS SECTION */
         .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
         .tok-flex { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; margin-top: 50px; }
         .tok-chart { position: relative; width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, #4B5563 12.5% 52.5%, #8B5CF6 52.5% 67.5%, var(--prim) 67.5% 82.5%, #F59E0B 82.5% 92.5%, #EC4899 92.5% 100%); }
@@ -272,9 +272,7 @@ const landingHTML = `
         .t-list i { color: var(--acc); background: rgba(16,185,129,0.1); padding: 5px; border-radius: 50%; font-size: 0.7rem; min-width: 12px; text-align: center; }
         
         .inst-box { background: #0A0A0A; border: 1px solid var(--brd); border-radius: 20px; padding: 30px; margin-bottom: 20px; text-align: left; }
-        .btn-buy { background: var(--acc); color: #000; padding: 20px 50px; border-radius: 100px; font-weight: 800; text-decoration: none; font-size: 1.1rem; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; width: 100%; box-sizing: border-box; }
-        .btn-buy:hover { transform: scale(1.02); background: #12d392; }
-
+        
         /* WEB3 BOTÓN */
         .btn-buy-web3 { background: var(--acc); color: #000; padding: 15px; border-radius: 100px; font-weight: 800; width: 100%; border: none; cursor: pointer; margin-top: 20px; font-size: 0.9rem; transition: 0.3s; }
         .btn-buy-web3:hover { background: #12d392; transform: scale(1.02); }
@@ -459,6 +457,7 @@ const landingHTML = `
 
         async function connectWallet() {
             if (window.ethereum) {
+                // CONEXIÓN NORMAL (PC o Navegador interno de la Wallet)
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     userAccount = accounts[0];
@@ -470,7 +469,16 @@ const landingHTML = `
                     alert("Wallet connection rejected."); 
                 }
             } else { 
-                alert("Web3 Wallet not found. Please install MetaMask, Trust Wallet, or use an integrated DApp browser."); 
+                // DETECCIÓN DE CELULAR Y DEEP LINKING (La magia para que no se rompa nada)
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if (isMobile) {
+                    const cleanUrl = window.location.href.replace(/^https?:\/\//, '');
+                    if(confirm("📱 Mobile Detected!\n\nTo buy a node, you need to open this website INSIDE your MetaMask or Trust Wallet app.\n\nClick OK to open MetaMask now.")) {
+                        window.location.href = 'https://metamask.app.link/dapp/' + cleanUrl;
+                    }
+                } else {
+                    alert("Web3 Wallet not found. Please install the MetaMask or Trust Wallet extension for your browser."); 
+                }
             }
         }
 
