@@ -306,7 +306,7 @@ const landingHTML = `
             </div>
             <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
                 <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fa-brands fa-x-twitter"></i></a>
-                <a href="https://t.me/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fab fa-telegram"></i></a>
+                <a href="mailto:info@astralix.network" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fas fa-envelope"></i></a>
             </div>
         </div>
     </nav>
@@ -449,7 +449,7 @@ const landingHTML = `
                 <p style="color: var(--txt-m); margin-top: 20px; font-size: 0.9rem; line-height:1.8;">Leading the cryptographic revolution through 512-bit security standards.</p>
                 <div style="display:flex; gap:15px; margin-top:20px;">
                     <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
-                    <a href="https://t.me/XAstraliX" target="_blank" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fab fa-telegram" style="font-size:1.3rem;"></i> Telegram</a>
+                    <a href="mailto:info@astralix.network" style="color:#FFF; font-weight:800; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fas fa-envelope" style="font-size:1.3rem;"></i> Email</a>
                 </div>
             </div>
             <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></div>
