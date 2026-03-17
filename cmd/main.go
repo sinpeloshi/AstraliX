@@ -172,7 +172,7 @@ func main() {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, whitepaperHTML)
 	})
-	// NUEVA RUTA PARA EL TECHNICAL PAPER
+	// RUTAS DE DOCUMENTOS
 	http.HandleFunc("/tech-paper", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, techPaperHTML)
@@ -718,6 +718,98 @@ const dashboardHTML = `
         
         load(); setInterval(load, 15000);
     </script>
+</body>
+</html>
+`
+
+// ==========================================
+// 📄 WHITEPAPER ORIGINAL (NO TOCADO)
+// ==========================================
+const whitepaperHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whitepaper | AstraliX Protocol</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
+        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #8899A6; --brd: #1A1A1A; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; overflow-x: hidden; }
+        .container { max-width: 850px; margin: 0 auto; padding: 60px 6%; }
+        h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; letter-spacing: -2px; margin-bottom: 20px; line-height: 1.1; }
+        h2 { font-size: 1.8rem; font-weight: 800; margin: 60px 0 25px; color: var(--prim); border-bottom: 1px solid var(--brd); padding-bottom: 15px; }
+        h3 { font-size: 1.3rem; color: #FFF; margin: 30px 0 15px; }
+        p { margin-bottom: 20px; color: #CCC; font-size: 1.05rem; }
+        ul { margin-bottom: 25px; padding-left: 20px; color: #CCC; font-size: 1.05rem; }
+        li { margin-bottom: 10px; }
+        .tech-box { background: #080808; border: 1px solid var(--brd); padding: 30px; border-radius: 15px; margin: 30px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--txt-m); overflow-x: auto; }
+        .quote { font-style: italic; border-left: 4px solid var(--prim); padding-left: 20px; margin: 40px 0; color: #FFF; font-size: 1.2rem; }
+        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--brd); margin-top: 80px; color: var(--txt-m); font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
+            <a href="/" style="color:var(--prim); text-decoration:none; font-weight:800; font-size:0.9rem;"><i class="fas fa-arrow-left"></i> BACK TO HOME</a>
+            <img src="https://iili.io/qMGLM57.jpg" style="height:45px; mix-blend-mode:screen;" alt="AstraliX">
+        </div>
+        
+        <h1>AstraliX Protocol: The 512-Bit Architecture</h1>
+        <p style="font-size:0.9rem; color:var(--txt-m); text-transform:uppercase; letter-spacing:1px;">Version 1.0 (Alpha Genesis) • Lead Architect: Denis Waldemar • March 2026</p>
+        
+        <h2>Abstract</h2>
+        <p>The AstraliX Protocol is a next-generation Layer 1 blockchain engineered to solve the impending crisis of cryptographic decay. As quantum computing advances at an exponential rate, legacy networks relying on 256-bit Elliptic Curve Digital Signature Algorithms (ECDSA) and SHA-256 hashing face an existential threat. By doubling the cryptographic bit-length to a 512-bit standard, AstraliX establishes a deterministic security moat that remains theoretically immune to both classical brute-force and quantum heuristic attacks.</p>
+
+        <h2>1. The Quantum Threat & Shor's Algorithm</h2>
+        <p>Currently, over $2 Trillion in digital assets are secured by 256-bit cryptography (Bitcoin, Ethereum, Solana). The security of these networks relies on the mathematical difficulty of the discrete logarithm problem.</p>
+        <p>However, Shor’s algorithm, executed on a sufficiently powerful quantum computer (estimated at 4000+ stable qubits), can solve these problems in polynomial time. Once this threshold is crossed, any exposed public key on a 256-bit network can be reverse-engineered to reveal its private key, rendering the network entirely compromised.</p>
+        
+        <div class="quote">
+            "AstraliX does not wait for the quantum threat to materialize. It pre-emptively neutralizes it by scaling the entropy of the network beyond the physical limits of computation."
+        </div>
+
+        <h2>2. The 512-Bit Cryptographic Leap</h2>
+        <p>AstraliX mitigates quantum vulnerabilities through sheer mathematical volume. By utilizing <strong>SHA-512</strong> for state transitions, block hashing, and wallet derivation, the search space for potential collisions is expanded exponentially.</p>
+        
+        <div class="tech-box">
+            // MATHEMATICAL ENTROPY COMPARISON<br><br>
+            [Legacy 256-bit Standard]<br>
+            Combinations: 2^256 ≈ 1.15 x 10^77<br>
+            Vulnerability: High (Est. 2030-2035 with Quantum Tech)<br><br>
+            [AstraliX 512-bit Standard]<br>
+            Combinations: 2^512 ≈ 1.34 x 10^154<br>
+            Status: Post-Quantum Immune
+        </div>
+
+        <h2>3. High-Concurrency Core Engine (Golang)</h2>
+        <p>Heavy cryptography requires a robust, hyper-optimized execution environment. The AstraliX Core is written entirely in <strong>Go (Golang)</strong>.</p>
+        <ul>
+            <li><strong>Goroutines for Concurrency:</strong> Instead of heavy OS threads, the network uses Goroutines to handle thousands of simultaneous mempool transactions and peer-to-peer gossip protocols without memory bottlenecks.</li>
+            <li><strong>Sub-Second Finality:</strong> The underlying consensus mechanism ensures that blocks are minted and verified rapidly, providing UX parity with centralized financial systems while maintaining pure decentralization.</li>
+        </ul>
+
+        <h2>4. The Zero-Trust Vault Protocol</h2>
+        <p>A blockchain is only as secure as its weakest endpoint. AstraliX implements a strict "Zero-Trust" policy for node operators and end-users.</p>
+        <p>When a user creates an identity, the 24-word mnemonic seed phrase undergoes a local, client-side SHA-512 derivation process. The generated 88-character Base64 private key and its corresponding 128-character hexadecimal public address never leave the local environment.</p>
+
+        <h2>5. Network Tokenomics (Fair-Launch Distribution)</h2>
+        <p>To ensure a sustainable and decentralized growth model, the AstraliX supply is capped at **1,000,002,021 AX**, distributed as follows:</p>
+        <ul>
+            <li><strong>Ecosystem Mining Rewards (40.0%):</strong> Emitted over a 10-year decay curve to reward network validators and maintain security.</li>
+            <li><strong>Founder Nodes - Seed (12.5%):</strong> Initial allocation for network bootstrap and infrastructure funding.</li>
+            <li><strong>Locked Liquidity Pool (15.0%):</strong> Provision for decentralized and centralized exchange depth, ensuring asset stability.</li>
+            <li><strong>Treasury & R&D (15.0%):</strong> Managed by the Foundation for protocol upgrades, audits, and long-term research.</li>
+            <li><strong>Marketing & Community (10.0%):</strong> Allocation for ecosystem quests, airdrops, and global adoption programs.</li>
+            <li><strong>Team & Advisors (7.5%):</strong> Subject to a 24-month linear vesting schedule starting after Mainnet launch.</li>
+        </ul>
+
+        <h2>6. Roadmap to Mainnet (April 2026)</h2>
+        <p>The network is currently operating on the Alpha Testnet, allowing Founder Nodes to validate blocks and interact with the Core Dashboard. On <strong>April 2026</strong>, the protocol will undergo a Hard Genesis event, officially launching the Mainnet. All Alpha ledger balances will be migrated 1:1 to the main network.</p>
+
+        <footer>© 2026 AstraliX Foundation. Engineered in Argentina, Built for the World.</footer>
+    </div>
 </body>
 </html>
 `
