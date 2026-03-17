@@ -242,6 +242,7 @@ const landingHTML = `
         .m-highlight { color: var(--acc); font-weight: 700; }
         .m-address { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; font-size: 0.7rem; margin-top: 15px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05); }
         
+        /* TOKENOMICS SECTION (UPDATED FAIR-LAUNCH 40%) */
         .tokenomics { max-width: 1000px; margin: 100px auto; padding: 0 6%; text-align: center; }
         .tok-flex { display: flex; align-items: center; justify-content: center; gap: 50px; flex-wrap: wrap; margin-top: 50px; }
         .tok-chart { position: relative; width: 300px; height: 300px; border-radius: 50%; background: conic-gradient(var(--acc) 0% 12.5%, #4B5563 12.5% 52.5%, #8B5CF6 52.5% 67.5%, var(--prim) 67.5% 82.5%, #F59E0B 82.5% 92.5%, #EC4899 92.5% 100%); }
@@ -722,100 +723,7 @@ const dashboardHTML = `
 `
 
 // ==========================================
-// 📄 WHITEPAPER EXTENSO & PROFESIONAL
-// ==========================================
-
-const whitepaperHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Whitepaper | AstraliX Protocol</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400&display=swap');
-        :root { --bg: #020202; --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #A1A1AA; --brd: rgba(255,255,255,0.1); }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--txt); line-height: 1.8; overflow-x: hidden; letter-spacing: -0.01em; }
-        .container { max-width: 850px; margin: 0 auto; padding: 60px 6%; }
-        h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; letter-spacing: -0.04em; margin-bottom: 20px; line-height: 1.1; }
-        h2 { font-size: 1.8rem; font-weight: 800; margin: 60px 0 25px; color: var(--txt); border-bottom: 1px solid var(--brd); padding-bottom: 15px; letter-spacing: -0.02em; }
-        h3 { font-size: 1.3rem; color: #FFF; margin: 30px 0 15px; font-weight: 700; }
-        p { margin-bottom: 20px; color: var(--txt-m); font-size: 1.05rem; }
-        ul { margin-bottom: 25px; padding-left: 20px; color: var(--txt-m); font-size: 1.05rem; }
-        li { margin-bottom: 10px; }
-        .tech-box { background: rgba(255,255,255,0.02); border: 1px solid var(--brd); padding: 30px; border-radius: 15px; margin: 30px 0; font-family: 'JetBrains Mono'; font-size: 0.85rem; color: var(--txt-m); overflow-x: auto; }
-        .quote { font-style: italic; border-left: 4px solid var(--prim); padding-left: 20px; margin: 40px 0; color: #FFF; font-size: 1.2rem; }
-        footer { text-align: center; padding: 60px 0; border-top: 1px solid var(--brd); margin-top: 80px; color: var(--txt-m); font-size: 0.9rem; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;">
-            <a href="/" style="color:var(--txt); text-decoration:none; font-weight:700; font-size:0.9rem;"><i class="fas fa-arrow-left"></i> BACK TO HOME</a>
-            <img src="https://iili.io/qMGLM57.jpg" style="height:45px; mix-blend-mode:screen;" alt="AstraliX">
-        </div>
-        
-        <h1>AstraliX Protocol: The 512-Bit Architecture</h1>
-        <p style="font-size:0.9rem; color:var(--prim); font-weight: 700; text-transform:uppercase; letter-spacing:1px;">Version 1.0 (Alpha Genesis) • Lead Architect: Denis Waldemar • March 2026</p>
-        
-        <h2>Abstract</h2>
-        <p>The AstraliX Protocol is a next-generation Layer 1 blockchain engineered to solve the impending crisis of cryptographic decay. As quantum computing advances at an exponential rate, legacy networks relying on 256-bit Elliptic Curve Digital Signature Algorithms (ECDSA) and SHA-256 hashing face an existential threat. By doubling the cryptographic bit-length to a 512-bit standard, AstraliX establishes a deterministic security moat that remains theoretically immune to both classical brute-force and quantum heuristic attacks.</p>
-
-        <h2>1. The Quantum Threat & Shor's Algorithm</h2>
-        <p>Currently, over $2 Trillion in digital assets are secured by 256-bit cryptography (Bitcoin, Ethereum, Solana). The security of these networks relies on the mathematical difficulty of the discrete logarithm problem.</p>
-        <p>However, Shor’s algorithm, executed on a sufficiently powerful quantum computer (estimated at 4000+ stable qubits), can solve these problems in polynomial time. Once this threshold is crossed, any exposed public key on a 256-bit network can be reverse-engineered to reveal its private key, rendering the network entirely compromised.</p>
-        
-        <div class="quote">
-            "AstraliX does not wait for the quantum threat to materialize. It pre-emptively neutralizes it by scaling the entropy of the network beyond the physical limits of computation."
-        </div>
-
-        <h2>2. The 512-Bit Cryptographic Leap</h2>
-        <p>AstraliX mitigates quantum vulnerabilities through sheer mathematical volume. By utilizing <strong>SHA-512</strong> for state transitions, block hashing, and wallet derivation, the search space for potential collisions is expanded exponentially.</p>
-        
-        <div class="tech-box">
-            // MATHEMATICAL ENTROPY COMPARISON<br><br>
-            [Legacy 256-bit Standard]<br>
-            Combinations: 2^256 ≈ 1.15 x 10^77<br>
-            Vulnerability: High (Est. 2030-2035 with Quantum Tech)<br><br>
-            [AstraliX 512-bit Standard]<br>
-            Combinations: 2^512 ≈ 1.34 x 10^154<br>
-            Status: Post-Quantum Immune
-        </div>
-
-        <h2>3. High-Concurrency Core Engine (Golang)</h2>
-        <p>Heavy cryptography requires a robust, hyper-optimized execution environment. The AstraliX Core is written entirely in <strong>Go (Golang)</strong>.</p>
-        <ul>
-            <li><strong>Goroutines for Concurrency:</strong> Instead of heavy OS threads, the network uses Goroutines to handle thousands of simultaneous mempool transactions and peer-to-peer gossip protocols without memory bottlenecks.</li>
-            <li><strong>Sub-Second Finality:</strong> The underlying consensus mechanism ensures that blocks are minted and verified rapidly, providing UX parity with centralized financial systems while maintaining pure decentralization.</li>
-        </ul>
-
-        <h2>4. The Zero-Trust Vault Protocol</h2>
-        <p>A blockchain is only as secure as its weakest endpoint. AstraliX implements a strict "Zero-Trust" policy for node operators and end-users.</p>
-        <p>When a user creates an identity, the 24-word mnemonic seed phrase undergoes a local, client-side SHA-512 derivation process. The generated 88-character Base64 private key and its corresponding 128-character hexadecimal public address never leave the local environment.</p>
-
-        <h2>5. Network Tokenomics (Fair-Launch Distribution)</h2>
-        <p>To ensure a sustainable and decentralized growth model, the AstraliX supply is capped at **1,000,002,021 AX**, distributed as follows:</p>
-        <ul>
-            <li><strong>Ecosystem Mining Rewards (40.0%):</strong> Emitted over a 10-year decay curve to reward network validators and maintain security.</li>
-            <li><strong>Founder Nodes - Seed (12.5%):</strong> Initial allocation for network bootstrap and infrastructure funding.</li>
-            <li><strong>Locked Liquidity Pool (15.0%):</strong> Provision for decentralized and centralized exchange depth, ensuring asset stability.</li>
-            <li><strong>Treasury & R&D (15.0%):</strong> Managed by the Foundation for protocol upgrades, audits, and long-term research.</li>
-            <li><strong>Marketing & Community (10.0%):</strong> Allocation for ecosystem quests, airdrops, and global adoption programs.</li>
-            <li><strong>Team & Advisors (7.5%):</strong> Subject to a 24-month linear vesting schedule starting after Mainnet launch.</li>
-        </ul>
-
-        <h2>6. Roadmap to Mainnet (April 2026)</h2>
-        <p>The network is currently operating on the Alpha Testnet, allowing Founder Nodes to validate blocks and interact with the Core Dashboard. On <strong>April 2026</strong>, the protocol will undergo a Hard Genesis event, officially launching the Mainnet. All Alpha ledger balances will be migrated 1:1 to the main network.</p>
-
-        <footer>© 2026 AstraliX Foundation. Engineered in Argentina, Built for the World.</footer>
-    </div>
-</body>
-</html>
-`
-
-// ==========================================
-// 📄 TECHNICAL PAPER ACADÉMICO
+// 📄 TECHNICAL PAPER ACADÉMICO (ULTRA-TECH)
 // ==========================================
 const techPaperHTML = `
 <!DOCTYPE html>
@@ -824,50 +732,83 @@ const techPaperHTML = `
     <meta charset="UTF-8">
     <title>Technical Paper | AstraliX Protocol</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;700&display=swap');
         body { background: #f9f9f9; color: #111; font-family: 'Libre Baskerville', serif; line-height: 1.8; padding: 80px 10%; max-width: 900px; margin: 0 auto; }
         .header { text-align: center; margin-bottom: 60px; border-bottom: 2px solid #eee; padding-bottom: 40px; }
-        h1 { font-size: 2.5rem; margin-bottom: 10px; color: #000; }
-        .meta { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
-        h2 { font-size: 1.6rem; margin-top: 50px; border-left: 4px solid #3B82F6; padding-left: 20px; color: #000; }
-        p { text-align: justify; margin-bottom: 20px; }
-        .math { background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 30px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
-        .code-inline { font-family: monospace; background: #eee; padding: 2px 5px; border-radius: 4px; }
+        h1 { font-size: 2.5rem; margin-bottom: 15px; color: #000; letter-spacing: -0.02em; }
+        .meta { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #555; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        h2 { font-size: 1.6rem; margin-top: 60px; border-left: 4px solid #3B82F6; padding-left: 20px; color: #000; font-family: 'Inter', sans-serif; letter-spacing: -0.02em; }
+        h3 { font-family: 'Inter', sans-serif; font-size: 1.2rem; color: #333; margin-top: 30px; }
+        p { text-align: justify; margin-bottom: 20px; font-size: 1.05rem; color: #333; }
+        .math-block { background: #fff; border: 1px solid #e2e8f0; padding: 25px; border-radius: 8px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 30px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); font-size: 0.95rem; color: #1e293b; line-height: 1.6; }
+        .code-inline { font-family: 'Courier New', monospace; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 0.9em; color: #0f172a; }
+        .highlight-box { background: rgba(59, 130, 246, 0.05); border-left: 4px solid #3B82F6; padding: 20px; margin: 30px 0; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: #1e293b; }
         footer { margin-top: 100px; padding-top: 40px; border-top: 1px solid #eee; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #999; text-align: center; }
-        .back-link { position: fixed; top: 20px; left: 20px; font-family: 'Inter', sans-serif; text-decoration: none; color: #3B82F6; font-weight: 700; font-size: 0.8rem; }
+        .back-link { position: fixed; top: 20px; left: 20px; font-family: 'Inter', sans-serif; text-decoration: none; color: #3B82F6; font-weight: 700; font-size: 0.8rem; background: #fff; padding: 8px 12px; border-radius: 6px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); transition: 0.2s; }
+        .back-link:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
     <a href="/" class="back-link">← RETURN TO DASHBOARD</a>
     <div class="header">
-        <h1>AstraliX Protocol: 512-Bit Architecture</h1>
-        <div class="meta">Technical Specification v1.0 • Lead Architect: Denis W. • March 2026</div>
+        <h1>AstraliX Protocol: A 512-Bit Post-Quantum DePIN Architecture for Deterministic Consensus</h1>
+        <div class="meta">Technical Specification v1.1.0 • Lead Architect: Denis W. • March 2026</div>
     </div>
 
     <section>
-        <h2>1. Cryptographic Entropy Expansion</h2>
-        <p>The core proposition of AstraliX is the migration from the industry-standard 256-bit space to a 512-bit native environment. This doubling of bit-length does not merely double security; it scales it exponentially.</p>
-        <div class="math">
-            Entropy(S) = log2(Possible States)<br>
-            Legacy 256-bit: 2^256 ≈ 1.15 x 10^77 states<br>
-            AstraliX 512-bit: 2^512 ≈ 1.34 x 10^154 states
+        <h2>Abstract</h2>
+        <p>Current decentralized consensus networks rely heavily on 256-bit cryptographic primitives (e.g., ECDSA, SHA-256) which face an imminent existential threat from high-qubit quantum computation. The AstraliX Protocol introduces a paradigm shift by architecting a native 512-bit state machine written entirely in Golang, utilizing <span class="code-inline">goroutines</span> for lock-free mempool ingestion. Furthermore, AstraliX mitigates OSI Layer 1-3 vulnerabilities associated with virtualized hypervisors by enforcing a Decentralized Physical Infrastructure Network (DePIN) physically anchored in proprietary bare-metal Internet Service Provider (ISP) hardware.</p>
+    </section>
+
+    <section>
+        <h2>1. Cryptographic Entropy & Post-Quantum Resilience</h2>
+        <p>The vulnerability of symmetric search spaces to quantum brute-force methodologies is mathematically bounded by <strong>Grover's Algorithm</strong>. Grover's algorithm allows a quantum computer to search an unsorted database of N entries in O(&radic;N) time, effectively halving the bit-security of any symmetric cryptographic hash.</p>
+        
+        <div class="math-block">
+            // GROVER'S BOUND ON LEGACY 256-BIT (BTC, ETH, SOL)<br>
+            T &asymp; (&pi; / 4) * &radic;(N / M)<br>
+            Effective Quantum Security = 256 / 2 = 128 bits.<br>
+            Status: Vulnerable to near-term quantum decryption.
         </div>
-        <p>By utilizing SHA-512 for block hashing and state root derivation, the protocol establishes a search space that is immune to collision attacks even under high-qubit quantum acceleration models (Shor's Algorithm).</p>
+
+        <p>By enforcing <strong>SHA-512</strong> as the foundational hash function for state root derivation and block consensus, AstraliX maintains an absolute minimum quantum-resistant threshold of 256 bits, preserving cryptographic sovereignty well beyond the next century of hardware advancements.</p>
+        
+        <div class="math-block">
+            // ASTRALIX NATIVE 512-BIT ENTROPY POOL<br>
+            Combinations: 2^512 &asymp; 1.34 &times; 10^154 states<br>
+            Effective Quantum Security (Grover Mitigation) = 512 / 2 = 256 bits.<br>
+            Status: Mathematically Immune.
+        </div>
     </section>
 
     <section>
-        <h2>2. High-Concurrency Consensus Engine</h2>
-        <p>AstraliX is built in native Golang to leverage its multi-threaded scheduler. The validation process is handled via <span class="code-inline">goroutines</span>, allowing the network to process the mempool asynchronously.</p>
-        <p>The state management utilizes a hybrid relational-merkle approach, ensuring that transaction finality is achieved in under 1.2 seconds while maintaining physical data persistence across DePIN nodes.</p>
+        <h2>2. Go-Native Deterministic Consensus & AX-BFT</h2>
+        <p>The AstraliX virtual machine executes state transitions deterministically. To solve the blockchain trilemma (Scalability, Security, Decentralization) without compromising on the 512-bit computational overhead, the engine bypasses traditional OS-level thread blocking.</p>
+
+        <h3>2.1 Lock-Free Mempool Ingestion</h3>
+        <p>Transactions are ingested via unbuffered Go channels. Instead of executing computationally expensive mutex locks on the global state, <span class="code-inline">goroutines</span> handle signature verification asynchronously, appending verified structures to the mempool heap in O(1) time complexity.</p>
+
+        <h3>2.2 Hybrid Stake-to-Validate (HPoS)</h3>
+        <p>To mitigate Sybil vectors and ensure Byzantine Fault Tolerance (BFT), node operators must cryptographically prove a minimum <strong>500 AX</strong> balance to authorize state execution. The difficulty algorithm deterministically adjusts block time to maintain sub-second finality (latency &lt; 1.2s).</p>
     </section>
 
     <section>
-        <h2>3. DePIN Anchoring Strategy</h2>
-        <p>Unlike virtualized L1 protocols, AstraliX Founder Nodes are physically provisioned within Internet Service Provider (ISP) infrastructure. This physical anchoring prevents BGP hijacking and provides hardware-level DDoS mitigation, creating a sovereign network layer independent of centralized cloud providers like AWS or Azure.</p>
+        <h2>3. Zero-Knowledge Identity Vault</h2>
+        <p>Client-side derivation is non-negotiable for a trustless architecture. The AstraliX Vault utilizes a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG) to formulate a 24-word mnemonic. </p>
+        
+        <div class="highlight-box">
+            The entropy seed undergoes a local PBKDF2 operation using HMAC-SHA512 with 2048 iterations. The resulting output yields an 88-character Base64 private key constraint and its deterministic 128-character hexadecimal public address (<span class="code-inline">AX...</span>). The private key never traverses the network payload.
+        </div>
+    </section>
+
+    <section>
+        <h2>4. The DePIN Bare-Metal Sublayer</h2>
+        <p>Software security is irrelevant if the underlying physical hardware is compromised via corporate deplatforming or BGP route hijacking. Modern L1s rely heavily on Amazon Web Services (AWS) or Google Cloud, creating centralized points of failure at OSI Layers 1 through 3.</p>
+        <p>AstraliX mandates the provisioning of Founder Nodes on proprietary, ISP-grade bare-metal racks. Direct fiber-optic backbones ensure sub-millisecond propagation of the genesis ledger across the peer network, completely decoupling the protocol from virtualized hypervisor vulnerabilities.</p>
     </section>
 
     <footer>
-        © 2026 AstraliX Foundation. Prepared for Institutional Integration.
+        © 2026 AstraliX Foundation. Engineered for the Post-Quantum Era.
     </footer>
 </body>
 </html>
