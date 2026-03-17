@@ -172,6 +172,11 @@ func main() {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, whitepaperHTML)
 	})
+    // NUEVA RUTA PARA EL TECHNICAL PAPER
+    http.HandleFunc("/tech-paper", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		fmt.Fprint(w, techPaperHTML)
+	})
 
 	port := os.Getenv("PORT")
 	if port == "" { port = "8080" }
@@ -258,8 +263,8 @@ const landingHTML = `
         .btn-blue:hover { background: #E4E4E7; transform: translateY(-2px); }
         .btn-white { background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid rgba(255,255,255,0.1); }
         .btn-white:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        .btn-dark { color: #A1A1AA; }
-        .btn-dark:hover { color: #FFF; }
+        .btn-dark { color: #A1A1AA; border: 1px solid rgba(255,255,255,0.1); }
+        .btn-dark:hover { color: #FFF; background: rgba(255,255,255,0.05); }
         
         .mockup-container { max-width: 900px; margin: 0 auto; padding: 0 6%; position: relative; perspective: 1000px; }
         .mockup-glow { position: absolute; top: 20%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 50%; background: var(--prim); filter: blur(120px); opacity: 0.15; z-index: -1; }
@@ -363,6 +368,8 @@ const landingHTML = `
         <div class="hero-btns">
             <a href="/dashboard" class="btn-p btn-blue"><i class="fas fa-terminal"></i> Launch Testnet App</a>
             <a href="#buy" class="btn-p btn-white">Apply for Node</a>
+            <a href="/whitepaper" class="btn-p btn-dark"><i class="fas fa-file-alt"></i> Read Whitepaper</a>
+            <a href="/tech-paper" class="btn-p btn-dark" style="border-color: rgba(59, 130, 246, 0.4);"><i class="fas fa-code"></i> Technical Paper</a>
         </div>
     </header>
 
@@ -803,7 +810,7 @@ const dashboardHTML = `
             const rp = await fetch("/api/balance/" + treasuryAddr);
             const dp = await rp.json(); document.getElementById("pool-txt").innerText = dp.balance.toLocaleString() + " AX";
             
-            if(document.getElementById("n-holders").classList.contains("active")) {
+            if(document.getElementById("n-holders").classList.containsactive")) {
                 renderHolders();
             }
         }
@@ -840,6 +847,63 @@ const dashboardHTML = `
         
         load(); setInterval(load, 15000);
     </script>
+</body>
+</html>
+// ==========================================
+// 📄 TECHNICAL PAPER ACADÉMICO
+// ==========================================
+const techPaperHTML = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Technical Paper | AstraliX Protocol</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;700&display=swap');
+        body { background: #f9f9f9; color: #111; font-family: 'Libre Baskerville', serif; line-height: 1.8; padding: 80px 10%; max-width: 900px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 60px; border-bottom: 2px solid #eee; padding-bottom: 40px; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; color: #000; }
+        .meta { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+        h2 { font-size: 1.6rem; margin-top: 50px; border-left: 4px solid #3B82F6; padding-left: 20px; color: #000; }
+        p { text-align: justify; margin-bottom: 20px; }
+        .math { background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 8px; font-family: 'Courier New', monospace; overflow-x: auto; margin: 30px 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        .code-inline { font-family: monospace; background: #eee; padding: 2px 5px; border-radius: 4px; }
+        footer { margin-top: 100px; padding-top: 40px; border-top: 1px solid #eee; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #999; text-align: center; }
+        .back-link { position: fixed; top: 20px; left: 20px; font-family: 'Inter', sans-serif; text-decoration: none; color: #3B82F6; font-weight: 700; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← RETURN TO DASHBOARD</a>
+    <div class="header">
+        <h1>AstraliX Protocol: 512-Bit Architecture</h1>
+        <div class="meta">Technical Specification v1.0 • Lead Architect: Denis W. • March 2026</div>
+    </div>
+
+    <section>
+        <h2>1. Cryptographic Entropy Expansion</h2>
+        <p>The core proposition of AstraliX is the migration from the industry-standard 256-bit space to a 512-bit native environment. This doubling of bit-length does not merely double security; it scales it exponentially.</p>
+        <div class="math">
+            Entropy(S) = log2(Possible States)<br>
+            Legacy 256-bit: 2^256 ≈ 1.15 x 10^77 states<br>
+            AstraliX 512-bit: 2^512 ≈ 1.34 x 10^154 states
+        </div>
+        <p>By utilizing SHA-512 for block hashing and state root derivation, the protocol establishes a search space that is immune to collision attacks even under high-qubit quantum acceleration models (Shor's Algorithm).</p>
+    </section>
+
+    <section>
+        <h2>2. High-Concurrency Consensus Engine</h2>
+        <p>AstraliX is built in native Golang to leverage its multi-threaded scheduler. The validation process is handled via <span class="code-inline">goroutines</span>, allowing the network to process the mempool asynchronously.</p>
+        <p>The state management utilizes a hybrid relational-merkle approach, ensuring that transaction finality is achieved in under 1.2 seconds while maintaining physical data persistence across DePIN nodes.</p>
+    </section>
+
+    <section>
+        <h2>3. DePIN Anchoring Strategy</h2>
+        <p>Unlike virtualized L1 protocols, AstraliX Founder Nodes are physically provisioned within Internet Service Provider (ISP) infrastructure. This physical anchoring prevents BGP hijacking and provides hardware-level DDoS mitigation, creating a sovereign network layer independent of centralized cloud providers like AWS or Azure.</p>
+    </section>
+
+    <footer>
+        © 2026 AstraliX Foundation. Prepared for Institutional Integration.
+    </footer>
 </body>
 </html>
 `
