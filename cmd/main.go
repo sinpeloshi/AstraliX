@@ -1,4 +1,11 @@
-Package main
+// ----------------------------------------------------------------------------
+// AstraliX Core Protocol (v1.0.0-alpha)
+// Official Repository: https://github.com/sinpeloshi/AstraliX
+// Website: https://astralix.network
+// 
+// Architecture: 512-bit Quantum-Resistant State Machine & P2P Engine
+// ----------------------------------------------------------------------------
+package main
 
 import (
 	"context"
@@ -22,27 +29,24 @@ var db *sql.DB
 
 const TREASURY_POOL_ADDR = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158"
 
-// 🛡️ LISTA NEGRA DE DIRECCIONES (ACCESO RESTRINGIDO A NIVEL DE PROTOCOLO)
-var Blacklist = map[string]bool{
-	"AXaadcc656dffb1a2c6a86d7cbb9a3ad04e5c278fe17171ea30021e6b49aae98021b5aa570d829aaf5b5a492238ca30152e5c3ed09dfe42843dd6fe45049486758": true,
-}
-
 // ==========================================
-// ⚙️ MOTOR BLOCKCHAIN (PRO CORE)
+// CORE BLOCKCHAIN ENGINE
 // ==========================================
 
 func initDB() {
 	connStr := os.Getenv("DATABASE_URL")
-	if connStr == "" { log.Fatal("❌ ERROR: DATABASE_URL vacía.") }
+	if connStr == "" { log.Fatal("FATAL: DATABASE_URL environment variable is missing.") }
 	var err error
 	db, err = sql.Open("postgres", connStr)
-	if err != nil { log.Fatal("❌ ERROR de Driver:", err) }
+	if err != nil { log.Fatal("FATAL: Database driver initialization failed:", err) }
+	
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	err = db.PingContext(ctx)
-	if err != nil { log.Fatal("❌ ERROR de conexión a la DB:", err) }
+	if err != nil { log.Fatal("FATAL: Database connection timeout:", err) }
+	
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS chain_state (id INT PRIMARY KEY, data TEXT)`)
-	if err != nil { log.Fatal("❌ ERROR creando tablas:", err) }
+	if err != nil { log.Fatal("FATAL: Failed to initialize ledger schema:", err) }
 }
 
 func loadChain() {
@@ -54,7 +58,7 @@ func loadChain() {
 func saveChain() {
 	data, _ := json.Marshal(Blockchain)
 	_, err := db.Exec(`INSERT INTO chain_state (id, data) VALUES (1, $1) ON CONFLICT (id) DO UPDATE SET data = EXCLUDED.data`, string(data))
-	if err != nil { log.Println("❌ Error guardando:", err) }
+	if err != nil { log.Println("ERROR: State persistence failed:", err) }
 }
 
 func getBalance(addr string) float64 {
@@ -71,10 +75,13 @@ func getBalance(addr string) float64 {
 func main() {
 	initDB()
 	loadChain()
+	
+	// CONSENSUS PARAMETERS
 	const Difficulty = 4
 	rootAddr := "AXec99e78875c95208706ae0be9b90ca7774bdbf458ebefc4307b66d5426385aefc91b072a68e6d567cfb371d01892d892e51c82113de5644ba4f6a973b7db345d"
 
 	if len(Blockchain) == 0 {
+		// GENESIS BLOCK INITIALIZATION
 		genesisTx := core.Transaction{Sender: "SYSTEM", Recipient: rootAddr, Amount: 1000002021}
 		genesisTx.TxID = genesisTx.CalculateHash()
 		genesisBlock := core.Block{Index: 0, Timestamp: 1773561600, Transactions: []core.Transaction{genesisTx}, PrevHash: strings.Repeat("0", 128), Difficulty: Difficulty}
@@ -83,14 +90,17 @@ func main() {
 		saveChain()
 	}
 
+	// REST API ENDPOINTS
 	http.HandleFunc("/api/balance/", func(w http.ResponseWriter, r *http.Request) {
 		addr := strings.TrimPrefix(r.URL.Path, "/api/balance/")
 		json.NewEncoder(w).Encode(map[string]interface{}{"balance": getBalance(addr)})
 	})
+	
 	http.HandleFunc("/api/chain", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(Blockchain)
 	})
+	
 	http.HandleFunc("/api/holders", func(w http.ResponseWriter, r *http.Request) {
 		balances := make(map[string]float64)
 		for _, block := range Blockchain {
@@ -117,19 +127,14 @@ func main() {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(holders)
 	})
+	
 	http.HandleFunc("/api/mine", func(w http.ResponseWriter, r *http.Request) {
 		miner := r.URL.Query().Get("address")
-		if miner == "" || len(Mempool) == 0 { http.Error(w, "Error", 400); return }
-		
-		// 🛡️ RESTRICCIÓN DE BLACKLIST
-		if Blacklist[miner] {
-			http.Error(w, "Forbidden: This address is blacklisted for security reasons.", 403)
-			return
-		}
+		if miner == "" || len(Mempool) == 0 { http.Error(w, "Bad Request: Invalid miner address or empty mempool", 400); return }
 
-		// 🛡️ REGLA ANTI-SPAM: Requiere saldo mínimo (Stake) para validar
+		// SYBIL PROTECTION: Minimum stake requirement to prevent network spam and authorize state transitions
 		if getBalance(miner) < 500 { 
-			http.Error(w, "Unauthorized: Minimum 500 AX required to validate.", 401)
+			http.Error(w, "Unauthorized: Minimum 500 AX required to validate blocks.", 401)
 			return 
 		}
 
@@ -143,36 +148,34 @@ func main() {
 		saveChain()
 		json.NewEncoder(w).Encode(newBlock)
 	})
+	
 	http.HandleFunc("/api/transactions/new", func(w http.ResponseWriter, r *http.Request) {
 		var tx core.Transaction
 		json.NewDecoder(r.Body).Decode(&tx)
 
-		// 🛡️ RESTRICCIÓN DE BLACKLIST (Emisor o Receptor)
-		if Blacklist[tx.Sender] || Blacklist[tx.Recipient] {
-			http.Error(w, "Forbidden: One of the addresses is blacklisted.", 403)
-			return
-		}
-
-		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" { http.Error(w, "Low balance", 400); return }
+		if getBalance(tx.Sender) < tx.Amount && tx.Sender != "SYSTEM" { http.Error(w, "Insufficient balance", 400); return }
 		tx.TxID = tx.CalculateHash()
 		Mempool = append(Mempool, tx)
 		w.WriteHeader(201)
 	})
 
+	// WEB INTERFACE ROUTING
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" { http.Redirect(w, r, "/", http.StatusSeeOther); return }
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, landingHTML)
 	})
+	
 	http.HandleFunc("/dashboard", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, dashboardHTML)
 	})
+	
 	http.HandleFunc("/whitepaper", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, whitepaperHTML)
 	})
-	// RUTAS DE DOCUMENTOS
+	
 	http.HandleFunc("/tech-paper", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		fmt.Fprint(w, techPaperHTML)
@@ -184,9 +187,8 @@ func main() {
 }
 
 // ==========================================
-// 🎨 LANDING PAGE (VALLEY STYLE)
+// PRESENTATION LAYER: LANDING PAGE
 // ==========================================
-
 const landingHTML = `
 <!DOCTYPE html>
 <html lang="en">
@@ -317,6 +319,7 @@ const landingHTML = `
             <div class="nav-socials" style="display: flex; gap: 15px; align-items: center;">
                 <a href="https://x.com/XAstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fa-brands fa-x-twitter"></i></a>
                 <a href="https://t.me/AstraliXProtocol" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fa-brands fa-telegram"></i></a>
+                <a href="https://github.com/sinpeloshi/AstraliX" target="_blank" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fa-brands fa-github"></i></a>
                 <a href="mailto:info@astralix.network" style="color: var(--txt); font-size: 1.3rem; transition: 0.3s; display: inline-block;"><i class="fas fa-envelope"></i></a>
             </div>
         </div>
@@ -466,11 +469,11 @@ const landingHTML = `
                 <div style="display:flex; gap:15px; margin-top:20px;">
                     <a href="https://x.com/XAstraliX" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-x-twitter" style="font-size:1.3rem;"></i> X/Twitter</a>
                     <a href="https://t.me/AstraliXProtocol" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-telegram" style="font-size:1.3rem;"></i> Telegram</a>
-                    <a href="mailto:info@astralix.network" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fas fa-envelope" style="font-size:1.3rem;"></i> Email</a>
+                    <a href="https://github.com/sinpeloshi/AstraliX" target="_blank" style="color:#FFF; font-weight:600; display:flex; align-items:center; gap:10px; text-decoration:none;"><i class="fa-brands fa-github" style="font-size:1.3rem;"></i> GitHub</a>
                 </div>
             </div>
             <div class="f-col"><h5>Protocol</h5><a href="/whitepaper">Whitepaper</a><a href="#roadmap">Roadmap</a></div>
-            <div class="f-col"><h5>Resources</h5><a href="/dashboard">Testnet Dashboard</a><a href="https://tally.so/r/jaxlL1">Verify Node</a></div>
+            <div class="f-col"><h5>Resources</h5><a href="/dashboard">Testnet Dashboard</a><a href="https://github.com/sinpeloshi/AstraliX" target="_blank">Source Code</a></div>
         </div>
         <div style="text-align:center; margin-top:60px; color:#A1A1AA; font-size:0.8rem; opacity:0.5;">© 2026 AstraliX Foundation. Designed for Sovereign Security.</div>
     </footer>
@@ -497,12 +500,11 @@ const landingHTML = `
 `
 
 // ==========================================
-// 📄 DASHBOARD CON LOGO Y RANKING
+// PRESENTATION LAYER: DASHBOARD & EXPLORER
 // ==========================================
-
 const dashboardHTML = `
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Core | AstraliX OS</title>
@@ -512,8 +514,10 @@ const dashboardHTML = `
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400&display=swap');
         :root { --bg: #020202; --card: rgba(255,255,255,0.02); --prim: #3B82F6; --txt: #FFFFFF; --txt-m: #A1A1AA; --brd: rgba(255,255,255,0.05); }
         body { background: var(--bg); font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 120px; color: var(--txt); overflow-x: hidden; letter-spacing: -0.01em; }
-        .container { max-width: 550px; margin: 0 auto; padding: 0 5%; width: 100%; box-sizing: border-box; }
-        .header-ax { padding: 40px 0 20px; text-align: center; }
+        .container { max-width: 550px; margin: 0 auto; padding: 0 5%; width: 100%; box-sizing: border-box; position: relative; }
+        .header-ax { padding: 40px 0 20px; text-align: center; position: relative; }
+        .github-corner { position: absolute; top: 45px; right: 0; font-size: 1.5rem; color: var(--txt-m); transition: 0.3s; }
+        .github-corner:hover { color: #FFF; transform: scale(1.1); }
         .status-box { display: inline-flex; align-items: center; background: rgba(16, 185, 129, 0.1); padding: 8px 16px; border-radius: 100px; margin-top: 15px; border: 1px solid rgba(16, 185, 129, 0.2); }
         .status-dot { height: 8px; width: 8px; background: #10B981; border-radius: 50%; margin-right: 10px; box-shadow: 0 0 12px #10B981; }
         .view-ax { display: none; flex-direction: column; width: 100%; gap: 20px; margin-top: 10px; }
@@ -533,7 +537,8 @@ const dashboardHTML = `
 <body>
     <div class="container">
         <div class="header-ax">
-            <a href="/"><img src="https://iili.io/qMGLM57.jpg" style="height:55px; mix-blend-mode:screen;" alt="AstraliX Core"></a><br>
+            <a href="/"><img src="https://iili.io/qMGLM57.jpg" style="height:55px; mix-blend-mode:screen;" alt="AstraliX Core"></a>
+            <a href="https://github.com/sinpeloshi/AstraliX" target="_blank" class="github-corner"><i class="fa-brands fa-github"></i></a><br>
             <div class="status-box"><span class="status-dot"></span><span style="font-size:0.65rem; font-weight:800; color:#10B981; letter-spacing:1px;">ALPHA TESTNET ACTIVE</span></div>
         </div>
         
@@ -601,7 +606,7 @@ const dashboardHTML = `
         const words = ["alpha","bravo","cipher","delta","echo","falcon","ghost","hazard","iron","joker","knight","lunar","matrix","nexus","omega","phantom","quantum","radar","sigma","titan","ultra","vector","wolf","xray","yield","zenith","astral","block","chain","data","edge","fiber","grid","hash","index","joint","kern","link","mine","node","open","peer","root","seed","tech","unit","vault","web","zone"];
         const treasuryAddr = "AXf7ca3d5889ed99de642913af6c5630d6c491732b44180771cba042a4eb5a7109cc3ccde9e1a24d5315947415d5e592123ab90edcc4ea85415c1747fbe1684158";
         
-        let currentGeneratedSeed = []; // VARIABLE GLOBAL PARA GUARDAR LA SEMILLA
+        let currentGeneratedSeed = [];
         
         async function derive(seed) {
             const buf = new TextEncoder().encode(seed);
@@ -656,13 +661,12 @@ const dashboardHTML = `
 
         async function gen() {
             let seed = []; for(let i=0; i<24; i++) seed.push(words[Math.floor(Math.random()*words.length)]);
-            currentGeneratedSeed = seed; // GUARDAMOS LA SEMILLA GENERADA
+            currentGeneratedSeed = seed; 
             const keys = await derive(seed.join(" ")); document.getElementById("g-res").style.display = "block";
             let sH = ""; for(let i=0; i<seed.length; i++) sH += '<div style="background:rgba(0,0,0,0.5); padding:8px 12px; border-radius:8px; border:1px solid var(--brd); font-size:0.7rem; color:var(--txt-m);"><span style="color:var(--txt); margin-right:5px; font-weight:800;">'+(i+1)+'</span> '+seed[i]+'</div>';
             document.getElementById("g-seed").innerHTML = sH; document.getElementById("g-pub").innerText = keys.pub;
         }
 
-        // NUEVA FUNCIÓN PARA COPIAR AL PORTAPAPELES
         function copySeed() {
             if(currentGeneratedSeed.length > 0) {
                 const seedString = currentGeneratedSeed.join(" ");
@@ -692,10 +696,6 @@ const dashboardHTML = `
             if(!session) return alert("Vault Required. Please restore your identity first.");
             const r = await fetch("/api/mine?address=" + session.pub);
             
-            if (r.status === 403) {
-                alert("Forbidden: This address is blacklisted for security reasons.");
-                return;
-            }
             if (r.status === 401) {
                 alert("Unauthorized: Minimum 500 AX required to validate blocks.");
                 return;
@@ -711,8 +711,6 @@ const dashboardHTML = `
                 alert("Transaction Sent to Mempool!"); 
                 nav('dash'); 
                 load(); 
-            } else if (r.status === 403) {
-                alert("Forbidden: Transaction blocked by security protocols.");
             } else { 
                 alert("Transaction Failed. Check Balance."); 
             }
@@ -725,7 +723,7 @@ const dashboardHTML = `
 `
 
 // ==========================================
-// 📄 WHITEPAPER ORIGINAL (NO TOCADO)
+// STATIC RESOURCE: PROTOCOL WHITEPAPER
 // ==========================================
 const whitepaperHTML = `
 <!DOCTYPE html>
@@ -810,14 +808,14 @@ const whitepaperHTML = `
         <h2>6. Roadmap to Mainnet (April 2026)</h2>
         <p>The network is currently operating on the Alpha Testnet, allowing Founder Nodes to validate blocks and interact with the Core Dashboard. On <strong>April 2026</strong>, the protocol will undergo a Hard Genesis event, officially launching the Mainnet. All Alpha ledger balances will be migrated 1:1 to the main network.</p>
 
-        <footer>© 2026 AstraliX Foundation. Engineered in Argentina, Built for the World.</footer>
+        <footer>© 2026 AstraliX Foundation. Engineered for the World.</footer>
     </div>
 </body>
 </html>
 `
 
 // ==========================================
-// 📄 TECHNICAL PAPER ACADÉMICO (ULTRA-TECH)
+// STATIC RESOURCE: TECHNICAL SPECIFICATION
 // ==========================================
 const techPaperHTML = `
 <!DOCTYPE html>
