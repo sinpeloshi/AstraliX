@@ -52,7 +52,7 @@ Client-side derivation is non-negotiable. Private keys are derived locally using
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/sinpeloshi/AstraliX.git (https://github.com/sinpeloshi/AstraliX.git)
+git clone https://github.com/sinpeloshi/AstraliX.git
 
 # 2. Navigate to the core
 cd AstraliX
