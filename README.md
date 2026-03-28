@@ -1,4 +1,5 @@
 # AstraliX Protocol: The 512-bit Layer 1 Standard 🛡️🚀
+
 > *Engineering the world's first post-quantum, high-concurrency DePIN infrastructure.*
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/sinpeloshi/AstraliX)](https://goreportcard.com/report/github.com/sinpeloshi/AstraliX)
@@ -8,6 +9,7 @@
 ---
 
 ## 🏛️ Abstract
+
 The **AstraliX Core Protocol** is a next-generation Layer 1 blockchain engineered to solve the impending crisis of cryptographic decay. By doubling the cryptographic bit-length to a **512-bit standard**, AstraliX establishes a deterministic security moat that remains theoretically immune to both classical brute-force and quantum heuristic attacks (Shor's Algorithm mitigation).
 
 Mathematically immune. Physically anchored. Built for sovereign security.
@@ -26,35 +28,43 @@ The AstraliX node is written entirely in **Golang**, utilizing multi-threaded co
 AstraliX mitigates cloud-centralization risks by incentivizing deployment on proprietary, ISP-grade bare-metal hardware. This "Decentralized Physical Infrastructure" ensures the ledger remains independent of corporate hypervisors.
 
 ### 4. Zero-Trust Vault Protocol
-Client-side derivation is non-negotiable. Private keys are derived locally using 512-bit entropy seeds and never traverse the network payload. 
+Client-side derivation is non-negotiable. Private keys are derived locally using 512-bit entropy seeds and never traverse the network payload.
 
 ---
 
 ## 🧪 Network Status: Alpha Testnet
-- **Validated Blocks:** 4,500+ (Laboratory Phase)
-- **Consensus:** AX-BFT (Stake-to-Validate)
-- **Security:** 512-bit SHA Core
-- **Target Mainnet Launch:** April 2026
+
+* **Validated Blocks:** 4,500+ (Laboratory Phase)
+* **Consensus:** AX-BFT (Stake-to-Validate)
+* **Security:** 512-bit SHA Core
+* **Target Mainnet Launch:** April 2026
 
 ---
 
 ## 🛠️ Quick Start (For Developers)
 
 ### Prerequisites
-- Go 1.21+
-- PostgreSQL (for state persistence)
+
+* Go 1.21+
+* PostgreSQL (for state persistence)
 
 ### Running a Local Node
+
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone [https://github.com/sinpeloshi/AstraliX.git](https://github.com/sinpeloshi/AstraliX.git)
 
-# Navigate to the core
+# 2. Navigate to the core
 cd AstraliX
 
-# Set your database environment variable
+# 3. Download dependencies
+go mod download
+
+# 4. Set your database environment variable
+# Note: Ensure the database 'astralix_db' is created in your local Postgres instance first
 export DATABASE_URL="postgres://user:password@localhost:5432/astralix_db"
 
-# Build and run the node
-go build -o astralix-node main.go
+# 5. Build and run the node
+# Note: Adjust the path to main.go if it's located in a different subdirectory within cmd/
+go build -o astralix-node ./cmd/main.go
 ./astralix-node
